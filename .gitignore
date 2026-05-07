@@ -1,0 +1,31 @@
+# Local workspace modules
+/modules/
+
+# Local RAG sources and generated indexes
+/rag_sources/
+
+# Runtime outputs
+/outputs/
+/logs/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+dist/
+build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
