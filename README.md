@@ -254,6 +254,12 @@ git clone git@github.com:pauleagle/model-fit-profiler.git
 
 ### llm-router
 
+參照：
+
+```text
+https://github.com/pauleagle/llm-router
+```
+
 位置：
 
 ```text
@@ -292,6 +298,12 @@ intent + scenario + device + profiler score → model
 ---
 
 ### model-fit-profiler
+
+參照：
+
+```text
+https://github.com/pauleagle/model-fit-profiler
+```
 
 位置：
 
