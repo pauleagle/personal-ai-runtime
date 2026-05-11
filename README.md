@@ -136,6 +136,12 @@ personal-ai-runtime/
   README.md
   .gitignore
 
+  agent-playbooks/
+    README.md
+
+  agent-skills/
+    README.md
+
   docs/
     architecture.md
     roadmap.md
@@ -179,7 +185,48 @@ personal-ai-runtime/
 
 ---
 
-## 5. Local Workspace Structure
+## 5. Agent Playbooks and Skills
+
+`agent-playbooks/` 與 `agent-skills/` 用來沉澱 AI agent 的工作方式，讓一次性的提示、成功案例與任務規則逐步變成可重用、可維護的操作規範。
+
+### agent-playbooks/
+
+`agent-playbooks/` 放人類可讀的 playbook。它描述某類工作應該如何判斷、何時使用、何時不要使用、agent 需要遵守哪些 guardrails，以及可重用的標準 prompt。
+
+適合放在 playbook 的內容包含：
+
+* 從一次性 prompt 抽象出來的工作流程
+* 文件整理、發版檢查、完成檢查等跨任務規範
+* 尚未穩定到需要變成 Codex skill 的行為準則
+* 需要人類閱讀、討論、調整的 agent 作業原則
+
+### agent-skills/
+
+`agent-skills/` 放 Codex 可載入的 skill。它是從成熟 playbook 萃取出的短版、命令式執行規則，讓 agent 在特定任務中可以快速套用一致的工作流程。
+
+適合放在 skill 的內容包含：
+
+* 已經反覆使用並穩定的 playbook
+* agent 執行時需要立即遵守的步驟、限制與輸出格式
+* 可被明確觸發的任務能力，例如 changelog 標準化、playbook 轉 skill、prompt 轉 playbook
+
+### Relationship
+
+兩者的關係是：
+
+```text
+prompt / successful case / repeated rule
+    ↓
+agent-playbooks/<name>.md
+    ↓
+agent-skills/<name>/SKILL.md
+```
+
+Playbook 先保存完整意圖與脈絡；skill 只保留 agent 執行時真正需要的精簡規則。除非明確需要自動化觸發或反覆執行，新的工作習慣應先進 playbook，不急著抽成 skill。
+
+---
+
+## 6. Local Workspace Structure
 
 實際本機開發時，可以將獨立專案 clone 到 `modules/` 底下：
 
@@ -203,7 +250,7 @@ git clone git@github.com:pauleagle/model-fit-profiler.git
 
 ---
 
-## 6. Module Positioning
+## 7. Module Positioning
 
 ### llm-router
 
@@ -279,7 +326,7 @@ personal-ai-runtime/
 
 ---
 
-## 7. RAG Sources
+## 8. RAG Sources
 
 `rag_sources/` 用來放本機 RAG 資料來源。
 
@@ -325,7 +372,7 @@ templates/
 
 ---
 
-## 8. Shared Resources
+## 9. Shared Resources
 
 `shared/` 用來放未來可被多個 module 共用的資料。
 
@@ -375,7 +422,7 @@ shared/
 
 ---
 
-## 9. Outputs
+## 10. Outputs
 
 `outputs/` 用來放各 module 的執行結果。
 
@@ -400,7 +447,7 @@ llm-router
 
 ---
 
-## 10. Logs
+## 11. Logs
 
 `logs/` 用來放本機 runtime log。
 
@@ -416,7 +463,7 @@ logs/
 
 ---
 
-## 11. Recommended .gitignore
+## 12. Recommended .gitignore
 
 建議第一版 `.gitignore`：
 
@@ -462,7 +509,7 @@ Thumbs.db
 
 ---
 
-## 12. Suggested Development Phases
+## 13. Suggested Development Phases
 
 ### Phase 1: Documentation and Workspace
 
@@ -567,9 +614,9 @@ project rule patch:
 
 ---
 
-## 13. Design Principles
+## 14. Design Principles
 
-### 13.1 Local-first
+### 14.1 Local-first
 
 先讓本機工作區跑順，再決定 GitHub 是否要整併成 monorepo。
 
@@ -582,7 +629,7 @@ GitHub 獨立
 
 ---
 
-### 13.2 Module Independence
+### 14.2 Module Independence
 
 `llm-router`、`model-fit-profiler` 目前應保持獨立 repo。
 
@@ -596,7 +643,7 @@ GitHub 獨立
 
 ---
 
-### 13.3 Shared Contract First
+### 14.3 Shared Contract First
 
 在還沒有真正整併程式碼之前，先整合：
 
@@ -611,7 +658,7 @@ GitHub 獨立
 
 ---
 
-### 13.4 Rebuildable Data Should Not Be Committed
+### 14.4 Rebuildable Data Should Not Be Committed
 
 以下資料預設不 commit：
 
@@ -626,7 +673,7 @@ GitHub 獨立
 
 ---
 
-### 13.5 Governance as Feedback Loop
+### 14.5 Governance as Feedback Loop
 
 EvoMind 的定位不是單純知識庫，而是把開發經驗變成下次開發前會被讀取的規則。
 
@@ -636,7 +683,7 @@ error → root cause → solution → iron law → agent rule → next developme
 
 ---
 
-## 14. Related Repositories
+## 15. Related Repositories
 
 目前建議維持獨立 repo：
 
@@ -648,7 +695,7 @@ error → root cause → solution → iron law → agent rule → next developme
 
 ---
 
-## 15. Current Status
+## 16. Current Status
 
 目前狀態：
 
@@ -661,6 +708,7 @@ Status: Planning / Workspace Bootstrap
 * 整體架構圖
 * 本機 workspace 結構
 * RAG source 結構
+* agent playbook / skill 分層意圖
 * `llm-router` 位置
 * `model-fit-profiler` 位置
 * GitHub repo 分工策略
@@ -677,7 +725,7 @@ Status: Planning / Workspace Bootstrap
 
 ---
 
-## 16. Summary
+## 17. Summary
 
 Personal AI Runtime 是一個個人 AI 研發作業系統的雛形。
 
@@ -694,6 +742,8 @@ Personal AI Runtime 是一個個人 AI 研發作業系統的雛形。
 * `llm-router` 負責模型路由
 * `model-fit-profiler` 負責模型適性評估
 * `EvoMind` 負責從錯誤中沉澱知識與鐵律
+* `agent-playbooks` 負責保存人類可讀的 agent 工作規範
+* `agent-skills` 負責保存 Codex 可載入的精簡執行規則
 * `rag_sources` 負責提供可檢索知識來源
 * `shared` 負責逐步沉澱共用 schema、prompt、config
 
