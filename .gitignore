@@ -1,8 +1,11 @@
 # Local workspace modules
 /modules/
+/knowledge/rag-poc/
+/knowledge/rag-poc-bun-migration/
 
 # Local RAG sources and generated indexes
 /rag_sources/
+/knowledge/external-source/
 
 # Runtime outputs
 /outputs/
