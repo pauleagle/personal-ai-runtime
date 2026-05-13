@@ -1,11 +1,39 @@
 # Local workspace modules
 /modules/
-/knowledge/rag-poc/
-/knowledge/rag-poc-bun-migration/
+
+# Local PoC modules
+/poc-modules/
 
 # Local RAG sources and generated indexes
 /rag_sources/
-/knowledge/external-source/
+
+# RAG external-source workspaces: ignore raw/generated content by default,
+# but keep source manifests and empty workspace folders trackable.
+/knowledge/external-source/*
+!/knowledge/external-source/*/
+
+/knowledge/external-source/*/*
+!/knowledge/external-source/*/.gitkeep
+!/knowledge/external-source/*/RAG-SOURCE.md
+!/knowledge/external-source/*/source-manifest.md
+
+!/knowledge/external-source/*/raw/
+!/knowledge/external-source/*/normalized/
+!/knowledge/external-source/*/chunks/
+!/knowledge/external-source/*/index-metadata/
+!/knowledge/external-source/*/quarantine/
+
+/knowledge/external-source/*/raw/*
+/knowledge/external-source/*/normalized/*
+/knowledge/external-source/*/chunks/*
+/knowledge/external-source/*/index-metadata/*
+/knowledge/external-source/*/quarantine/*
+
+!/knowledge/external-source/*/raw/.gitkeep
+!/knowledge/external-source/*/normalized/.gitkeep
+!/knowledge/external-source/*/chunks/.gitkeep
+!/knowledge/external-source/*/index-metadata/.gitkeep
+!/knowledge/external-source/*/quarantine/.gitkeep
 
 # External source upstream clones
 /external-source/*/upstream/clone/*
