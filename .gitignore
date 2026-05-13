@@ -7,6 +7,10 @@
 /rag_sources/
 /knowledge/external-source/
 
+# External source upstream clones
+/external-source/*/upstream/*
+!/external-source/*/upstream/.gitkeep
+
 # Runtime outputs
 /outputs/
 /logs/
