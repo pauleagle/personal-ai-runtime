@@ -58,6 +58,7 @@ Status follows the definitions in `agent-playbooks/README.md`.
 | `changelog-normalization/` | `changelog-normalization.md` | `aligned` | Normalize changelog drafts or mixed notes into stable release history. |
 | `playbook-to-skill/` | `playbook-to-skill.md` | `aligned` | Extract human-readable playbooks into concise, command-oriented Codex skills. |
 | `prompt-to-playbook/` | `prompt-to-playbook.md` | `aligned` | Generalize one-off prompts, successful examples, or repeated instructions into maintainable playbooks. |
+| `utf8-traditional-chinese-defaults/` | `utf8-traditional-chinese-defaults.md` | `skill-extracted` | Default text work to UTF-8, prefer Traditional Chinese for Chinese output, and use explicit UTF-8 encoding for PowerShell text I/O. |
 
 ## Naming
 
