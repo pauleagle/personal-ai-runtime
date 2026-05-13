@@ -98,6 +98,7 @@ Skill 不應只是複製 playbook 全文。若 playbook 有背景說明、設計
 | `changelog-normalization.md` | `changelog-normalization/` | `aligned` | 將 changelog 草稿或混合紀錄整理成穩定 release history |
 | `playbook-to-skill.md` | `playbook-to-skill/` | `aligned` | 將人類可讀 playbook 萃取成短版、命令式 Codex skill |
 | `prompt-to-playbook.md` | `prompt-to-playbook/` | `aligned` | 將一次性 prompt、成功案例或重複任務指令整理成可維護 playbook |
+| `external-source-to-playbook.md` | - | `draft` | 將 `external-source/` 中的外部來源整理成帶有來源、license 與 attribution 資訊的 playbook |
 | `release-preflight.md` | - | `draft` | 發版、tag、README、CHANGELOG 與 Git 狀態檢查流程 |
 | `utf8-traditional-chinese-defaults.md` | `utf8-traditional-chinese-defaults/` | `skill-extracted` | 文件讀寫預設 UTF-8、繁體中文優先，並在 PowerShell 文字輸出時明確使用 `-Encoding UTF8` |
 
