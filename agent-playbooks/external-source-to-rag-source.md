@@ -2,21 +2,22 @@
 
 ## 目的
 
-External Source To RAG Source 是將 `external-source/<source-name>/` 中已確認來源與授權脈絡的外部材料，轉成 `knowledge/external-source/<source-name>/` RAG ingestion workspace 的流程。
+External Source To RAG Source 是將外部材料建立成 `knowledge/external-source/<source-name>/` RAG ingestion workspace 的流程。
 
 它的重點不是萃取 playbook 或 skill，而是建立可追蹤、可驗證、帶有 rights / license manifest 的 RAG raw source、normalized source、chunks 與 indexing metadata。
 
 ## 核心原則
 
-`external-source/` 是來源登記與 provenance truth。`knowledge/external-source/` 是 RAG materialization 與 ingestion workspace。
+RAG external source 的來源登記、provenance、source links、license、rights、retrieval time、processing method 與 usage scope 都應寫在 `knowledge/external-source/<source-name>/` 內。
+
+`knowledge/external-source/` 是 RAG source 的唯一工作區與 provenance truth。agent 不應為 RAG-only source 另建 `external-source/<source-name>/` registry stub。
 
 RAG source 不應只有內容檔案；每批資料都應帶有來源、license、retrieval time、processing method、usage scope 與 redistribution 限制。
 
-若授權不明，內容不應進入正式 RAG index。可以先放入 quarantine 或停在 external-source 層等待確認。
+若授權不明，內容不應進入正式 RAG index。可以先放入 `knowledge/external-source/<source-name>/quarantine/`，或只建立 manifest 等待確認。
 
 ## 適用時機
 
-- `external-source/<source-name>/` 已有來源連結、license 或授權狀態
 - 需要把 external source 轉成 RAG raw source
 - 需要建立 `knowledge/external-source/<source-name>/` ingestion workspace
 - 需要保留 raw、normalized、chunks、index metadata 的處理脈絡
@@ -35,6 +36,8 @@ RAG source 不應只有內容檔案；每批資料都應帶有來源、license�
 ```text
 knowledge/external-source/<source-name>/
 ├─ README.md
+├─ source-links.md
+├─ LICENSE-<source-name>.md
 ├─ source-manifest.md
 ├─ raw/
 │  └─ .gitkeep
@@ -50,6 +53,10 @@ knowledge/external-source/<source-name>/
 
 目錄語意：
 
+- `README.md`：說明此 RAG source 與 ingestion workspace 的用途、狀態與使用範圍
+- `source-links.md`：記錄原始來源、文件、授權、retrieval URL 與相關參考
+- `LICENSE-<source-name>.md`：記錄授權摘要、原始 license 位置與 attribution 注意事項
+- `source-manifest.md`：RAG source 的 provenance、rights、processing 與 indexing 狀態
 - `raw/`：RAG pipeline 要處理的原始輸入副本或指向原始檔的 manifest
 - `normalized/`：清洗、轉格式、去噪後的內容
 - `chunks/`：切片後的文本與 chunk metadata
@@ -68,13 +75,14 @@ knowledge/external-source/<source-name>/
 ## Source
 
 - Source name:
-- External source registry:
 - Original URL:
 - Original author / project:
 - License:
 - License file:
 - Retrieved at:
 - Stored from:
+- Source links file:
+- License notice file:
 
 ## Processing
 
@@ -126,15 +134,17 @@ knowledge/external-source/<source-name>/
 
 ## 工作流程
 
-### 1. 檢查 external-source 登記
+### 1. 收集來源與授權資訊
 
-agent 應先檢查：
+agent 應先確認並記錄：
 
-- `external-source/<source-name>/README.md`
-- `external-source/<source-name>/source-links.md`
-- `external-source/<source-name>/LICENSE-<source-name>.md`
-- `external-source/<source-name>/notes/open-questions.md`
-- `external-source/<source-name>/upstream/`
+- 原始來源 URL
+- 原始作者或專案名稱
+- retrieval time 或本機已存在來源的狀態
+- license 檔案位置與授權摘要
+- RAG 使用範圍、redistribution 限制與 attribution 需求
+
+若這些資訊來自既有 `external-source/<source-name>/`，agent 可以讀取作為輸入，但不應為 RAG-only source 新增或更新 `external-source/<source-name>/`。需要保留的資訊應複寫或整理到 `knowledge/external-source/<source-name>/` 內。
 
 若 license 或 reuse scope 尚未確認，應先建立 manifest 或 quarantine 記錄，不應進入正式 indexing。
 
@@ -142,16 +152,17 @@ agent 應先檢查：
 
 agent 應建立 `knowledge/external-source/<source-name>/` 與建議結構。
 
-`README.md` 應回指來源登記：
+`README.md` 應直接記錄 RAG source 的來源與使用範圍：
 
 ```md
 # <source-name> RAG Source
 
-## Source Registry
+## Source
 
-- External source: `external-source/<source-name>/`
-- Source links: `external-source/<source-name>/source-links.md`
-- License notice: `external-source/<source-name>/LICENSE-<source-name>.md`
+- Original source:
+- Source links: `source-links.md`
+- License notice: `LICENSE-<source-name>.md`
+- Source manifest: `source-manifest.md`
 
 ## Usage Scope
 
@@ -189,22 +200,26 @@ index metadata 應記錄：
 
 ## Agent 行為規則
 
-agent 不應把 `external-source/upstream` 直接當作 RAG index 的唯一來源，而不建立 manifest。
+agent 不應為 RAG-only source 建立 `external-source/<source-name>/`。
+
+agent 不應把 `external-source/upstream` 直接當作 RAG index 的唯一來源，而不建立 `knowledge/external-source/<source-name>/source-manifest.md`。
 
 agent 不應在 license unknown 時產生正式 chunks 或 indexing output。
 
 agent 不應把 private repo raw、normalized 或 chunks 放入會被公開提交的路徑，除非使用者確認允許。
 
-agent 應保留從 RAG source 回到 `external-source/<source-name>/` 的引用。
+agent 應將 RAG source 需要的 provenance、source links、license notice、rights 與 processing status 寫入 `knowledge/external-source/<source-name>/`。
+
+若既有 `external-source/<source-name>/` 已存在且含有來源資訊，agent 可以在 `source-manifest.md` 的 notes 中記錄「derived from existing external-source registry」，但不應要求該 registry 存在，也不應為此流程補建 registry stub。
 
 若使用者要求忽略 license 或 attribution，agent 應拒絕該部分並改用 manifest / quarantine 流程。
 
 ## 標準 Prompt
 
-請協助將以下 external source 轉成 RAG source workspace：
+請協助將以下 external source 建立成 RAG source workspace：
 
 ```text
-external-source/<source-name>/
+<source-url-or-local-source-path>
 ```
 
 請建立或更新：
@@ -213,15 +228,17 @@ external-source/<source-name>/
 knowledge/external-source/<source-name>/
 ```
 
-請先檢查 source-links、license notice、open questions 與 upstream 狀態。建立 `source-manifest.md`，明確記錄 rights / license / attribution / processing status。
+請把 source links、license notice、rights、attribution、retrieval time、processing status 與 RAG usage scope 都記錄在 `knowledge/external-source/<source-name>/`。不要為 RAG-only source 建立 `external-source/<source-name>/`。
+
+請建立 `README.md`、`source-links.md`、`LICENSE-<source-name>.md`、`source-manifest.md` 與 raw / normalized / chunks / index-metadata / quarantine 結構。
 
 若 license 或 reuse scope 不明，請不要產生正式 chunks 或 indexing output；改放 quarantine 或只建立 manifest，並回報阻塞原因。
 
 ## 建議輸出格式
 
-### Source Registry
+### Source
 
-- External source:
+- Original source:
 - Source links:
 - License notice:
 
