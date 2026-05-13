@@ -8,7 +8,7 @@ External Source Repo Import 是將外部 Git repository URL 匯入 `external-sou
 
 ## 核心原則
 
-外部 repo 應先被隔離在 `external-source/<source-name>/upstream/<repo-name>/`，不應直接混入本專案核心目錄。
+外部 repo 應先被隔離在 `external-source/<source-name>/upstream/clone/<repo-name>/`，不應直接混入本專案核心目錄。
 
 正式目錄應在確認 clone 可行後才建立。若 clone 前置檢查或 clone 本身失敗，agent 應停止並回報原因，不留下半套來源工作區。
 
@@ -50,7 +50,7 @@ agent 應檢查：
 - `git` 是否可用
 - `external-source/README.md` 是否存在
 - `external-source/<source-name>/` 是否已存在
-- `external-source/<source-name>/upstream/<repo-name>/` 是否已存在
+- `external-source/<source-name>/upstream/clone/<repo-name>/` 是否已存在
 
 若目標目錄已存在且非空，應停止並詢問使用者如何處理。
 
@@ -119,8 +119,9 @@ external-source/<source-name>/
 │  ├─ checklist.md
 │  └─ .gitkeep
 └─ upstream/
-   └─ <repo-name>/
-      └─ 原始 clone 內容
+   └─ clone/
+      └─ <repo-name>/
+         └─ 原始 clone 內容
 ```
 
 若 upstream 找不到 license 檔，可以不建立 `LICENSE-<source-name>.md`，並在 `source-links.md` 標記 license 尚未確認。
@@ -163,11 +164,12 @@ agent 應確認根目錄 `.gitignore` 包含 upstream ignore 規則：
 
 ```gitignore
 # External source upstream clones
-/external-source/*/upstream/*
+/external-source/*/upstream/clone/*
 !/external-source/*/upstream/.gitkeep
+!/external-source/*/upstream/clone/.gitkeep
 ```
 
-這個規則應避免 upstream clone 的大量原始檔被本 repo 追蹤，同時保留整理用目錄結構。
+這個規則應避免 upstream clone 的大量原始檔被本 repo 追蹤，同時保留整理用目錄結構。`upstream/` 仍可容納其他 acquisition method，例如 `crawl/` 或 `snapshot/`，不應被 clone ignore 規則整個排除。
 
 ### 9. 驗證
 
@@ -213,7 +215,7 @@ agent 不應把 upstream repo 內容複製到 `notes/` 或 `extracted/`；這些
 
 請先確認 `git ls-remote` 或等價檢查可成功；若無法確認或 clone 失敗，請停止並回報，不要建立半套目錄。
 
-clone 成功後，請建立 README、source-links、notes、extracted、upstream 結構與 `.gitkeep`，掃描 license，並同步確認根目錄 `.gitignore` 已排除 `/external-source/*/upstream/*`。
+clone 成功後，請建立 README、source-links、notes、extracted、`upstream/clone` 結構與 `.gitkeep`，掃描 license，並同步確認根目錄 `.gitignore` 已排除 `/external-source/*/upstream/clone/*`。
 
 ## 建議輸出格式
 

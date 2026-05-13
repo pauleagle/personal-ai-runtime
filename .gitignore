@@ -8,8 +8,9 @@
 /knowledge/external-source/
 
 # External source upstream clones
-/external-source/*/upstream/*
+/external-source/*/upstream/clone/*
 !/external-source/*/upstream/.gitkeep
+!/external-source/*/upstream/clone/.gitkeep
 
 # Runtime outputs
 /outputs/

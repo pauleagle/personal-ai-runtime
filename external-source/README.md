@@ -50,8 +50,9 @@ external-source/
    │  ├─ concepts.md
    │  └─ checklist.md
    └─ upstream/
-      └─ <upstream-project>/
-         └─ ...
+      └─ clone/
+         └─ <upstream-project>/
+            └─ ...
 ```
 
 範例：
@@ -65,8 +66,9 @@ personal-ai-runtime/
       ├─ notes/
       ├─ extracted/
       └─ upstream/
-         └─ WFGY/
-            └─ ...
+         └─ clone/
+            └─ WFGY/
+               └─ ...
 ```
 
 如果需要保留 license 或 attribution，可放在來源資料夾根目錄，例如：
@@ -80,6 +82,7 @@ external-source/
    ├─ notes/
    ├─ extracted/
    └─ upstream/
+      └─ clone/
 ```
 
 ---
@@ -157,14 +160,16 @@ external-source/
 
 ### `upstream/`
 
-放置未改寫的原始來源內容，例如 git clone、下載的原始文件或第三方 repo snapshot。
+放置未改寫的原始來源內容，例如 git clone、crawl 結果、下載的原始文件或第三方 snapshot。
 
 建議規則：
 
-- `upstream/` 底下維持原始專案自己的目錄結構
+- `upstream/clone/` 放完整 Git repo clone
+- `upstream/crawl/` 可放網站或文件 crawl 結果
+- `upstream/snapshot/` 可放單次保存的文章、PDF、頁面或資料集
 - 不在 `upstream/` 內直接寫本專案整理筆記
 - 本專案的理解、萃取、轉換結果放在 `notes/` 或 `extracted/`
-- 若原始來源需要更新，優先更新 `upstream/<upstream-project>/`
+- 若 Git repo 來源需要更新，優先更新 `upstream/clone/<upstream-project>/`
 
 ---
 
@@ -333,7 +338,7 @@ Original copyright and license notices belong to the original project.
 
 ## Example: WFGY
 
-WFGY 可以用一個來源工作區包起來，原始 clone 放在 `upstream/WFGY/`：
+WFGY 可以用一個來源工作區包起來，原始 clone 放在 `upstream/clone/WFGY/`：
 
 ```text
 external-source/WFGY/
@@ -354,8 +359,9 @@ personal-ai-runtime/
       │  ├─ problem-map.md
       │  └─ goal-compiler.md
       └─ upstream/
-         └─ WFGY/
-            └─ ... 原始 clone 內容
+         └─ clone/
+            └─ WFGY/
+               └─ ... 原始 clone 內容
 ```
 
 後續可能萃取成：
