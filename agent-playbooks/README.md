@@ -92,7 +92,7 @@ Skill 不應只是複製 playbook 全文。若 playbook 有背景說明、設計
 
 | Playbook | Skill | 狀態 | 說明 |
 |---|---|---|---|
-| `preflight-protocol.md` | `preflight-protocol/` | `skill-extracted` | 任務開始前的理解、假設、不確定處、風險與下一步檢查 |
+| `preflight-protocol.md` | `preflight-protocol/` | `aligned` | 任務開始前的理解、假設、不確定處、風險與下一步檢查 |
 | `scope-control.md` | - | `draft` | 執行中控制任務範圍，避免未要求功能與過度修改 |
 | `completion-check.md` | - | `draft` | 完成後根據成功標準驗收結果並回報殘餘風險 |
 | `changelog-normalization.md` | `changelog-normalization/` | `aligned` | 將 changelog 草稿或混合紀錄整理成穩定 release history |
@@ -102,7 +102,7 @@ Skill 不應只是複製 playbook 全文。若 playbook 有背景說明、設計
 | `external-source-repo-import.md` | - | `draft` | 將外部 Git repository 匯入 `external-source/`，建立 metadata、notes、extracted、upstream 與 `.gitignore` 規則 |
 | `external-source-to-rag-source.md` | - | `draft` | 將 `external-source/` 來源轉成帶有 rights、license manifest 與處理紀錄的 RAG source workspace |
 | `release-preflight.md` | - | `draft` | 發版、tag、README、CHANGELOG 與 Git 狀態檢查流程 |
-| `utf8-traditional-chinese-defaults.md` | `utf8-traditional-chinese-defaults/` | `skill-extracted` | 文件讀寫預設 UTF-8、繁體中文優先，並在 PowerShell 文字輸出時明確使用 `-Encoding UTF8` |
+| `utf8-traditional-chinese-defaults.md` | `utf8-traditional-chinese-defaults/` | `aligned` | 文件讀寫預設 UTF-8、繁體中文優先，並在 PowerShell 文字輸出時明確使用 `-Encoding UTF8` |
 
 ## 命名
 

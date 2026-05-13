@@ -7,9 +7,7 @@ description: Run a brief preflight before complex, ambiguous, risky, multi-step,
 
 ## Purpose
 
-Before starting non-trivial work, perform a short preflight check.
-
-Use this skill to reduce repeated mistakes, hidden assumptions, wrong implementation direction, and premature coding while still moving the task forward.
+Before non-trivial work, perform a short preflight check to reduce misunderstanding, hidden assumptions, premature implementation, over-editing, and wrong direction.
 
 ## When to use
 
@@ -20,6 +18,7 @@ Use this skill when the task involves any of the following:
 - Refactoring
 - Migration
 - Documentation restructuring
+- Document generation or specification writing
 - Release preparation
 - Cross-project changes
 - Agent workflow design
@@ -27,6 +26,7 @@ Use this skill when the task involves any of the following:
 - Tasks with multiple possible interpretations
 - Tasks that may affect existing behavior
 - Changes touching multiple files, data formats, public APIs, or user-visible behavior
+- Work that requires tool use, file reads, file edits, or command execution
 
 ## When not to use
 
@@ -38,15 +38,15 @@ Do not use this skill for very small, low-risk tasks, such as:
 - Small factual answer
 - Trivial formatting change
 
-## Discovery before preflight
+## Discovery Before Preflight
 
 Before outputting the preflight, read or search files when needed to understand the task. Keep this discovery read-only.
 
-Do not modify files, run destructive commands, make architecture decisions, or start implementation before the preflight.
+Do not modify files, run destructive commands, make architecture decisions, or start implementation before the preflight unless the user has explicitly skipped preflight.
 
-## Required preflight output
+## Required Preflight Output
 
-Before doing the actual task, output a concise preflight with the following sections.
+Before doing the actual task, output a concise preflight. Use all sections for high-risk or highly ambiguous tasks, and a compact version for medium-risk tasks.
 
 ### 1. Task understanding
 
@@ -80,13 +80,15 @@ State the planned next steps before execution.
 
 List files or areas that are likely to be read or modified. If no files are expected to be modified, say so.
 
-## Execution rules
+## Execution Rules
 
 - Keep the preflight brief. Use the full template for high-risk or highly ambiguous tasks.
 - For medium-risk tasks, use a compact preflight with only the meaningful bullets.
 - Do not ask for confirmation when a reasonable, low-risk assumption is available.
 - Ask the user only when an uncertainty materially changes the outcome or makes execution unsafe.
 - After the preflight, continue executing the task unless there is a blocking uncertainty.
+- If the task has two or more plausible interpretations that would change the result, ask the user before choosing one.
+- If no blocking uncertainty remains, proceed with the proposed plan after the preflight.
 
 ## Output template
 

@@ -54,11 +54,11 @@ Status follows the definitions in `agent-playbooks/README.md`.
 
 | Skill | Playbook | Status | Description |
 |---|---|---|---|
-| `preflight-protocol/` | `preflight-protocol.md` | `skill-extracted` | Check task understanding, assumptions, uncertainty, risks, next steps, and likely files before non-trivial work. |
+| `preflight-protocol/` | `preflight-protocol.md` | `aligned` | Check task understanding, assumptions, uncertainty, risks, next steps, and likely files before non-trivial work. |
 | `changelog-normalization/` | `changelog-normalization.md` | `aligned` | Normalize changelog drafts or mixed notes into stable release history. |
 | `playbook-to-skill/` | `playbook-to-skill.md` | `aligned` | Extract human-readable playbooks into concise, command-oriented Codex skills. |
 | `prompt-to-playbook/` | `prompt-to-playbook.md` | `aligned` | Generalize one-off prompts, successful examples, or repeated instructions into maintainable playbooks. |
-| `utf8-traditional-chinese-defaults/` | `utf8-traditional-chinese-defaults.md` | `skill-extracted` | Default text work to UTF-8, prefer Traditional Chinese for Chinese output, and use explicit UTF-8 encoding for PowerShell text I/O. |
+| `utf8-traditional-chinese-defaults/` | `utf8-traditional-chinese-defaults.md` | `aligned` | Default text work to UTF-8, prefer Traditional Chinese for Chinese output, and use explicit UTF-8 encoding for PowerShell text I/O. |
 
 ## Naming
 
