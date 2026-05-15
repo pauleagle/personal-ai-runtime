@@ -158,6 +158,8 @@ agent 應在 upstream repo 中搜尋常見 license 檔：
 
 若找不到，應在 `source-links.md` 或 `open-questions.md` 標記 `License: Unknown / not found yet`。
 
+同時應留下輕量提醒：未找到標準 license 檔不代表沒有版權、授權或重用限制。後續可檢查可能包含限制的其他位置，例如 `AGENTS.md`、`CLAUDE.md`、`.cursor/rules/`、`README.md`、`NOTICE`、`TERMS`、`docs/` 或檔案註解。若需要進一步補查，建議執行 `agent-playbooks/external-source-copyright-notice-review.md`。
+
 ### 8. `.gitignore` 同步
 
 agent 應確認根目錄 `.gitignore` 包含 upstream ignore 規則：
