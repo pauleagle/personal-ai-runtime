@@ -591,6 +591,82 @@ Deferred / Non-goal Notes:
 - 如果 item 同時跨多個 workflow slice，應拆小或標記 dependency。
 - 如果 item 需要 human 決定 correctness，應先列為 open question，不應直接進 implementation。
 
+#### P0-00 / Bootstrap Prerequisite Items
+
+拆 atomic items 時，agent 應檢查 selected workflow 是否需要先建立不可避免的前置基礎。
+
+若第一個功能 atomic item 需要以下條件才可 TDD 或驗證，應先拆出 `P0-00` 類型的 bootstrap item：
+
+- project scaffold，例如 package layout、entry point、基本目錄結構
+- test scaffold，例如 test runner、fixture 目錄、最小測試載入方式
+- repo housekeeping，例如 `.gitignore`、nested module repo 初始化檢查
+- tool config，例如 `pyproject.toml`、formatter / linter / test config
+- shared test helper 或 domain-neutral validation helper
+
+`P0-00` 的限制：
+
+- 只能建立 selected workflow 實作所需的最小基礎。
+- 不應混入真正的 domain behavior。
+- 不應提前實作尚未被 human 選定的 workflow。
+- 必須仍可被驗證，例如 test runner 能執行、package 能 import、ignore 規則能排除執行產物。
+- 若 scaffold 決策會影響長期架構或 dependency policy，應列為 gap，提出建議給 human decision。
+
+建議格式：
+
+```text
+Item ID: P0-00
+Workflow:
+Spec Reference:
+Purpose: Establish minimal scaffold required to TDD the selected workflow.
+Input / Preconditions:
+Expected Output:
+Validation / Test Hook:
+Dependencies:
+Deferred / Non-goal Notes:
+```
+
+#### Atomic Item Verification Loop
+
+當 selected workflow 已拆成 atomic items 後，後續 implementation 應以 atomic item 為單位循環：
+
+```text
+for each atomic item:
+  TDD implement
+  -> diff / intent / impact analysis
+  -> focused JIT tests
+  -> baseline tests
+  -> mutation review
+  -> gap analysis
+
+  if gap found:
+    list gaps
+    classify gap
+    propose options and recommendation
+    request human decision when correctness is ambiguous
+    update spec / tests / implementation
+    rerun relevant verification
+
+  if no gap found:
+    mark atomic item complete
+    continue to next atomic item
+```
+
+Gap 分類：
+
+- spec gap：correctness 尚未定義或 spec 與實作需求不一致
+- test gap：spec 已定義，但缺少能驗證該行為的 test
+- implementation issue：code 不符合 spec 或 test expectation
+- equivalent / irrelevant mutation：mutation 不代表有意義的行為差異
+- workflow gap：atomic item 太大、dependency 未定義或 selected workflow 需要重切
+
+Human decision 原則：
+
+- 發現 gap 時，agent 必須列出 gap 與初步建議，不應自行硬猜 correctness。
+- 若 gap 涉及 ambiguous behavior、breaking change、scope change 或 spec evolution，必須停下來等待 human decision。
+- 若 gap 是明確的 test gap 或 implementation issue，且 spec 已經定義 correctness，agent 可以直接補 test / code 並重跑 verification。
+- 若沒有 gap，agent 不需要等待 human approval，應繼續下一個 atomic item，直到 selected workflow 或 phase 完成。
+- 當 selected workflow / phase 的 atomic items 全部完成且沒有 remaining meaningful gap，進入 phase-level decision proposal。
+
 ---
 
 ### Step 5 — Spec-Based Test Design
@@ -760,6 +836,19 @@ mutation survived -> validation gap
 - 是否 implementation 與 spec 不一致？
 - 是否 mutation 本身不合理？
 
+若 gap found：
+
+- 列出 gap
+- 分類為 spec gap / test gap / implementation issue / equivalent mutation / workflow gap
+- 提出 options 與 recommended option
+- 只有 correctness ambiguous 或需要 spec evolution 時，才要求 human decision
+
+若 no gap found：
+
+- 標記目前 atomic item 的 verification complete
+- 繼續下一個 atomic item
+- 不需要讓 human 手動確認每個低階驗證步驟
+
 ---
 
 ### Step 14 — Decision Proposal
@@ -779,6 +868,7 @@ Verification Result:
 - tests passed / failed
 - mutation killed / survived
 - remaining gaps
+- atomic item complete / blocked
 
 Options:
 1. Accept change
@@ -786,6 +876,7 @@ Options:
 3. Reject change
 4. Refine tests
 5. Split change into smaller PRs
+6. Continue to next atomic item
 
 Recommended Option:
 - reason
@@ -1103,7 +1194,11 @@ Output：
 - candidate workflow slices
 - human-selected workflow
 - atomic implementation items
+- bootstrap prerequisite items such as `P0-00`
 - item-to-spec traceability
+- atomic item verification loop
+- gap classification
+- gap/no-gap continuation decision
 - deferred items
 - spec gaps / open questions
 
