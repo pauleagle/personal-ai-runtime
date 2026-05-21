@@ -386,6 +386,104 @@ Draft spec 應包含：
 - acceptance criteria
 - testing implications
 
+#### Spec 文件落點與 README 分工
+
+一般原則：
+
+> README 是入口，Spec 是 correctness contract。
+
+README 適合放：
+
+- 這個專案 / module 是什麼
+- 為什麼存在
+- 快速開始或基本使用方式
+- 高階流程與架構概念
+- 預期目錄結構
+- roadmap / version direction
+- 指向正式 spec 的連結
+
+正式 spec 建議另外放，例如：
+
+```text
+<project>/
+├─ README.md
+├─ SPEC.md
+└─ docs/
+   ├─ v0.1.0-spec.md
+   ├─ config-schema.md
+   └─ export-format.md
+```
+
+建議規則：
+
+- 小型或早期 module 可先使用 `SPEC.md` 作為目前目標版本的正式規格。
+- 當同時維護多個版本、資料格式或外部 contract 時，再拆成 `docs/vX.Y.Z-spec.md`、`docs/config-schema.md`、`docs/export-format.md` 等文件。
+- README 可以摘要 spec，但不應成為完整 correctness 來源。
+- 若 README 與 SPEC 對行為描述衝突，規格判斷應以 SPEC 為準，並回頭修正 README 摘要。
+- 當 README 開始包含 input/output contract、acceptance criteria、error conditions 或 test matrix 時，通常代表應該把這些內容提升到正式 spec。
+
+#### 建議 Spec 格式
+
+建議用以下格式產生 `SPEC.md` 或版本化 spec：
+
+```md
+# <Project / Module Name> Spec
+
+## 規格狀態
+
+- 目標版本：
+- 規格狀態：Draft / Revised / Accepted / Deprecated
+- 最後更新：
+
+## 脈絡
+
+說明這個功能或 module 為什麼存在、使用者是誰、它解決什麼問題。
+
+## 目標
+
+定義這個版本要達成的行為與主要 correctness question。
+
+## 範圍
+
+列出本版本必須包含的功能、資料流、整合點或可觀察行為。
+
+## 非目標
+
+列出本版本明確不處理的項目，避免 scope creep。
+
+## 輸入
+
+定義 config、CLI args、API payload、檔案格式、使用者操作或外部依賴。
+
+## 輸出
+
+定義檔案、資料夾、API response、事件、log、metadata 或狀態變化。
+
+## 業務規則
+
+列出必須成立的 domain rules、流程規則、資料轉換規則與相容性要求。
+
+## 不變條件
+
+列出實作前後都必須保持成立的 invariant。
+
+## 錯誤條件
+
+列出 invalid input、外部失敗、衝突狀態、權限問題與 expected failure behavior。
+
+## Acceptance Criteria
+
+用 AC-01、AC-02 等條列可驗證的完成條件。
+
+## Testing Implications
+
+列出 test matrix，讓每個 test case trace back 到 spec reference。
+
+## Open Questions
+
+列出仍需 human decision 的 ambiguity、未定義行為或未來版本問題。
+```
+
 ---
 
 ### Step 3 — Devil's Advocate Review
@@ -898,15 +996,22 @@ Output：
 用途：
 
 - 將需求整理成正式 spec
+- 判斷 README 與正式 spec 的文件分工
+- 產生可實作、可測試、可追蹤的 spec 格式
 
 Output：
 
+- recommended spec location
 - scope
 - non-goals
+- inputs
+- outputs
 - rules
 - invariants
 - error conditions
 - acceptance criteria
+- testing implications
+- open questions
 
 ---
 
