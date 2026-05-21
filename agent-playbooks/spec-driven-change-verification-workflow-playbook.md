@@ -290,6 +290,8 @@ Mutation testing 告訴你：
    ↓
 4. Revised Spec
    ↓
+4.5 Workflow Decomposition / Atomic Work Items
+   ↓
 5. Spec-Based Test Design
    ↓
 6. Implementation
@@ -525,6 +527,69 @@ README 適合放：
 可追蹤
 可審查
 ```
+
+---
+
+### Step 4.5 — Workflow Decomposition / Atomic Work Items
+
+在 revised spec 之後、test design 與 implementation 之前，先把主工作流拆成可討論的 workflow slices。
+
+此階段分兩層：
+
+```text
+main workflow
+  -> workflow slices
+  -> selected workflow
+  -> atomic implementation items
+```
+
+目前規則：
+
+- 先由 agent 根據 spec 拆出主工作流與候選 workflow slices。
+- 暫時由 human 指定要優先拆解的 selected workflow。
+- Agent 只針對 human 指定的 selected workflow 拆成 atomic items。
+- Atomic items 應小到可以被單獨實作、單獨測試、單獨 review。
+- 每個 atomic item 必須 trace back 到 spec reference、business rule、acceptance criteria、error condition 或 risk item。
+- Atomic items 不應直接等同於檔案清單；它們應描述可驗證的行為或資料契約。
+- 若拆解時發現 spec 不足，應回到 Step 1 / Step 2 補 drill-down 或更新 draft spec。
+
+輸入：
+
+- revised spec
+- main workflow description
+- acceptance criteria
+- known constraints
+- human 指定的 selected workflow
+
+輸出：
+
+- main workflow map
+- candidate workflow slices
+- selected workflow
+- atomic implementation items
+- deferred items
+- spec gaps / open questions
+
+建議 atomic item 格式：
+
+```text
+Item ID:
+Workflow:
+Spec Reference:
+Purpose:
+Input / Preconditions:
+Expected Output:
+Validation / Test Hook:
+Dependencies:
+Deferred / Non-goal Notes:
+```
+
+判斷標準：
+
+- 如果 item 無法用一句話說明完成條件，通常還太大。
+- 如果 item 沒有 validation / test hook，通常還不是可驗證 atomic item。
+- 如果 item 同時跨多個 workflow slice，應拆小或標記 dependency。
+- 如果 item 需要 human 決定 correctness，應先列為 open question，不應直接進 implementation。
 
 ---
 
@@ -998,10 +1063,12 @@ Output：
 - 將需求整理成正式 spec
 - 判斷 README 與正式 spec 的文件分工
 - 產生可實作、可測試、可追蹤的 spec 格式
+- 初步標出主工作流，供後續 atomic decomposition 使用
 
 Output：
 
 - recommended spec location
+- main workflow candidates
 - scope
 - non-goals
 - inputs
@@ -1015,17 +1082,46 @@ Output：
 
 ---
 
+### 4.5. `workflow-atomic-decomposition`
+
+用途：
+
+- 將 revised spec 中的主工作流拆成 workflow slices
+- 由 human 暫時指定 selected workflow
+- 將 selected workflow 拆成可單獨實作、測試與 review 的 atomic items
+
+Trigger：
+
+- revised spec 已足夠描述主資料流或主行為流
+- 即將進入 test design 或 implementation
+- 使用者要求先拆 atomic 實作步驟
+- spec 已有 acceptance criteria，但 implementation plan 仍過大
+
+Output：
+
+- main workflow map
+- candidate workflow slices
+- human-selected workflow
+- atomic implementation items
+- item-to-spec traceability
+- deferred items
+- spec gaps / open questions
+
+---
+
 ### 5. `spec-based-test-design`
 
 用途：
 
 - 從 spec 產生 test cases
 - 確保測試能 trace back to spec
+- 優先對已拆解的 atomic items 設計測試
 
 Output：
 
 - test matrix
 - spec-to-test mapping
+- atomic-item-to-test mapping
 - edge cases
 - error cases
 
@@ -1174,6 +1270,7 @@ personal-ai-runtime/
     preflight-protocol.md
     spec-drill-down.md
     devils-advocate-review.md
+    workflow-atomic-decomposition.md
     spec-driven-change-verification-workflow.md
 
   agent-skills/
@@ -1184,6 +1281,8 @@ personal-ai-runtime/
     devils-advocate-review/
       SKILL.md
     spec-driven-change-verification/
+      SKILL.md
+    workflow-atomic-decomposition/
       SKILL.md
     spec-based-test-design/
       SKILL.md
@@ -1250,15 +1349,19 @@ LLM Runtime / Integration
 1. Preflight Protocol
 2. Spec Drill-down
 3. Devil's Advocate Review
-4. Spec-Based Test Design
-5. Diff Analysis
-6. JIT Test Suggestion
-7. Mutation Result Review
-8. Human Decision Proposal
+4. Workflow Atomic Decomposition
+5. Spec-Based Test Design
+6. Diff Analysis
+7. JIT Test Suggestion
+8. Mutation Result Review
+9. Human Decision Proposal
 ```
 
 第一階段可以先不自動生成正式 test 檔，而是讓 agent 產生：
 
+- main workflow map
+- human-selected workflow
+- atomic implementation items
 - suggested test cases
 - expected behavior
 - mutation survived interpretation
