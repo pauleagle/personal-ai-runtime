@@ -576,13 +576,49 @@ main workflow
 Item ID:
 Workflow:
 Spec Reference:
+Tier:
+Model Profile:
+Reasoning Effort:
+Atomic Prompt File:
 Purpose:
 Input / Preconditions:
 Expected Output:
+Allowed Scope:
+Forbidden Scope:
 Validation / Test Hook:
 Dependencies:
 Deferred / Non-goal Notes:
+Completion Report:
 ```
+
+#### Atomic Item Execution Metadata
+
+若 atomic items 會交給 wrapper / orchestrator 自動執行，每個 item 應提供足夠 metadata，讓自動化流程能選擇模型、鎖定 scope、載入 prompt 並收集結果。
+
+正式自動化單位不是模糊的自然語言請求，例如「做 P0-02」，而是帶有 metadata、scoped prompt、validation rules 與 completion report 的 atomic item。
+
+建議 metadata：
+
+- `id`：穩定 spec item ID，例如 `P0-02`
+- `title`：短任務名稱
+- `workflow`：所屬 selected workflow
+- `spec_refs`：對應 SPEC section、acceptance criteria、error condition 或 risk item
+- `tier`：預期難度 / 風險層級，例如 Basic、Medium、High
+- `model_profile`：邏輯模型層級，例如 `basic`、`medium`、`strong-coding`、`frontier`
+- `reasoning_effort`：`low`、`medium`、`high` 或 `xhigh`
+- `prompt_file`：atomic prompt 檔案路徑
+- `allowed_scope`：本 item 可修改的 behavior、module、file 或 test surface
+- `forbidden_scope`：明確不可順手實作的鄰近 item、future phase 或非目標
+- `validation`：必跑測試、檢查指令、mutation review 或手動驗證項
+- `completion_report`：最終回報必含欄位，例如 changed files、test results、remaining risks、completion state
+
+建議 completion states：
+
+- `complete`：實作與驗證完成，沒有 remaining meaningful gap
+- `blocked`：缺少 input、dependency、環境或 human decision，無法繼續
+- `partial`：已有變更，但 scope、測試或驗證尚未完成
+- `failed`：執行失敗，需要調查原因
+- `needs-review`：看似完成，但風險較高，需要 human 或高階模型 review
 
 判斷標準：
 
@@ -960,6 +996,80 @@ playbook step metadata
 - Mixed mode：高風險判斷用互動式 TUI / `/model`，低風險或機械步驟交給 wrapper 以 `codex exec` 執行。
 
 wrapper 啟動每個 step 時，prompt 至少應帶入 selected workflow / atomic item ID、spec reference、當前 diff 或 test artifact，以及上一輪 remaining gaps。
+
+### Execution Layer Contract
+
+此 playbook 定義 spec-driven work 如何拆解、鎖定 scope、驗證與回報；它不直接執行自動切模，也不會讓 Codex 自動解析本文件後改變模型。
+
+建議分層：
+
+```text
+SPEC.md
+  -> 定義 correctness、scope、acceptance criteria
+
+spec-driven-change-verification-workflow-playbook.md
+  -> 定義拆解、驗證、tier 與 governance policy
+
+atomic item metadata
+  -> 定義 item ID、tier、model profile、prompt file、validation、completion report
+
+wrapper / orchestrator
+  -> 讀取 metadata，選擇 model / reasoning effort，呼叫 codex exec
+
+codex exec / codex exec resume
+  -> 執行單一 atomic prompt
+```
+
+Wrapper / orchestrator 應負責：
+
+- 讀取 atomic item metadata
+- 根據 `tier` / `model_profile` / `reasoning_effort` 選擇模型與推理強度
+- 載入 atomic prompt file
+- 呼叫 `codex exec` 或 `codex exec resume`
+- 傳入 selected workflow、atomic item ID、spec refs、allowed scope、forbidden scope 與 validation requirements
+- 收集 changed files、test results、remaining risks 與 completion state
+- 必要時寫入 run note、handoff note 或 feedback，供後續 spec / playbook / skill evolution 使用
+
+Wrapper / orchestrator 不應：
+
+- 把一個 atomic item 擴大成整個 phase
+- 自行實作 forbidden scope 中的鄰近 item
+- 在缺少 spec refs 或 validation hook 時直接進入 implementation
+- 將 playbook policy 視為已經自動切換模型的保證
+
+建議 command template：
+
+```bash
+codex exec \
+  -m "$MODEL_PROFILE" \
+  -c 'model_reasoning_effort="$REASONING_EFFORT"' \
+  "$(cat "$ATOMIC_PROMPT_FILE")"
+```
+
+延續既有 session 時：
+
+```bash
+codex exec resume "$SESSION_ID" \
+  -m "$MODEL_PROFILE" \
+  -c 'model_reasoning_effort="$REASONING_EFFORT"' \
+  "$(cat "$ATOMIC_PROMPT_FILE")"
+```
+
+Resume 時必須傳入同一個 atomic item identity 與 scope constraints。已 resume 的 session 應繼續或修復同一個 atomic item，不應順手開始後續 spec item。
+
+Atomic prompt 應包含：
+
+- workflow instruction
+- target repository / module
+- target spec item
+- 必讀文件，例如 `SPEC.md` 與本 playbook
+- exact task
+- allowed scope
+- explicit non-goals / forbidden scope
+- validation requirements
+- reporting requirements
+
+Atomic prompt 應具體到 `codex exec` 可以在不猜測鄰近工作的情況下執行。形式上可以是 `codex exec "...P0-02..."`，但正式做法應是 wrapper 決定模型，prompt 檔鎖定 scope，playbook 提供驗證與治理規則。
 
 ### Tier 定義
 
