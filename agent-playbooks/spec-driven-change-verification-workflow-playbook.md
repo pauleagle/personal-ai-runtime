@@ -912,6 +912,112 @@ Human 不需要手動驗證所有細節，但必須治理 correctness。
 
 ---
 
+## Model Tier / Reasoning Effort Guidance
+
+本 workflow 可依步驟風險與認知負荷選擇不同模型層級。模型選擇不應取代 spec trace、test validation、mutation review 或 human governance；它只是成本、速度與推理深度的調度策略。
+
+### 當前 Codex 註記
+
+本段分析基準：
+
+- 使用者指定：GPT-5.5 超高推理。
+- 目前 Codex 可用模型註記中，`gpt-5.5` 被標示為適合 complex coding、research、real-world work 的 frontier model。
+- `gpt-5.5` 預設 reasoning effort 為 `medium`，支援 `low`、`medium`、`high`、`xhigh`。
+- 本文件中的 tier 建議是能力層級，不是永久綁定某個模型；未來模型清單或能力改變時，應以同等能力 tier 替換。
+
+### Codex CLI / TUI 選模方式
+
+本段 tier 註記是 workflow policy，不代表 Codex 會自動解析 playbook 並切換模型。
+
+互動式 Codex CLI / TUI：
+
+- 每個 workflow step 或 atomic item 開始前，human 可先輸入 `/model`，依本段建議切換 model / reasoning effort。
+- `/model` 是 CLI / TUI 控制指令，必須由 human 在互動介面執行；agent 在 prompt 中寫「先執行 `/model`」不會自動觸發 CLI 切換。
+- 切換後再輸入該步驟 prompt，例如要求執行指定 atomic item 的 TDD、diff / intent analysis、JIT test 或 mutation review。
+- 若模型選擇會影響判斷品質，應在 handoff / run note 中記錄該步驟使用的 tier 或 model。
+
+非互動式 Codex CLI：
+
+- 自動化流程應由 wrapper / orchestrator 根據 step metadata 呼叫 `codex exec -m <model> -c 'model_reasoning_effort="<effort>"'`。
+- 需要延續既有脈絡時，可使用 `codex exec resume <session_id> -m <model> -c 'model_reasoning_effort="<effort>"'`，並明確傳入當前 step、spec reference、diff / test artifact。
+- 也可用 `--profile` 或 `--profile-v2` 管理常用模型組合，但 playbook 註記本身仍只是 policy source。
+
+### Tier 定義
+
+```text
+High / Frontier
+  - 需要處理 ambiguity、correctness、risk、cross-module impact、spec evolution 或 human decision proposal。
+  - 建議使用 GPT-5.5 high / xhigh 或同等級模型。
+
+Medium / Strong Coding
+  - spec 已清楚、atomic item 已定義，可進行 TDD implementation、focused test design、局部 refactor。
+  - 可使用強 coding model 或 GPT-5.5 medium / high。
+
+Basic / Fast / Tooling
+  - 機械性、低風險、可由工具驗證的工作，例如 status、diff summary、test execution、formatting、simple scaffold checks。
+  - 可使用基本模型、低 reasoning effort，或直接使用 deterministic tools / scripts。
+```
+
+### Step-to-Tier 建議
+
+| Step | 動作 | 建議層級 | 原因 |
+|---|---|---|---|
+| 0 | Preflight Protocol | Medium；高模糊任務用 High | 需要辨識假設、風險與歧義 |
+| 1 | Spec Drill-down | High | 需要把模糊需求轉成 correctness candidate |
+| 2 | Draft Plan / Draft Spec | High | 會定義 scope、rules、invariants、error conditions |
+| 3 | Devil's Advocate Review | High / xhigh | 需要反方推理、找隱含假設與架構風險 |
+| 4 | Revised Spec | High | 需要整合 objections，避免 spec drift |
+| 4.5 | Workflow Decomposition / Atomic Work Items | High / xhigh 初拆；Medium 維護既有 items | 主工作流拆解與 atomic 邊界會影響後續全部實作 |
+| P0-00 類 | Bootstrap prerequisite items | Basic / Medium；架構或 dependency 決策用 High | 通常是 scaffold，但 tool/dependency policy 可能需要高階判斷 |
+| 5 | Spec-Based Test Design | Medium / High | 清楚 spec 可用 Medium；edge cases / invariants / ambiguity 用 High |
+| 6 | Implementation | Medium；跨模組或高風險用 High | atomic item 實作通常可中階完成，高 blast radius 才升級 |
+| 7 | Change Detection / Diff Analysis | Basic / Medium | 多數可工具化；大型 diff 或混合變更用 Medium |
+| 8 | Intent & Impact Analysis | Medium / High | 需要推斷變更目的與 impact set |
+| 9 | Risk & Gap Identification | High | 需要辨識 spec gap、test gap、behavior drift |
+| 10 | Meta JIT Test Generation | Medium / High | 清楚 risk item 可 Medium；新 edge cases / ambiguous behavior 用 High |
+| 11 | Test Execution | Basic / Tooling | 主要是 deterministic command execution |
+| 12 | Mutation Testing | Basic / Tooling 執行；High 解讀疑難結果 | 執行可工具化，equivalent mutation 判斷需要高階推理 |
+| 13 | Test Effectiveness Evaluation | High | 需要判斷 survived mutation 是 test gap、spec gap 還是 equivalent mutation |
+| 14 | Decision Proposal | High | 需要整理 options、recommendation、risk 與 human decision points |
+| 15 | Human Decision | Human；agent 用 High 輔助 | correctness governance 由 human 決定 |
+| 16 | Spec / Test Evolution | High for spec；Medium for tests；Basic for mechanical docs | 規格演進需要高階判斷，測試與文件整理可降階 |
+
+### 升級 / 降級規則
+
+應升級到 High / xhigh 的情境：
+
+- spec 或 correctness 不清楚
+- behavior change、breaking change、scope change
+- security、privacy、data risk
+- cross-module / cross-repo impact
+- mutation survived 且原因不明
+- JIT tests 暴露新 edge case 或 spec gap
+- 需要提出 human decision options
+
+可降級到 Basic / Medium 的情境：
+
+- atomic item 已清楚，且有 spec reference / validation hook
+- 工作是讀檔、列 diff、跑測試、格式檢查或產生機械摘要
+- 測試執行結果明確，不需要解讀 ambiguity
+- 只是在既有模板中補欄位、索引或 deterministic smoke test
+
+### 交接規則
+
+若同一 workflow 中混用不同模型層級，交接時至少保留：
+
+- selected workflow / atomic item ID
+- spec reference
+- intent
+- impact scope
+- tests executed
+- mutation / JIT result
+- remaining gaps
+- human decision status
+
+低階模型不應自行決定 correctness；若發現 ambiguity，應升級或回到 human decision。
+
+---
+
 ## Test Promotion Lifecycle
 
 Generated tests 不應直接成為 trusted tests。
