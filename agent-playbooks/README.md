@@ -103,7 +103,7 @@ Skill 不應只是複製 playbook 全文。若 playbook 有背景說明、設計
 | `external-source-repo-import.md` | - | `draft` | 將外部 Git repository 匯入 `external-source/`，建立 metadata、notes、extracted、upstream 與 `.gitignore` 規則 |
 | `external-source-copyright-notice-review.md` | - | `draft` | 補查外部來源中非標準 license 檔的版權、授權、重用與公開分享限制 notice |
 | `external-source-to-rag-source.md` | - | `draft` | 將 `external-source/` 來源轉成帶有 rights、license manifest 與處理紀錄的 RAG source workspace |
-| `nested-module-git-initialization.md` | - | `draft` | 整理 `modules/` 或 `poc-modules/` 子專案時檢查獨立 Git 邊界，必要時執行 `git init` |
+| `nested-module-git-initialization.md` | `nested-module-git-initialization/` | `skill-extracted` | 整理 `modules/` 或 `poc-modules/` 子專案時檢查獨立 Git 邊界，必要時執行 `git init` |
 | `release-preflight.md` | - | `draft` | 發版、tag、README、CHANGELOG 與 Git 狀態檢查流程 |
 | `utf8-traditional-chinese-defaults.md` | `utf8-traditional-chinese-defaults/` | `aligned` | 文件讀寫預設 UTF-8、繁體中文優先，並在 PowerShell 文字輸出時明確使用 `-Encoding UTF8` |
 
