@@ -681,7 +681,7 @@ Completion Report:
 - `workflow`：所屬 selected workflow
 - `spec_refs`：對應 SPEC section、acceptance criteria、error condition 或 risk item
 - `implementation_status`：此 atomic spec 的實作狀態，例如 `not-started`、`in-progress`、`implemented`、`verified`、`blocked` 或 `deferred`
-- `workflow_step`：此 atomic spec 目前或最後完成的 playbook step，例如 `Step 4.5`、`Step 6`、`Step 11`、`Step 12`、`Step 14`
+- `workflow_step`：此 atomic spec 下一個待執行或正在執行的 playbook step，例如 `Step 4.5`、`Step 6`、`Step 11`、`Step 12`、`Step 14`
 - `tier`：預期難度 / 風險層級，例如 Basic、Medium、High
 - `model_profile`：邏輯模型層級，例如 `basic`、`medium`、`strong-coding`、`frontier`
 - `reasoning_effort`：`low`、`medium`、`high` 或 `xhigh`
@@ -700,7 +700,20 @@ Completion Report:
 - `blocked`：缺少 input、dependency、環境或 human decision，無法繼續
 - `deferred`：已明確延後，不屬於目前 selected workflow / phase
 
-`workflow_step` 應標記目前所在或最後完成的流程步驟，並使用本文件的 step number。若 item 已完成實作但尚未跑完測試，可標記為 `Step 6 - Implementation`；若 baseline tests 已通過但尚未做 mutation review，可標記為 `Step 11 - Test Execution`。這個欄位應隨每輪 verification loop 更新，不應只在初拆時填一次。
+`workflow_step` 應標記下一個待執行或正在執行的流程步驟，並使用本文件的 step number。它不是單純的歷史紀錄，而是 resume / orchestration 用的 progress cursor。若 item 剛完成 Step 4.5 decomposition，應推進為 `Step 5 - Spec-Based Test Design`；若已完成實作但尚未跑 baseline tests，可標記為 `Step 11 - Test Execution`；若 baseline tests 已通過但尚未做 mutation review，應推進為 `Step 12 - Mutation Testing`。這個欄位應隨每輪 verification loop 更新，不應只在初拆時填一次。
+
+#### Spec Step Progression Rule
+
+每個 workflow step 成功完成後，agent / wrapper 必須立即把 atomic spec 中的 `workflow_step` 推進到下一個 step，並寫回 durable location，例如 atomic spec、root `SPEC.md` 的 atomic item index、run note 或 orchestrator state。
+
+推進規則：
+
+- step 開始前：`workflow_step` 指向即將執行的 step。
+- step 成功完成後：`workflow_step` 推進到下一個應執行的 step。
+- step 失敗或 blocked：`workflow_step` 保留在失敗 / blocked 的 step，並同步更新 `implementation_status=blocked` 或 `partial`。
+- gap analysis 要求回補 spec、test 或 implementation 時：`workflow_step` 應退回到實際需要重跑的最早 step，例如 `Step 2`、`Step 5` 或 `Step 6`。
+- step 被跳過時：只能在 completion report 中說明原因，並把 `workflow_step` 推進到下一個真實要執行的 step；不可讓註記停留在已跳過的 step。
+- atomic item 完成且沒有 remaining meaningful gap 時：`implementation_status=verified`，`workflow_step` 推進到 `Step 14 - Decision Proposal`；若 phase-level decision proposal 已完成，下一個 atomic item 的 `workflow_step` 應從 `Step 5` 或該 item 實際下一步開始。
 
 建議 completion states：
 
@@ -759,17 +772,18 @@ Deferred / Non-goal Notes:
 
 ```text
 for each atomic item:
-  update implementation_status / workflow_step
+  set workflow_step=Step 5 before spec-based test design
+  complete Step 5, then advance workflow_step=Step 6
   TDD implement
-  update implementation_status / workflow_step
+  complete Step 6, then advance workflow_step=Step 7
   -> diff / intent / impact analysis
-  update implementation_status / workflow_step
+  complete Steps 7-9, then advance workflow_step=Step 10
   -> focused JIT tests
-  update implementation_status / workflow_step
+  complete Step 10, then advance workflow_step=Step 11
   -> baseline tests
-  update implementation_status / workflow_step
+  complete Step 11, then advance workflow_step=Step 12
   -> mutation review
-  update implementation_status / workflow_step
+  complete Step 12, then advance workflow_step=Step 13
   -> gap analysis
 
   if gap found:
@@ -777,16 +791,18 @@ for each atomic item:
     classify gap
     propose options and recommendation
     request human decision when correctness is ambiguous
+    set workflow_step to the earliest step that must be rerun
     update spec / tests / implementation
     rerun relevant verification
 
   if no gap found:
     mark atomic item implementation_status=verified
-    mark atomic item workflow_step=Step 13 or Step 14, depending on whether decision proposal is needed
+    complete Step 13, then advance workflow_step=Step 14
+    produce decision proposal or phase continuation note
     continue to next atomic item
 ```
 
-每次執行 atomic item 時，agent / wrapper 應把 `implementation_status` 與 `workflow_step` 視為 durable progress marker。這兩個欄位應寫回 atomic spec、run note 或 orchestrator state；只在 completion report 裡口頭回報不足以支援後續 resume、review 或 phase-level decision proposal。
+每次執行 atomic item 時，agent / wrapper 應把 `implementation_status` 與 `workflow_step` 視為 durable progress marker。每完成一個 workflow step，就必須把推進後的 `workflow_step` 寫回 atomic spec、run note 或 orchestrator state；只在 completion report 裡口頭回報不足以支援後續 resume、review 或 phase-level decision proposal。
 
 Gap 分類：
 
@@ -1124,7 +1140,8 @@ codex exec / codex exec resume
 Wrapper / orchestrator 應負責：
 
 - 讀取 atomic item metadata
-- 讀取並更新 `implementation_status` 與 `workflow_step`
+- 讀取 `implementation_status` 與 `workflow_step`
+- 在每個 step 成功完成後，將 `workflow_step` 推進到下一個應執行 step，並寫回 atomic spec、run note 或 orchestrator state
 - 根據 `tier` / `model_profile` / `reasoning_effort` 選擇模型與推理強度
 - 載入 atomic prompt file
 - 呼叫 `codex exec` 或 `codex exec resume`
