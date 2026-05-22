@@ -424,6 +424,77 @@ README 適合放：
 - 若 README 與 SPEC 對行為描述衝突，規格判斷應以 SPEC 為準，並回頭修正 README 摘要。
 - 當 README 開始包含 input/output contract、acceptance criteria、error conditions 或 test matrix 時，通常代表應該把這些內容提升到正式 spec。
 
+#### 大型專案的 Spec 分層
+
+小型或早期專案可以先以單一 `SPEC.md` 作為主要 correctness contract；但當專案變大，單檔 spec 可能造成 review 困難、merge conflict、backlog 與 accepted behavior 混雜，以及 atomic item 難以被 wrapper / orchestrator 穩定引用。
+
+大型專案建議讓 `SPEC.md` 成為 root spec manifest / correctness index，而不是承載所有細節的單一文件。
+
+建議結構：
+
+```text
+<project>/
+├─ README.md
+├─ SPEC.md
+└─ specs/
+   ├─ README.md
+   ├─ workflows/
+   │  ├─ <workflow-name>.md
+   │  └─ <workflow-name>.md
+   ├─ features/
+   │  ├─ P0-02-<feature-or-atomic-item>.md
+   │  └─ P0-03-<feature-or-atomic-item>.md
+   ├─ contracts/
+   │  ├─ config-schema.md
+   │  └─ output-format.md
+   ├─ decisions/
+   │  └─ ADR-0001-<decision-name>.md
+   └─ backlog.md
+```
+
+建議分工：
+
+- `SPEC.md`：專案目標、規格狀態、current phase、selected workflow、top-level scope / non-goals、核心 invariants、spec map、accepted atomic item index、open questions summary。
+- `specs/README.md`：說明 spec 資料夾結構、命名規則、狀態定義與索引維護方式。
+- `specs/workflows/*.md`：主流程或資料流，例如 ingestion、analysis、export、sync、billing。
+- `specs/features/*.md`：可實作 feature、phase item 或 atomic item；這類文件適合被 atomic prompt 與 wrapper 直接引用。
+- `specs/contracts/*.md`：相對穩定的資料契約，例如 config schema、CLI args、API payload、output format、folder layout。
+- `specs/decisions/*.md`：architecture decision record、behavior decision、dependency policy 或 scope tradeoff。
+- `specs/backlog.md`：候選項目、未排程想法與 future work；backlog 預設不是 accepted correctness source，除非被提升到 active scope。
+
+`SPEC.md` 應保留穩定連結到細項 spec，而不是複製全部內容。若細項 spec 與 `SPEC.md` 摘要衝突，應以被標記為 `Accepted` 的細項 spec 與 `SPEC.md` 的 spec map 共同判斷，並修正失同步的摘要。
+
+Backlog 與 accepted spec 應明確分離。Backlog item 建議使用狀態：
+
+```text
+candidate / proposed / accepted / deferred / rejected
+```
+
+只有 `accepted` 且被 `SPEC.md` 或 active workflow 索引的項目，才應進入 implementation 或 atomic execution。
+
+建議拆檔訊號：
+
+- `SPEC.md` 已超過約 800-1500 行，或 review 時經常需要跳過大量不相關段落
+- 同時維護多個 workflow、phase、資料格式或外部 contract
+- backlog、open questions 與 accepted behavior 開始混雜
+- atomic item 需要各自被 `codex exec`、wrapper 或 review 流程穩定引用
+- config / output / API contract 已可獨立 review 或版本化
+- 多人或多 agent 會同時修改 spec，單檔容易造成 merge conflict
+
+細項 spec 若會被 atomic execution 引用，建議在文件前段保留 metadata：
+
+```md
+# P0-02 <Atomic Item Name>
+
+Status: Accepted
+Parent Spec: ../SPEC.md
+Workflow: <workflow-name>
+Spec Refs: AC-03, ERR-02
+Tier: Medium
+Reasoning Effort: medium
+Prompt File: agent-prompts/<project>/P0-02-<atomic-item>.md
+```
+
 #### 建議 Spec 格式
 
 建議用以下格式產生 `SPEC.md` 或版本化 spec：
