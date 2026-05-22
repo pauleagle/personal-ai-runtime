@@ -487,6 +487,8 @@ candidate / proposed / accepted / deferred / rejected
 # P0-02 <Atomic Item Name>
 
 Status: Accepted
+Implementation Status: not-started
+Workflow Step: Step 4.5 - Workflow Decomposition / Atomic Work Items
 Parent Spec: ../SPEC.md
 Workflow: <workflow-name>
 Spec Refs: AC-03, ERR-02
@@ -494,6 +496,8 @@ Tier: Medium
 Reasoning Effort: medium
 Prompt File: agent-prompts/<project>/P0-02-<atomic-item>.md
 ```
+
+注意：`Status` 表示 spec governance 狀態，例如 candidate、accepted 或 deferred；它不代表 item 已實作。被拆出的 atomic spec 必須另外標註 `Implementation Status` 與 `Workflow Step`，讓人類、agent、wrapper / orchestrator 都能判斷該 item 是否已實作，以及目前執行到本 playbook 的哪一個 workflow step。
 
 #### 建議 Spec 格式
 
@@ -647,6 +651,8 @@ main workflow
 Item ID:
 Workflow:
 Spec Reference:
+Implementation Status:
+Workflow Step:
 Tier:
 Model Profile:
 Reasoning Effort:
@@ -674,6 +680,8 @@ Completion Report:
 - `title`：短任務名稱
 - `workflow`：所屬 selected workflow
 - `spec_refs`：對應 SPEC section、acceptance criteria、error condition 或 risk item
+- `implementation_status`：此 atomic spec 的實作狀態，例如 `not-started`、`in-progress`、`implemented`、`verified`、`blocked` 或 `deferred`
+- `workflow_step`：此 atomic spec 目前或最後完成的 playbook step，例如 `Step 4.5`、`Step 6`、`Step 11`、`Step 12`、`Step 14`
 - `tier`：預期難度 / 風險層級，例如 Basic、Medium、High
 - `model_profile`：邏輯模型層級，例如 `basic`、`medium`、`strong-coding`、`frontier`
 - `reasoning_effort`：`low`、`medium`、`high` 或 `xhigh`
@@ -681,7 +689,18 @@ Completion Report:
 - `allowed_scope`：本 item 可修改的 behavior、module、file 或 test surface
 - `forbidden_scope`：明確不可順手實作的鄰近 item、future phase 或非目標
 - `validation`：必跑測試、檢查指令、mutation review 或手動驗證項
-- `completion_report`：最終回報必含欄位，例如 changed files、test results、remaining risks、completion state
+- `completion_report`：最終回報必含欄位，例如 changed files、test results、remaining risks、completion state、updated implementation status、updated workflow step
+
+建議 implementation statuses：
+
+- `not-started`：已拆出 atomic spec，但尚未進入 test design 或 implementation
+- `in-progress`：正在執行該 item，尚未完成必要驗證
+- `implemented`：實作變更已完成，但測試、mutation review 或 decision proposal 尚未完整收斂
+- `verified`：實作與必要驗證完成，且沒有 remaining meaningful gap
+- `blocked`：缺少 input、dependency、環境或 human decision，無法繼續
+- `deferred`：已明確延後，不屬於目前 selected workflow / phase
+
+`workflow_step` 應標記目前所在或最後完成的流程步驟，並使用本文件的 step number。若 item 已完成實作但尚未跑完測試，可標記為 `Step 6 - Implementation`；若 baseline tests 已通過但尚未做 mutation review，可標記為 `Step 11 - Test Execution`。這個欄位應隨每輪 verification loop 更新，不應只在初拆時填一次。
 
 建議 completion states：
 
@@ -724,6 +743,8 @@ Completion Report:
 Item ID: P0-00
 Workflow:
 Spec Reference:
+Implementation Status:
+Workflow Step:
 Purpose: Establish minimal scaffold required to TDD the selected workflow.
 Input / Preconditions:
 Expected Output:
@@ -738,11 +759,17 @@ Deferred / Non-goal Notes:
 
 ```text
 for each atomic item:
+  update implementation_status / workflow_step
   TDD implement
+  update implementation_status / workflow_step
   -> diff / intent / impact analysis
+  update implementation_status / workflow_step
   -> focused JIT tests
+  update implementation_status / workflow_step
   -> baseline tests
+  update implementation_status / workflow_step
   -> mutation review
+  update implementation_status / workflow_step
   -> gap analysis
 
   if gap found:
@@ -754,9 +781,12 @@ for each atomic item:
     rerun relevant verification
 
   if no gap found:
-    mark atomic item complete
+    mark atomic item implementation_status=verified
+    mark atomic item workflow_step=Step 13 or Step 14, depending on whether decision proposal is needed
     continue to next atomic item
 ```
+
+每次執行 atomic item 時，agent / wrapper 應把 `implementation_status` 與 `workflow_step` 視為 durable progress marker。這兩個欄位應寫回 atomic spec、run note 或 orchestrator state；只在 completion report 裡口頭回報不足以支援後續 resume、review 或 phase-level decision proposal。
 
 Gap 分類：
 
@@ -1082,7 +1112,7 @@ spec-driven-change-verification-workflow-playbook.md
   -> 定義拆解、驗證、tier 與 governance policy
 
 atomic item metadata
-  -> 定義 item ID、tier、model profile、prompt file、validation、completion report
+  -> 定義 item ID、implementation status、workflow step、tier、model profile、prompt file、validation、completion report
 
 wrapper / orchestrator
   -> 讀取 metadata，選擇 model / reasoning effort，呼叫 codex exec
@@ -1094,11 +1124,12 @@ codex exec / codex exec resume
 Wrapper / orchestrator 應負責：
 
 - 讀取 atomic item metadata
+- 讀取並更新 `implementation_status` 與 `workflow_step`
 - 根據 `tier` / `model_profile` / `reasoning_effort` 選擇模型與推理強度
 - 載入 atomic prompt file
 - 呼叫 `codex exec` 或 `codex exec resume`
-- 傳入 selected workflow、atomic item ID、spec refs、allowed scope、forbidden scope 與 validation requirements
-- 收集 changed files、test results、remaining risks 與 completion state
+- 傳入 selected workflow、atomic item ID、spec refs、implementation status、workflow step、allowed scope、forbidden scope 與 validation requirements
+- 收集 changed files、test results、remaining risks、completion state、updated implementation status 與 updated workflow step
 - 必要時寫入 run note、handoff note 或 feedback，供後續 spec / playbook / skill evolution 使用
 
 Wrapper / orchestrator 不應：
@@ -1133,6 +1164,8 @@ Atomic prompt 應包含：
 - workflow instruction
 - target repository / module
 - target spec item
+- current implementation status
+- current workflow step
 - 必讀文件，例如 `SPEC.md` 與本 playbook
 - exact task
 - allowed scope
