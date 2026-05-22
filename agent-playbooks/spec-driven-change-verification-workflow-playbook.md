@@ -942,6 +942,25 @@ Human 不需要手動驗證所有細節，但必須治理 correctness。
 - 需要延續既有脈絡時，可使用 `codex exec resume <session_id> -m <model> -c 'model_reasoning_effort="<effort>"'`，並明確傳入當前 step、spec reference、diff / test artifact。
 - 也可用 `--profile` 或 `--profile-v2` 管理常用模型組合，但 playbook 註記本身仍只是 policy source。
 
+### 建議啟動模式
+
+若目標是依 playbook step 自動切換模型，建議以非互動式 Codex CLI 作為主流程，並由 wrapper / orchestrator 啟動每個 step。
+
+```text
+playbook step metadata
+  -> wrapper / orchestrator
+  -> codex exec / codex exec resume
+  -> -m <model> + model_reasoning_effort
+```
+
+啟動模式判斷：
+
+- Fully automatic model routing：使用 `codex exec` 或 `codex exec resume`，由 wrapper 依 step tier 指定 `-m` 與 `model_reasoning_effort`。
+- Human-in-the-loop exploration：使用互動式 `codex` TUI，並在每個 step 前由 human 手動輸入 `/model`。
+- Mixed mode：高風險判斷用互動式 TUI / `/model`，低風險或機械步驟交給 wrapper 以 `codex exec` 執行。
+
+wrapper 啟動每個 step 時，prompt 至少應帶入 selected workflow / atomic item ID、spec reference、當前 diff 或 test artifact，以及上一輪 remaining gaps。
+
 ### Tier 定義
 
 ```text
