@@ -799,10 +799,30 @@ for each atomic item:
     mark atomic item implementation_status=verified
     complete Step 13, then advance workflow_step=Step 14
     produce decision proposal or phase continuation note
+    commit the completed atomic item before starting the next one
     continue to next atomic item
 ```
 
 每次執行 atomic item 時，agent / wrapper 應把 `implementation_status` 與 `workflow_step` 視為 durable progress marker。每完成一個 workflow step，就必須把推進後的 `workflow_step` 寫回 atomic spec、run note 或 orchestrator state；只在 completion report 裡口頭回報不足以支援後續 resume、review 或 phase-level decision proposal。
+
+#### Atomic Item Commit Checkpoint
+
+每個 atomic item 完成、驗證通過、gap analysis 判定沒有需要 human 介入的 remaining meaningful gap 後，必須先建立該 item 的 commit，才可開始下一個 atomic item。
+
+此 checkpoint 的目的：
+
+- 讓每個 atomic item 都有可 review、可 rollback、可 bisect 的獨立變更邊界。
+- 避免多個 atomic items 混在同一個 diff 或 commit 中，造成 intent / impact analysis 失真。
+- 讓後續 resume 時能從最近已提交的 item 繼續，而不是從未分段的工作樹推測狀態。
+
+Commit 前至少確認：
+
+- focused tests / baseline tests 已通過。
+- `git diff --check` 或同等 whitespace / formatting check 已通過。
+- atomic spec、root `SPEC.md` 或 run note 已更新 `implementation_status`、`workflow_step` 或完成依據。
+- `git status --short` 只包含該 atomic item 的預期變更。
+
+Commit 後才可啟動下一個 atomic item。若 commit 失敗、工作樹含有不屬於該 item 的變更、或發現需要 human decision 的 gap，必須停在當前 item，回報狀態與下一步選項。
 
 Gap 分類：
 
