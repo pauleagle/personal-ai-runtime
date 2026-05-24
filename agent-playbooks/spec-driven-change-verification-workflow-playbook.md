@@ -1423,6 +1423,38 @@ Else -> discard, refine, or keep ephemeral
 - mutation survived 必須進入 gap analysis
 - 不應為了追 mutation score 而盲目擴大測試
 
+#### Manual Mutation vs Mutation Framework Threshold
+
+手動 mutation test 與 mutation framework 的差異不是品質層級，而是執行成本、重複性、可報告性與 impacted scope 的取捨。
+
+使用手動 mutation test 的條件：
+
+- Impacted scope 很小，通常是一個 atomic item 或少數幾個 functions / branches。
+- Diff / intent / impact analysis 能明確列出 1 到 3 個 meaningful mutants。
+- 目標是驗證 newly added tests 或 selected focused tests 是否能殺掉特定風險。
+- Mutation 可安全短暫套用、跑 focused tests、確認 killed / survived / equivalent 後立即還原。
+- Mutation tooling 尚未安裝，或導入 framework 的成本高於本輪驗證價值。
+- Completion report 必須明確寫出 manual mutants、執行的 tests、killed / survived / equivalent 判定；不得把未執行的 framework 結果講成 mutation coverage。
+
+引入 mutation framework 的條件：
+
+- 同類 manual mutants 在多個 atomic items / modules 重複出現，手動成本開始高於工具化成本。
+- Impacted scope 跨多檔、多 branches、schema / parser / mapper / adapter 等多層，人工挑 mutants 容易漏。
+- 需要穩定輸出 mutation score、killed mutations、survived mutations、suspicious equivalent mutations。
+- Tests 準備從 candidate tests 升級為 trusted / persisted regression assets。
+- Framework 可以被限縮在 impacted code，不需要 full-scope mutation 才有價值。
+- 執行時間與 flaky risk 可被 CI / local pre-commit / scheduled job 接受。
+- Survived mutations 需要長期追蹤、gap classification 或 PR governance。
+
+Decision rule：
+
+```text
+manual mutation = atomic item 的手術刀
+mutation framework = 可重複、可報告、可納入 CI 的驗證系統
+```
+
+若 framework 只能全量跑、成本過高、或會迫使 agent 為了 score 盲目擴測，應維持 scoped manual mutation 或先改善 test/spec 切分。
+
 ---
 
 ### JIT Test Governance
