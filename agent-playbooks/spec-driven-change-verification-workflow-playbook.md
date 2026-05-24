@@ -198,6 +198,12 @@ Devil's Advocate 原本可理解為在決策或方案討論中，刻意由一個
 
 這讓 workflow 在進入 implementation 前先經過一次風險導向的反方檢查。
 
+Devil's Advocate Review 的結果必須列成帶有 spec scope 的編號清單，格式為
+`DA-[Phase-X/CR-X]-[流水號]`，例如 `DA-P0-001`、`DA-CR-001-001`，並標示
+`Low`、`Medium`、`High`。這些項目不是一般建議，而是進入 atomic decomposition
+前的 drill-down queue：必須從低到高逐條釐清、處置並更新 spec；若仍有 open /
+unresolved 項目，不得進入 atomic item 拆分。
+
 ---
 
 ## 核心原則
@@ -287,6 +293,8 @@ Mutation testing 告訴你：
 2. Draft Plan / Draft Spec
    ↓
 3. Devil's Advocate Review
+   ↓
+3.5 Numbered Devil's Advocate Drill-down Gate
    ↓
 4. Revised Spec
    ↓
@@ -582,17 +590,76 @@ Prompt File: agent-prompts/<project>/P0-02-<atomic-item>.md
 
 輸出：
 
-- objections
+- numbered objections, sorted from `Low` to `High`
 - risk list
 - suggested simplifications
 - required clarifications
 - revision proposal
 
+每個 objection 應包含：
+
+```text
+ID: DA-[Phase-X/CR-X]-[流水號]
+Severity: Low | Medium | High
+Issue:
+Why it matters:
+Required drill-down:
+Suggested resolution:
+```
+
+---
+
+### Step 3.5 — Numbered Devil's Advocate Drill-down Gate
+
+針對 Step 3 產生的 numbered objections，逐條進行 drill-down。這是 spec 與
+atomic decomposition 之間的 gate。
+
+處理順序：
+
+```text
+Low -> Medium -> High
+```
+
+同一 severity 內依 objection ID 由小到大處理。
+
+規則：
+
+- Objection ID 必須使用 `DA-[Phase-X/CR-X]-[流水號]` 格式，讓 review item 能 trace
+  back 到 phase 或 change request，例如 `DA-P0-001` 或 `DA-CR-001-001`。
+- 每個 objection 都必須保留編號，直到 resolution 完成。
+- 每個 objection 必須有明確狀態。候選狀態如下：
+
+| Status | 意義 | 是否阻擋 Step 4.5 |
+|---|---|---|
+| `open` | 已列出但尚未 drill down 或確認 | Yes |
+| `confirmed` | 已確認是真實風險或 spec gap，但尚未完成 resolution | Yes |
+| `resolved-by-spec-change` | 已透過 spec 更新解決 | No |
+| `resolved-by-playbook-change` | 已透過 playbook / workflow 規則更新解決 | No |
+| `deferred-with-rationale` | 已明確標成 non-goal、future work 或 out-of-scope，且說明為何不阻擋本輪 | No |
+| `accepted-risk-by-human` | Human 明確接受此風險，不阻擋本輪 | No |
+| `not-applicable` | drill-down 後判定不適用 | No |
+
+- `open` 或 `confirmed` 項目不得進入 Step 4.5 atomic decomposition。
+- `deferred-with-rationale` 必須明確標成 non-goal、future work 或 out-of-scope，
+  並說明為何不阻擋本輪 atomic decomposition。
+- `accepted-risk-by-human` 必須是 human 明確決策，不可由 agent 自行假定。
+- 若 drill-down 過程發現新的 blocking ambiguity，應新增新的 numbered objection，
+  並納入同一個 gate 處理。
+- 所有 blocking objections 都完成 resolution 後，才可把 spec 標為 revised，
+  並進入 workflow / atomic item 拆分。
+
+輸出：
+
+- objection resolution table
+- spec changes required by each objection
+- deferred / accepted-risk decisions
+- atomic decomposition gate status: `pass` or `blocked`
+
 ---
 
 ### Step 4 — Revised Spec
 
-根據 Devil's Advocate Review 的結果修正 spec。
+根據 Devil's Advocate Review 與 Step 3.5 drill-down 的 resolution 修正 spec。
 
 此階段的目標是讓 spec 達到：
 
@@ -602,6 +669,9 @@ Prompt File: agent-prompts/<project>/P0-02-<atomic-item>.md
 可追蹤
 可審查
 ```
+
+若仍有 Step 3.5 的 `open` 或 `confirmed` objection，spec 不可視為 revised，也不可進入
+Step 4.5 atomic decomposition。
 
 ---
 
@@ -620,17 +690,20 @@ main workflow
 
 目前規則：
 
+- 只有 Step 3.5 的 numbered objections 全部完成 resolution，才可進入本階段。
 - 先由 agent 根據 spec 拆出主工作流與候選 workflow slices。
 - 暫時由 human 指定要優先拆解的 selected workflow。
 - Agent 只針對 human 指定的 selected workflow 拆成 atomic items。
 - Atomic items 應小到可以被單獨實作、單獨測試、單獨 review。
 - 每個 atomic item 必須 trace back 到 spec reference、business rule、acceptance criteria、error condition 或 risk item。
 - Atomic items 不應直接等同於檔案清單；它們應描述可驗證的行為或資料契約。
-- 若拆解時發現 spec 不足，應回到 Step 1 / Step 2 補 drill-down 或更新 draft spec。
+- 若拆解時發現 spec 不足，應回到 Step 1 / Step 2 補 drill-down 或更新 draft spec；
+  若不足來自尚未處置的 review objection，應回到 Step 3.5。
 
 輸入：
 
 - revised spec
+- resolved Devil's Advocate objection table
 - main workflow description
 - acceptance criteria
 - known constraints
@@ -1236,6 +1309,7 @@ Basic / Fast / Tooling
 | 1 | Spec Drill-down | High | 需要把模糊需求轉成 correctness candidate |
 | 2 | Draft Plan / Draft Spec | High | 會定義 scope、rules、invariants、error conditions |
 | 3 | Devil's Advocate Review | High / xhigh | 需要反方推理、找隱含假設與架構風險 |
+| 3.5 | Numbered Devil's Advocate Drill-down Gate | High / xhigh | 需要逐條處置 objections，並判斷哪些會阻擋 atomic decomposition |
 | 4 | Revised Spec | High | 需要整合 objections，避免 spec drift |
 | 4.5 | Workflow Decomposition / Atomic Work Items | High / xhigh 初拆；Medium 維護既有 items | 主工作流拆解與 atomic 邊界會影響後續全部實作 |
 | P0-00 類 | Bootstrap prerequisite items | Basic / Medium；架構或 dependency 決策用 High | 通常是 scaffold，但 tool/dependency policy 可能需要高階判斷 |
@@ -1515,11 +1589,40 @@ Trigger：
 
 Output：
 
-- objections
+- numbered objections, sorted from `Low` to `High`
 - hidden assumptions
 - risk list
 - simplification proposal
 - required clarifications
+
+---
+
+### 3.5. `devils-advocate-drill-down`
+
+用途：
+
+- 將 Devil's Advocate Review 的 numbered objections 逐條 drill down
+- 從 `Low` 到 `High` 處理 objection，避免未解決風險直接進入 atomic 拆分
+- 把每一項 objection 轉成 spec change、deferred rationale 或 explicit human decision
+
+Trigger：
+
+- Step 3 已產生 numbered objections
+- spec 即將從 draft/revised 進入 workflow / atomic decomposition
+- 使用者要求先釐清 review findings，再拆 atomic items
+
+Output：
+
+- objection resolution table
+- per-objection status
+- spec patch requirements
+- deferred / accepted-risk decisions
+- atomic decomposition gate status: `pass` or `blocked`
+
+Gate：
+
+- 任何 `open` 或 `confirmed` objection 都會阻擋 `workflow-atomic-decomposition`
+- `deferred-with-rationale` 與 `accepted-risk-by-human` 必須有明確理由或 human decision
 
 ---
 
@@ -1560,6 +1663,7 @@ Output：
 Trigger：
 
 - revised spec 已足夠描述主資料流或主行為流
+- Devil's Advocate Review 的 numbered objections 已全部 resolution，且 gate status 為 `pass`
 - 即將進入 test design 或 implementation
 - 使用者要求先拆 atomic 實作步驟
 - spec 已有 acceptance criteria，但 implementation plan 仍過大
@@ -1820,12 +1924,13 @@ LLM Runtime / Integration
 1. Preflight Protocol
 2. Spec Drill-down
 3. Devil's Advocate Review
-4. Workflow Atomic Decomposition
-5. Spec-Based Test Design
-6. Diff Analysis
-7. JIT Test Suggestion
-8. Mutation Result Review
-9. Human Decision Proposal
+4. Numbered Devil's Advocate Drill-down Gate
+5. Workflow Atomic Decomposition
+6. Spec-Based Test Design
+7. Diff Analysis
+8. JIT Test Suggestion
+9. Mutation Result Review
+10. Human Decision Proposal
 ```
 
 第一階段可以先不自動生成正式 test 檔，而是讓 agent 產生：
@@ -1844,6 +1949,6 @@ LLM Runtime / Integration
 
 ## 一句話總結
 
-本 workflow 的核心不是讓 AI 自動寫更多測試，而是建立一條從 **spec clarity → plan challenge → implementation → diff-aware verification → mutation validation → human governance → spec/test evolution** 的閉環。
+本 workflow 的核心不是讓 AI 自動寫更多測試，而是建立一條從 **spec clarity → plan challenge → numbered risk drill-down → implementation → diff-aware verification → mutation validation → human governance → spec/test evolution** 的閉環。
 
 它把測試從 CI 裡的一個檢查步驟，提升成一套可以隨著專案演進而自我強化的 verification system。
