@@ -727,6 +727,7 @@ Spec Reference:
 Implementation Status:
 Workflow Step:
 Tier:
+Complexity:
 Model Profile:
 Reasoning Effort:
 Atomic Prompt File:
@@ -756,6 +757,7 @@ Completion Report:
 - `implementation_status`：此 atomic spec 的實作狀態，例如 `not-started`、`in-progress`、`implemented`、`verified`、`blocked` 或 `deferred`
 - `workflow_step`：此 atomic spec 下一個待執行或正在執行的 playbook step，例如 `Step 4.5`、`Step 6`、`Step 11`、`Step 12`、`Step 14`
 - `tier`：預期難度 / 風險層級，例如 Basic、Medium、High
+- `complexity`：下一步用量 gate 使用的工作複雜度，例如 `small`、`medium`、`large` 或 `unknown`
 - `model_profile`：邏輯模型層級，例如 `basic`、`medium`、`strong-coding`、`frontier`
 - `reasoning_effort`：`low`、`medium`、`high` 或 `xhigh`
 - `prompt_file`：atomic prompt 檔案路徑
@@ -843,6 +845,11 @@ Deferred / Non-goal Notes:
 
 當 selected workflow 已拆成 atomic items 後，後續 implementation 應以 atomic item 為單位循環：
 
+執行入口分兩種：
+
+- 使用者指定單一 atomic item 時，agent 應直接執行該 item，依照 atomic prompt / metadata 鎖定 scope、完成驗證與 commit checkpoint；完成後除非使用者另有指示，不應自動延伸到下一個 item。
+- 使用者指定 phase、CR、selected workflow 或一組 atomic items 時，agent 應先找出下一個未完成 atomic item，完成該 item 與 commit checkpoint 後，進入 `Human-Reported Usage Gate` 判斷是否啟動下一個 item。
+
 ```text
 for each atomic item:
   set workflow_step=Step 5 before spec-based test design
@@ -877,6 +884,44 @@ for each atomic item:
 ```
 
 每次執行 atomic item 時，agent / wrapper 應把 `implementation_status` 與 `workflow_step` 視為 durable progress marker。每完成一個 workflow step，就必須把推進後的 `workflow_step` 寫回 atomic spec、run note 或 orchestrator state；只在 completion report 裡口頭回報不足以支援後續 resume、review 或 phase-level decision proposal。
+
+#### Human-Reported Usage Gate
+
+Phase / CR / selected workflow 層級的連續執行，必須在每個 atomic item 完成並通過 commit checkpoint 後停下來做 usage gate。這個 gate 的目標是決定「下一步」或「先停」，避免在剩餘用量不足時啟動新的 atomic item。
+
+目前 MVP 使用 human-reported percentage：
+
+```text
+Please provide current Codex remaining usage percentage. Reply with a number only.
+```
+
+判斷時必須同時看：
+
+- 使用者回報的剩餘使用量百分比。
+- 下一個 atomic item 的 `complexity` / `tier` / blast radius。
+- 下一個 item 是否需要 spec evolution、Devil's Advocate review、mutation interpretation 或 human correctness decision。
+- 目前是否已有 uncommitted changes、remaining gap、blocked dependency 或未寫回的 `workflow_step`。
+
+決策規則：
+
+| Remaining usage | 下一個 atomic item 複雜度 | Decision |
+|---:|---|---|
+| `>= 30%` | any bounded item | Continue to next atomic item |
+| `15%–29%` | `small`、低風險、scope 清楚 | Continue only with small / low-risk / bounded work |
+| `15%–29%` | `medium`、`large`、`unknown` 或高風險 | Stop and produce handoff note |
+| `< 15%` | any | Stop and produce handoff note |
+| unknown | any | Stop unless the user explicitly overrides |
+
+下一個 atomic item 的複雜度判斷：
+
+- `small`：scope 單一、有明確 validation hook、預期只需局部 code/test/doc 變更，不需要 human correctness decision。
+- `medium`：需要跨多檔協調、補測試、做 manual mutation review，或可能影響既有行為但 spec 已清楚。
+- `large`：跨 workflow / module、需要重新拆 spec、涉及資料契約、migration、security/privacy、或可能引發 phase / CR-level decision。
+- `unknown`：metadata 不足、scope 未鎖定、validation hook 不明，或 agent 無法可靠估計。
+
+若 decision 是 continue，agent 應先明確回報下一個 atomic item ID、complexity、預計 validation，再開始執行。若 decision 是 stop，agent 必須產出 handoff note，包含已完成 item、commit / validation 狀態、下一個候選 item、停下原因、剩餘用量百分比與下一次恢復建議。
+
+此 gate 僅適用於 phase / CR / selected workflow 的連續執行；單一 atomic item 指定執行時，不需要在開始前詢問 usage percentage，除非該 item 本身明顯超大、scope unknown，或使用者要求保守模式。
 
 #### Atomic Item Commit Checkpoint
 
@@ -1234,6 +1279,8 @@ Wrapper / orchestrator 應負責：
 
 - 讀取 atomic item metadata
 - 讀取 `implementation_status` 與 `workflow_step`
+- 若使用者指定單一 atomic item，直接執行該 item，完成後停在該 item 的 completion report / commit checkpoint
+- 若使用者指定 phase、CR 或 selected workflow，在每個 atomic item 完成後執行 human-reported usage gate，再決定是否啟動下一個 item
 - 在每個 step 成功完成後，將 `workflow_step` 推進到下一個應執行 step，並寫回 atomic spec、run note 或 orchestrator state
 - 根據 `tier` / `model_profile` / `reasoning_effort` 選擇模型與推理強度
 - 載入 atomic prompt file
@@ -1246,8 +1293,44 @@ Wrapper / orchestrator 不應：
 
 - 把一個 atomic item 擴大成整個 phase
 - 自行實作 forbidden scope 中的鄰近 item
+- 在 phase / CR 連續執行模式中，跳過 usage gate 直接啟動下一個 atomic item
 - 在缺少 spec refs 或 validation hook 時直接進入 implementation
 - 將 playbook policy 視為已經自動切換模型的保證
+
+#### Backlog: Replace Human-Reported Usage Gate with Automated Usage Gate
+
+Status: `proposed`
+
+Problem:
+
+目前 Codex 剩餘使用量由使用者在每個 atomic item 完成後回報百分比。這對 workflow control 已足夠穩定，但需要人工輸入，無法完全自動化。
+
+Current behavior:
+
+- Phase / CR / selected workflow 連續執行時，每個 atomic item 完成並通過 commit checkpoint 後，agent 請使用者回報目前 Codex remaining usage percentage。
+- Agent 根據剩餘百分比、下一個 atomic item 的 complexity / tier / risk，決定 continue、degrade scope 或 stop。
+- 若 usage 無法判斷，且沒有使用者明確 override，不得自動開始下一個 atomic item。
+
+Future enhancement:
+
+當 Codex CLI 或官方 OpenAI platform 提供穩定、machine-readable 的 usage / limit API 或 CLI output 時，可把 human-reported gate 替換成 automated usage gate。
+
+Migration rule:
+
+自動化後仍應保留相同 continue / bounded-continue / stop 閾值，除非 human 明確修訂：
+
+| Remaining usage | Decision |
+|---:|---|
+| `>= 30%` | Continue to next atomic item |
+| `15%–29%` | Continue only with small / low-risk / bounded work |
+| `< 15%` | Stop and produce handoff note |
+
+Acceptance criteria:
+
+- Automated check 使用官方或穩定 machine-readable source。
+- 結果可被 wrapper 或 agent 可靠 parse。
+- Automated check 失敗時，playbook 仍支援 manual fallback。
+- Usage 無法判斷且沒有 manual override 時，agent 不得繼續下一個 atomic item。
 
 建議 command template：
 
