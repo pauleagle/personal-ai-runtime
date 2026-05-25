@@ -892,8 +892,16 @@ Phase / CR / selected workflow 層級的連續執行，必須在每個 atomic it
 目前 MVP 使用 human-reported percentage：
 
 ```text
-Please provide current Codex remaining usage percentage. Reply with a number only.
+已完成 <atomic_item_id> item, 請確認剩餘%數
 ```
+
+`<atomic_item_id>` 必須替換成剛完成並已 commit 的 atomic item，例如
+`CR-001-07A`。這個提示只能在 commit checkpoint 完成後送出；不得在 item 尚未
+commit、仍有 uncommitted changes、或驗證尚未完成時要求使用者回報下一輪百分比。
+
+每次 usage gate 都必須要求使用者提供新的剩餘百分比。Agent / wrapper 不得沿用、
+推估、遞減或直接往後帶上一輪回報的百分比；即使上一輪百分比剛在同一段對話中出現，
+只要新的 atomic item 已完成，就必須重新提示並等待 human 回報。
 
 判斷時必須同時看：
 
@@ -919,7 +927,7 @@ Please provide current Codex remaining usage percentage. Reply with a number onl
 - `large`：跨 workflow / module、需要重新拆 spec、涉及資料契約、migration、security/privacy、或可能引發 phase / CR-level decision。
 - `unknown`：metadata 不足、scope 未鎖定、validation hook 不明，或 agent 無法可靠估計。
 
-若 decision 是 continue，agent 應先明確回報下一個 atomic item ID、complexity、預計 validation，再開始執行。若 decision 是 stop，agent 必須產出 handoff note，包含已完成 item、commit / validation 狀態、下一個候選 item、停下原因、剩餘用量百分比與下一次恢復建議。
+若 decision 是 continue，agent 應先明確回報下一個 atomic item ID、complexity、預計 validation，再開始執行。若 decision 是 stop，agent 必須產出 handoff note，包含已完成 item、commit / validation 狀態、下一個候選 item、停下原因、新回報的剩餘用量百分比與下一次恢復建議。
 
 此 gate 僅適用於 phase / CR / selected workflow 的連續執行；單一 atomic item 指定執行時，不需要在開始前詢問 usage percentage，除非該 item 本身明顯超大、scope unknown，或使用者要求保守模式。
 
@@ -1280,7 +1288,7 @@ Wrapper / orchestrator 應負責：
 - 讀取 atomic item metadata
 - 讀取 `implementation_status` 與 `workflow_step`
 - 若使用者指定單一 atomic item，直接執行該 item，完成後停在該 item 的 completion report / commit checkpoint
-- 若使用者指定 phase、CR 或 selected workflow，在每個 atomic item 完成後執行 human-reported usage gate，再決定是否啟動下一個 item
+- 若使用者指定 phase、CR 或 selected workflow，在每個 atomic item 完成並 commit 後執行 human-reported usage gate，使用固定提示 `已完成 <atomic_item_id> item, 請確認剩餘%數` 取得新的百分比，再決定是否啟動下一個 item
 - 在每個 step 成功完成後，將 `workflow_step` 推進到下一個應執行 step，並寫回 atomic spec、run note 或 orchestrator state
 - 根據 `tier` / `model_profile` / `reasoning_effort` 選擇模型與推理強度
 - 載入 atomic prompt file
@@ -1308,6 +1316,7 @@ Problem:
 Current behavior:
 
 - Phase / CR / selected workflow 連續執行時，每個 atomic item 完成並通過 commit checkpoint 後，agent 請使用者回報目前 Codex remaining usage percentage。
+- 每次 gate 都必須取得新回報；不得把上一輪百分比直接往後帶。
 - Agent 根據剩餘百分比、下一個 atomic item 的 complexity / tier / risk，決定 continue、degrade scope 或 stop。
 - 若 usage 無法判斷，且沒有使用者明確 override，不得自動開始下一個 atomic item。
 
