@@ -548,6 +548,19 @@ Prompt File: agent-prompts/<project>/P0-02-<atomic-item>.md
 
 列出必須成立的 domain rules、流程規則、資料轉換規則與相容性要求。
 
+## 相容 / 替換政策
+
+對每個 CR 或會改變既有行為的 spec，明確寫出本輪是：
+
+- `replacement`：新行為取代舊行為，既有入口、預設輸出或使用者工作流應改成新語意。
+- `backward-compatible`：新行為必須向下相容，舊入口與舊輸出仍是正式支援面。
+- `compatibility-layer`：新行為是 primary，但保留顯式 legacy / migration / projection 路徑。
+- `parallel-opt-in`：新行為與舊行為並行，必須由 config、CLI flag 或 feature gate 明確選擇。
+- `deferred`：暫不決定相容或替換策略；不得開始會固定入口語意的實作。
+
+若政策是 `replacement`，spec 必須列出要被替換的舊入口、舊 artifact、舊預設行為、測試期望與文件索引。
+若政策不是 `replacement`，spec 必須列出 legacy 行為如何被保留、如何選擇、何時移除或為何不移除。
+
 ## 不變條件
 
 列出實作前後都必須保持成立的 invariant。
@@ -584,6 +597,7 @@ Prompt File: agent-prompts/<project>/P0-02-<atomic-item>.md
 - 測試成本過高
 - migration risk
 - backwards compatibility
+- CR 是否取代舊行為，或必須向下相容
 - maintainability
 - security / privacy / data risk
 - 是否能用更簡單方法完成
@@ -607,6 +621,17 @@ Required drill-down:
 Suggested resolution:
 ```
 
+CR / major behavior change 必須額外產生一個 compatibility / replacement objection
+或 decision item，即使目前看似沒有相容問題也一樣。這個 item 必須回答：
+
+```text
+Does this CR replace the existing behavior, preserve it, or run in parallel?
+Which old entrypoints, defaults, artifacts, configs, docs, and tests are affected?
+What is the expected user-visible behavior after the CR is complete?
+```
+
+不得用「先保留舊的比較安全」或「完成 CR 後自然就是新的樣子」作為隱含假設。
+
 ---
 
 ### Step 3.5 — Numbered Devil's Advocate Drill-down Gate
@@ -626,6 +651,9 @@ Low -> Medium -> High
 
 - Objection ID 必須使用 `DA-[Phase-X/CR-X]-[流水號]` 格式，讓 review item 能 trace
   back 到 phase 或 change request，例如 `DA-P0-001` 或 `DA-CR-001-001`。
+- 對 CR / major behavior change，Step 3.5 必須有一條明確的 compatibility /
+  replacement drill-down decision。它可以來自 Step 3 的 numbered objection，也可以在
+  drill-down 時補列。若缺少此 decision，gate status 必須是 `blocked`。
 - 每個 objection 都必須保留編號，直到 resolution 完成。
 - 每個 objection 必須有明確狀態。候選狀態如下：
 
@@ -643,6 +671,13 @@ Low -> Medium -> High
 - `deferred-with-rationale` 必須明確標成 non-goal、future work 或 out-of-scope，
   並說明為何不阻擋本輪 atomic decomposition。
 - `accepted-risk-by-human` 必須是 human 明確決策，不可由 agent 自行假定。
+- Compatibility / replacement decision 不可只回答資料契約本身；必須同時覆蓋既有
+  entrypoint、預設 backend、artifact path、config、docs、tests、manual workflow 與 migration
+  / deprecation 路徑。
+- 若決策是 `replacement`，後續 atomic decomposition 必須包含替換舊入口 / 舊預設的 item；
+  不得只新增新入口後把舊入口留成實際 primary behavior。
+- 若決策是 `backward-compatible`、`compatibility-layer` 或 `parallel-opt-in`，必須明確
+  定義 legacy 選擇方式、支援範圍、測試覆蓋與未來移除條件。
 - 若 drill-down 過程發現新的 blocking ambiguity，應新增新的 numbered objection，
   並納入同一個 gate 處理。
 - 所有 blocking objections 都完成 resolution 後，才可把 spec 標為 revised，
@@ -653,6 +688,7 @@ Low -> Medium -> High
 - objection resolution table
 - spec changes required by each objection
 - deferred / accepted-risk decisions
+- compatibility / replacement decision table for CR / major behavior changes
 - atomic decomposition gate status: `pass` or `blocked`
 
 ---
@@ -697,6 +733,10 @@ main workflow
 - Atomic items 應小到可以被單獨實作、單獨測試、單獨 review。
 - 每個 atomic item 必須 trace back 到 spec reference、business rule、acceptance criteria、error condition 或 risk item。
 - Atomic items 不應直接等同於檔案清單；它們應描述可驗證的行為或資料契約。
+- 對 `replacement` 型 CR，atomic items 必須包含讓舊入口、舊預設、舊文件與舊測試落到新語意的
+  replacement / migration items；只新增新路徑不算完成 replacement。
+- 對 `compatibility-layer` 或 `parallel-opt-in` 型 CR，atomic items 必須包含 legacy
+  selection、compatibility tests、文件說明與 deprecation / migration note。
 - 若拆解時發現 spec 不足，應回到 Step 1 / Step 2 補 drill-down 或更新 draft spec；
   若不足來自尚未處置的 review objection，應回到 Step 3.5。
 
@@ -707,6 +747,7 @@ main workflow
 - main workflow description
 - acceptance criteria
 - known constraints
+- compatibility / replacement decision
 - human 指定的 selected workflow
 
 輸出：
@@ -716,6 +757,7 @@ main workflow
 - selected workflow
 - atomic implementation items
 - deferred items
+- replacement / compatibility / migration items
 - spec gaps / open questions
 
 建議 atomic item 格式：
@@ -1695,6 +1737,7 @@ Output：
 - acceptance criteria
 - non-goals
 - testable requirements
+- compatibility / replacement policy for CR or major behavior changes
 
 ---
 
@@ -1718,6 +1761,7 @@ Output：
 - risk list
 - simplification proposal
 - required clarifications
+- required compatibility / replacement objection or decision item for CR / major behavior change
 
 ---
 
@@ -1740,6 +1784,7 @@ Output：
 - objection resolution table
 - per-objection status
 - spec patch requirements
+- compatibility / replacement decision table
 - deferred / accepted-risk decisions
 - atomic decomposition gate status: `pass` or `blocked`
 
@@ -1747,6 +1792,8 @@ Gate：
 
 - 任何 `open` 或 `confirmed` objection 都會阻擋 `workflow-atomic-decomposition`
 - `deferred-with-rationale` 與 `accepted-risk-by-human` 必須有明確理由或 human decision
+- CR / major behavior change 若缺少 compatibility / replacement decision，必須維持
+  `blocked`，不得進入 `workflow-atomic-decomposition`
 
 ---
 
@@ -1799,6 +1846,7 @@ Output：
 - human-selected workflow
 - atomic implementation items
 - bootstrap prerequisite items such as `P0-00`
+- replacement / compatibility / migration items when the spec changes existing behavior
 - item-to-spec traceability
 - atomic item verification loop
 - gap classification
