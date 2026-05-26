@@ -1997,6 +1997,36 @@ Ambiguity、breaking change、規格演進必須由 human 決定。
 
 ---
 
+## Extraction Map
+
+本 playbook 是大型 multi-skill workflow，不應壓縮成單一巨大 skill。正式萃取時應以 `spec-driven-change-verification/` 作為 root/orchestrator skill，child skills 則依 workflow 階段、trigger、output contract 與 validation 規則逐步拆出。
+
+| Playbook Section | Proposed Skill | Skill Type | Trigger | Responsibility | Keep In Playbook? |
+| --- | --- | --- | --- | --- | --- |
+| 目的、核心原則、完整工作流、Governance Rules | `spec-driven-change-verification/` | root | 使用者要求 spec-driven implementation、atomic item、phase work、diff-aware verification、mutation-aware validation 或 human-governed spec/test evolution | 判斷 workflow 階段、維護 durable state、調度 child skills、控制 context pack、整合 validation 與 human decision output | partial |
+| Step 0 — Preflight Protocol | `preflight-protocol/` | shared | 複雜、模糊、多檔案、多階段或高風險工作開始前 | 列出任務理解、假設、不確定處、風險、下一步與可能 touched files | partial |
+| Step 1 — Spec Drill-down / Clarification Loop | `spec-drill-down/` | child | requirement / plan / acceptance criteria 不清楚 | 將模糊需求追問成可測試 spec candidates 與 open questions | partial |
+| Step 2 / Step 4 — Draft / Revised Spec | `spec-definition/` | child | 需要建立、整理或更新正式 spec | 產生 scope、non-goals、rules、invariants、acceptance criteria、testing implications 與 spec location decision | partial |
+| Step 3 — Devil's Advocate Review | `devils-advocate-review/` | child | plan / spec 即將定稿或進入實作前 | 找出隱含假設、風險、過度設計、缺漏與 required clarifications | partial |
+| Step 3.5 — Numbered Devil's Advocate Drill-down Gate | `devils-advocate-drill-down/` | child | 已有 numbered objections 且要進入 atomic decomposition 前 | 逐條處置 objections，產生 pass / blocked gate status 與 spec patch requirements | partial |
+| Step 4.5 — Workflow Decomposition / Atomic Work Items | `workflow-atomic-decomposition/` | child | revised spec 足以描述主流程，但 implementation plan 過大 | 拆出 selected workflow、atomic items、dependencies、traceability 與 verification loop | partial |
+| Orchestrator state、workflow_step、usage gate、commit checkpoint | `orchestrator-state-machine/` | child | workflow 需要跨 atomic items 推進或恢復 | 維護 ready/running/blocked/completed state、dependency graph、merge gate、workflow_step 與 checkpoint | partial |
+| Context budget、bounded context pack、handoff | `context-pack-builder/` | child | 準備啟動 subagent 或切分大型上下文 | 建立 context pack manifest、included/excluded sources、token budget note 與 stale artifact warning | partial |
+| Atomic subagent job contract | `atomic-subagent-runner/` | child | 需要短生命週期 worker 執行單一 bounded job | 傳入 allowed scope、forbidden scope、validation requirements 與 output contract，回收 structured result | partial |
+| Step 5 — Spec-Based Test Design | `spec-based-test-design/` | child | atomic item 或 spec 已可測試 | 產生 test matrix、spec-to-test mapping、edge cases 與 error cases | partial |
+| Step 6 — Implementation | root orchestrator + project-specific implementation skill | shared | atomic item 已有 spec refs、tests 或 validation hook | 執行一個 atomic item，維持 scope、diff hygiene、tests 與 commit boundary | partial |
+| Step 7 — Change Detection / Diff Analysis | `diff-analysis/` | child | 有 git diff、PR、commit 或 file changes | 找出 changed components、behavior candidates 與 affected modules | partial |
+| Step 8 — Intent & Impact Analysis | `intent-analysis/`, `impact-analysis/` | child | 需要推斷變更目的與受影響範圍 | 產生 intent、confidence、impacted specs/tests/modules 與 uncertainty | partial |
+| Step 9 — Risk & Gap Identification | `impact-analysis/` or future `risk-gap-identification/` | child | diff / tests / spec 暴露缺口 | 分類 spec gap、test gap、behavior drift、implementation issue 與 human decision need | partial |
+| Step 10 — Meta JIT Test Generation | `jit-test-generation/` | child | diff / intent / impact 顯示需要 focused tests | 產生或選取可重現 JIT tests，保留 traceability metadata | partial |
+| Step 11 / Step 12 — Test Execution and Mutation Testing | `mutation-testing/` | child | tests 已可執行，且需要驗證 test effectiveness | 執行 focused tests、manual mutation 或 mutation framework，回報 killed/survived/equivalent | partial |
+| Step 13 — Test Effectiveness Evaluation | `test-effectiveness-evaluation/` | child | mutation 或 test 結果需要解讀 | 判斷 effective tests、weak tests、validation gaps 與 recommended improvements | partial |
+| Step 14 / Step 15 — Decision Proposal and Human Decision | `decision-proposal/` | child | 出現 ambiguity、breaking change、spec/test gap 或 accept/reject/update choice | 整理 options、recommendation、risk notes 與 human decision points | partial |
+| Test Promotion Lifecycle | `test-promotion/` | child | generated / candidate tests 需要升級或丟棄 | 判斷 L0-L3 promotion、discarded tests 與 persisted regression tests | partial |
+| Step 16 — Spec / Test Evolution | `spec-test-evolution/` | child | human decision 要求更新 spec、tests 或 workflow notes | 更新 spec/test artifacts，避免 implicit spec drift，保留 traceability | partial |
+
+---
+
 ## 建議拆分的 Playbooks / Skills
 
 ### 1. `preflight-protocol`

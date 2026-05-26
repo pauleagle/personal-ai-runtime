@@ -1,0 +1,92 @@
+---
+name: spec-driven-change-verification
+description: Use for spec-driven implementation and verification workflows, including module or poc-module phase work, atomic item execution, spec/test evolution, diff-aware verification, JIT test selection, mutation-aware validation, human decision gates, and durable orchestrator-state handoffs.
+---
+
+# Spec-Driven Change Verification
+
+## Purpose
+
+Run a spec-first, mutation-aware, human-governed verification workflow without relying on one long chat as the source of state. Use this as the root/orchestrator skill for `agent-playbooks/spec-driven-change-verification-workflow-playbook.md`.
+
+## Workflow
+
+1. Read the relevant project instructions, spec, active atomic item or phase, README/index files, and current git status.
+2. If the task is complex or ambiguous, run `preflight-protocol` before changing files.
+3. Identify the current workflow step, selected workflow, atomic item ID, spec refs, durable state location, allowed scope, forbidden scope, and human decision status.
+4. If requirements or acceptance criteria are unclear, stop implementation and produce spec drill-down questions or a spec gap report.
+5. Before atomic decomposition, ensure Devil's Advocate objections are numbered, resolved, deferred with rationale, or accepted by the human; unresolved objections block implementation.
+6. Work on one atomic item at a time. Design or select spec-traced tests before or alongside implementation.
+7. After implementation, inspect the diff to infer intent, impacted components, impacted specs, impacted tests, risks, and validation gaps.
+8. Run focused tests and add or select JIT tests when the diff exposes uncovered behavior.
+9. Validate test effectiveness with mutation testing when available; for small impacted scopes, use scoped manual mutation checks when framework mutation is not practical.
+10. Classify results as code issue, test gap, spec gap, equivalent mutation, accepted risk, or human decision required.
+11. Update specs, tests, README/index files, orchestrator state, atomic metadata, run notes, or handoff artifacts when the workflow step requires durable state.
+12. Advance `workflow_step` only after the current step's validation and durable-state updates are complete.
+
+## Child Skill Delegation
+
+Use these child skills when the task matches their trigger:
+
+- `spec-drill-down`: clarify ambiguous requirements into testable spec candidates.
+- `spec-definition`: create or revise the formal correctness contract.
+- `devils-advocate-review`: challenge a draft plan or spec before implementation.
+- `devils-advocate-drill-down`: resolve numbered objections before atomic decomposition.
+- `workflow-atomic-decomposition`: split a revised spec into selected workflow slices and atomic items.
+- `orchestrator-state-machine`: maintain workflow state, `workflow_step`, dependency graph, gates, and checkpoint status.
+- `context-pack-builder`: prepare bounded context packs for stateless subagents.
+- `atomic-subagent-runner`: launch or supervise one bounded subagent job and validate its structured result.
+- `spec-based-test-design`: design tests from accepted specs and atomic items with traceability.
+- `diff-analysis`: inspect diffs for changed components, behavior candidates, and unrelated edits.
+- `intent-analysis`: infer change intent and uncertainty from request, spec, and diff.
+- `impact-analysis`: identify impacted specs, tests, components, risks, and validation gaps.
+- `jit-test-generation`: select or generate focused candidate tests from diff, intent, impact, and spec refs.
+- `mutation-testing`: validate test effectiveness with framework or scoped manual mutation.
+- `test-effectiveness-evaluation`: classify effective tests, weak tests, survived mutations, and validation gaps.
+- `decision-proposal`: prepare human decision options for ambiguity, gaps, and behavior changes.
+- `test-promotion`: promote, persist, refine, or discard generated and candidate tests.
+- `spec-test-evolution`: update specs, tests, indexes, and traceability after accepted decisions.
+
+## Mandatory Rules
+
+- Spec defines correctness; tests, JIT tests, mutation results, and implementation choices must trace back to spec refs or risk items.
+- Do not write tests only for coverage. Every durable test needs a semantic source.
+- Do not trust generated tests until they pass baseline execution and, when relevant, kill a meaningful mutation.
+- Do not claim mutation tooling was run if it was not. State when mutation was manual, scoped, skipped, or blocked.
+- Humans decide ambiguity, breaking behavior, accepted risk, and spec evolution. The agent may propose options, not silently redefine correctness.
+- Keep durable workflow state outside chat: atomic item metadata, `workflow_step`, dependency edges, validation results, remaining gaps, and decision status belong in project artifacts.
+- Treat subagents as stateless bounded workers. Pass only the required context pack and require structured output.
+- Prefer commit-then-advance for atomic items when the workflow uses commit checkpoints.
+- Keep backlog, proposed, accepted, deferred, and rejected items clearly separated.
+
+## Boundaries
+
+- Do not use this skill for trivial edits that do not affect behavior, tests, specs, or workflow state.
+- Do not start implementation while spec refs, allowed scope, or acceptance criteria are materially unclear.
+- Do not merge unrelated refactors into an atomic item.
+- Do not mark a workflow step complete when validation, state updates, or human decisions are still missing.
+
+## Validation
+
+Before reporting completion, check:
+
+1. The implemented change maps to spec refs and the current atomic item.
+2. Focused tests or an explicit test-gap explanation are present.
+3. Mutation testing or scoped manual mutation reasoning is reported honestly.
+4. Diff analysis found no unrelated changes.
+5. Durable state, README/index files, spec files, or run notes were updated when required.
+6. Remaining gaps and human decision points are explicit.
+
+## Output
+
+Report:
+
+- current workflow step and atomic item
+- spec refs and allowed scope
+- changes made
+- tests and validation run
+- mutation result or manual mutation note
+- gap classification
+- durable state updates
+- human decisions needed
+- next step

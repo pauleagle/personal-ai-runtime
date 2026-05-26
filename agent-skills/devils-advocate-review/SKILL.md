@@ -1,0 +1,56 @@
+---
+name: devils-advocate-review
+description: Use before finalizing a plan or spec to challenge hidden assumptions, edge cases, overdesign, architecture risk, compatibility gaps, migration cost, testing cost, and spec/implementation drift.
+---
+
+# Devil's Advocate Review
+
+## Purpose
+
+Challenge a draft plan or spec before implementation so unresolved risks are found early and routed into a numbered drill-down queue.
+
+## Workflow
+
+1. Read the draft plan/spec, scope, non-goals, acceptance criteria, architecture constraints, and known risks.
+2. Identify hidden assumptions, missing edge cases, overdesign, underspecified behavior, migration risk, testing gaps, and compatibility or replacement issues.
+3. Create numbered objections with spec scope references.
+4. Assign severity: `Low`, `Medium`, or `High`.
+5. Sort findings from `Low` to `High` so drill-down can resolve them in order.
+6. Mark which objections block atomic decomposition.
+7. Hand off the numbered list to `devils-advocate-drill-down`.
+
+## Mandatory Rules
+
+- Use IDs in the form `DA-[scope]-[number]`, such as `DA-P0-001` or `DA-CR-001-001`.
+- Do not rewrite the spec inside the review unless the user explicitly asks.
+- Do not treat objections as final decisions; they are review findings for drill-down or human governance.
+- Include at least one compatibility or replacement check for major behavior changes.
+- Distinguish risks from style preferences.
+
+## Boundaries
+
+- Do not implement.
+- Do not decompose atomic items while blocking objections remain unresolved.
+- Do not create broad speculative objections with no actionable consequence.
+
+## Validation
+
+Check that each objection has:
+
+1. ID.
+2. Severity.
+3. Affected spec scope.
+4. Risk statement.
+5. Why it matters.
+6. Required clarification, spec change, or human decision.
+
+## Output
+
+Report:
+
+- numbered objections
+- hidden assumptions
+- compatibility or replacement concerns
+- testing or mutation concerns
+- blocking status
+- recommended drill-down order
