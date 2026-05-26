@@ -51,7 +51,9 @@ When a skill is based on a playbook, keep the two aligned:
 
 ## Skill Inventory
 
-Status follows the definitions in `agent-playbooks/README.md`.
+Status follows the definitions in `agent-playbooks/README.md`, including
+`aligned-with-followups` for aligned playbook/skill sets that remain usable but
+carry non-blocking proposed follow-up backlog.
 
 | Skill | Playbook | Status | Description |
 |---|---|---|---|
@@ -59,25 +61,25 @@ Status follows the definitions in `agent-playbooks/README.md`.
 | `changelog-normalization/` | `changelog-normalization.md` | `aligned` | Normalize changelog drafts or mixed notes into stable release history. |
 | `playbook-to-skill/` | `playbook-to-skill.md` | `aligned` | Extract human-readable playbooks into one or more concise Codex skills, including orchestrator/child layouts and alignment checks. |
 | `prompt-to-playbook/` | `prompt-to-playbook.md` | `aligned` | Generalize one-off prompts, successful examples, or repeated instructions into maintainable playbooks. |
-| `spec-driven-change-verification/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Root/orchestrator skill for spec-first, mutation-aware, human-governed change verification workflows. |
-| `spec-drill-down/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Clarify ambiguous requirements into testable spec candidates before implementation. |
-| `spec-definition/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Create or revise formal correctness specs with scope, rules, acceptance criteria, and testing implications. |
-| `devils-advocate-review/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Challenge draft plans or specs before implementation and produce numbered objections. |
-| `devils-advocate-drill-down/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Resolve numbered objections and gate workflow atomic decomposition. |
-| `workflow-atomic-decomposition/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Split revised specs into selected workflow slices, atomic items, dependencies, and verification loops. |
-| `orchestrator-state-machine/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Maintain durable workflow state, live `workflow_step`, dependency graph, gates, and checkpoints. |
-| `context-pack-builder/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Build bounded context packs for stateless subagent jobs. |
-| `atomic-subagent-runner/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Run or evaluate one bounded subagent job and return structured results. |
-| `spec-based-test-design/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Design spec-traced tests from accepted specs and atomic items. |
-| `diff-analysis/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Analyze diffs for changed components, behavior candidates, and verification scope. |
-| `intent-analysis/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Infer change intent, confidence, uncertainty, and spec alignment from context and diff. |
-| `impact-analysis/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Identify impacted specs, tests, components, risks, and validation gaps. |
-| `jit-test-generation/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Select or generate focused candidate tests with diff/intent/impact traceability. |
-| `mutation-testing/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Validate test effectiveness with mutation tooling or scoped manual mutation checks. |
-| `test-effectiveness-evaluation/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Interpret test and mutation results into effectiveness and gap classifications. |
-| `decision-proposal/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Prepare human decision options for ambiguity, validation gaps, or behavior changes. |
-| `test-promotion/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Promote, persist, refine, or discard generated and candidate tests based on evidence. |
-| `spec-test-evolution/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned` | Update specs, tests, indexes, and traceability after accepted decisions or gap analysis. |
+| `spec-driven-change-verification/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Root/orchestrator skill for spec-first, mutation-aware, human-governed change verification workflows. |
+| `spec-drill-down/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Clarify ambiguous requirements into testable spec candidates before implementation. |
+| `spec-definition/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Create or revise formal correctness specs with scope, rules, acceptance criteria, and testing implications. |
+| `devils-advocate-review/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Challenge draft plans or specs before implementation and produce numbered objections. |
+| `devils-advocate-drill-down/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Resolve numbered objections and gate workflow atomic decomposition. |
+| `workflow-atomic-decomposition/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Split revised specs into selected workflow slices, atomic items, dependencies, and verification loops. |
+| `orchestrator-state-machine/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Maintain durable workflow state, live `workflow_step`, dependency graph, gates, and checkpoints. |
+| `context-pack-builder/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Build bounded context packs for stateless subagent jobs. |
+| `atomic-subagent-runner/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Run or evaluate one bounded subagent job and return structured results. |
+| `spec-based-test-design/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Design spec-traced tests from accepted specs and atomic items. |
+| `diff-analysis/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Analyze diffs for changed components, behavior candidates, and verification scope. |
+| `intent-analysis/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Infer change intent, confidence, uncertainty, and spec alignment from context and diff. |
+| `impact-analysis/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Identify impacted specs, tests, components, risks, and validation gaps. |
+| `jit-test-generation/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Select or generate focused candidate tests with diff/intent/impact traceability. |
+| `mutation-testing/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Validate test effectiveness with mutation tooling or scoped manual mutation checks. |
+| `test-effectiveness-evaluation/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Interpret test and mutation results into effectiveness and gap classifications. |
+| `decision-proposal/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Prepare human decision options for ambiguity, validation gaps, or behavior changes. |
+| `test-promotion/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Promote, persist, refine, or discard generated and candidate tests based on evidence. |
+| `spec-test-evolution/` | `spec-driven-change-verification-workflow-playbook.md` | `aligned-with-followups` | Update specs, tests, indexes, and traceability after accepted decisions or gap analysis. |
 | `nested-module-git-initialization/` | `nested-module-git-initialization.md` | `aligned` | Check and initialize Git boundaries for nested child projects under `modules/` or `poc-modules/`. |
 | `utf8-traditional-chinese-defaults/` | `utf8-traditional-chinese-defaults.md` | `aligned` | Default text work to UTF-8, prefer Traditional Chinese for Chinese output, and use explicit UTF-8 encoding for PowerShell text I/O. |
 

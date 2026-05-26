@@ -83,7 +83,7 @@ Skill 不應保留：
 5. `resync-after-playbook-change`
    - 適用於 playbook 已修改，但對應 skill 尚未同步。
    - 應比較 playbook 的新規則與既有 skill，更新 skill 與 README 狀態。
-   - 若 README 狀態因 playbook 先改而被降為 `skill-extracted`，同步檢查完成後才可恢復 `aligned`。
+   - 若 README 狀態因 playbook 先改而被降為 `skill-extracted`，同步檢查完成後才可恢復 `aligned` 或 `aligned-with-followups`。
 
 ## Multi-skill Extraction Rule
 
@@ -219,6 +219,7 @@ Playbook / skill / README 更新規則：
 - `draft`：只有 playbook，尚未穩定。
 - `skill-extracted`：已從 playbook 萃取出 skill，但尚未完成整體同步複查。
 - `aligned`：playbook 與所有對應 skills 已複查並同步。
+- `aligned-with-followups`：playbook 與所有對應 skills 已複查並同步，且仍可照常使用；但 playbook 內有已記錄的 proposed follow-up backlog，未來可另開 resync / refinement。
 - `deprecated`：不建議繼續使用。
 
 Multi-skill 情境：
@@ -229,6 +230,8 @@ Multi-skill 情境：
 - 若 root skill 已建立但 child skills 尚未全部完成，狀態應標記為 `skill-extracted`。
 - 只有 playbook、root skill、child skills 全部複查同步後，才可標記為 `aligned`。
 - 若 playbook 已修改但 skill 尚未同步，狀態應從 `aligned` 調整為 `skill-extracted`。
+- 若 playbook 只新增非阻塞 follow-up backlog，且沒有改變現行 workflow、trigger、rules、output contract 或 skill extraction map，可標記為 `aligned-with-followups`，不必降回 `skill-extracted`。
+- 若 follow-up backlog 已被實作並同步到對應 skills，狀態可恢復為 `aligned`；若 follow-up 需要但尚未同步的 skill 行為變更，則應降為 `skill-extracted`。
 - 若只建立 extraction map 而尚未建立 skill，通常仍維持 `draft`，除非已有部分 skills 存在。
 
 ## Agent 行為規則

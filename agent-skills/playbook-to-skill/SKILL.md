@@ -79,9 +79,11 @@ Each skill should omit:
 - Use `draft` when only the playbook exists and it is not stable yet.
 - Use `skill-extracted` when one or more skills exist but the full playbook/root/child set has not been reviewed as synchronized.
 - Use `aligned` only after the playbook and all mapped root, child, and shared skills are reviewed and synchronized.
+- Use `aligned-with-followups` when the playbook and mapped skills are reviewed and synchronized, remain usable, and the playbook only adds non-blocking proposed follow-up backlog that does not change current triggers, rules, output contracts, or the extraction map.
 - Use `deprecated` when the playbook or skill is no longer recommended.
 - For one-to-many mappings, list the root skill first and include child/shared skills in the README mapping or the playbook extraction map.
 - If the playbook changed after extraction, downgrade `aligned` to `skill-extracted` until resync is complete.
+- Do not downgrade to `skill-extracted` for a documented non-blocking follow-up backlog unless it requires unsynchronized skill behavior changes.
 
 ## Alignment Checks
 
