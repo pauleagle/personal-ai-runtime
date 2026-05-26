@@ -23,6 +23,20 @@
 
 > 不只是讓測試存在，而是讓測試能證明自己有效；不只是讓程式符合測試，而是讓程式、測試與規格一起演進。
 
+同時，本 workflow 的長期執行架構不應依賴單一長對話累積全部 reasoning context。單體長對話會讓每個後續步驟都背負前面所有討論、diff、測試與 review 結果，實務上容易出現近似 `O(N^2)` 的 token 成本、context 污染與 resume 失真。
+
+目標執行架構是 **Grid of Atomic Subagents**：
+
+```text
+durable orchestrator state
+  -> bounded context pack
+  -> short-lived stateless subagent
+  -> structured result / artifact
+  -> orchestrator state update
+```
+
+也就是把長流程拆成可獨立啟動、可並行、可驗證、可丟棄上下文的短生命週期工作單元，讓 token 成本趨近於 `O(N)`，並把 correctness、progress、decision 與 traceability 留在 durable artifacts，而不是留在聊天記憶裡。
+
 ---
 
 ## 構思來源與演化脈絡
@@ -204,6 +218,24 @@ Devil's Advocate Review 的結果必須列成帶有 spec scope 的編號清單�
 前的 drill-down queue：必須從低到高逐條釐清、處置並更新 spec；若仍有 open /
 unresolved 項目，不得進入 atomic item 拆分。
 
+### 8. 從 Monolithic Chat 到 Grid of Atomic Subagents
+
+本 workflow 早期可由同一個互動式 agent 一路完成，但當任務包含 Devil's Advocate Review、Meta JIT Test、Mutation Test 評估與多個 atomic items 時，單一長對話會快速膨脹：
+
+- 每個新步驟都重新攜帶前面全部 reasoning 與 artifacts，token 成本趨近 `O(N^2)`。
+- 舊的假設、失效的 draft、已處置的 objection 容易污染後續判斷。
+- resume 時很難分辨 durable state、聊天摘要與 agent 自行腦補的狀態。
+- 無法安全平行化 read-only analysis、test selection、mutation interpretation 等可切分工作。
+
+因此，正式自動化目標是讓 playbook 由 `orchestrator` 編排，而不是由長對話本身承載流程狀態。
+
+```text
+orchestrator = state machine + durable store + scheduler + merge gate
+subagent     = one bounded context pack + one task + one structured output
+```
+
+Orchestrator 保留 workflow state、atomic item metadata、dependency graph、usage gate、commit checkpoint 與 human decision status。Subagent 預設無狀態、短生命週期、不可繼承上一個 subagent 的聊天脈絡；它只能根據 context pack、allowed scope 與 output contract 執行單一 step 或單一 atomic item。
+
 ---
 
 ## 核心原則
@@ -283,6 +315,50 @@ Mutation testing 告訴你：
 
 ---
 
+### 7. Durable state belongs to the orchestrator
+
+長流程狀態不應依賴某一段聊天上下文。
+
+以下資訊必須寫入 durable location，例如 spec metadata、atomic item index、run note、orchestrator state 或 commit history：
+
+- selected workflow / atomic item ID
+- `implementation_status`
+- `workflow_step`
+- dependency edges
+- test / mutation / JIT artifacts
+- remaining gaps
+- human decision status
+- completion report
+
+---
+
+### 8. Subagents are stateless and bounded
+
+每個 subagent 應被視為短生命週期 worker：
+
+- 只接收完成當前 task 所需的最小 context pack。
+- 只修改或分析 allowed scope。
+- 只產出 structured result、patch、test result、gap report 或 decision proposal。
+- 完成後不得把自己的聊天上下文當成下一步的隱性輸入。
+
+若下一步需要使用上一個 subagent 的發現，必須先由 orchestrator 將其整理成 durable artifact 或 compact handoff，再交給下一個 subagent。
+
+---
+
+### 9. Context budget is an architecture constraint
+
+省 context 不是便利性最佳化，而是 workflow correctness 條件。
+
+若工作單元無法用 bounded context pack 執行，通常代表：
+
+- atomic item 太大
+- spec refs 不足
+- output contract 不清楚
+- dependency graph 沒有拆開
+- 應先回到 Step 1 / Step 2 / Step 4.5 重新整理
+
+---
+
 ## 完整工作流
 
 ```text
@@ -324,6 +400,20 @@ Mutation testing 告訴你：
    ↓
 16. Spec / Test Evolution
 ```
+
+上面的 step sequence 是 correctness workflow；實際執行時應套用 Grid of Atomic Subagents execution overlay：
+
+```text
+Step metadata / atomic item metadata
+  -> Orchestrator state machine
+  -> build bounded context pack
+  -> launch stateless subagent for one step or one atomic item
+  -> validate structured output and artifacts
+  -> merge result into durable state
+  -> advance workflow_step or mark blocked
+```
+
+可平行的步驟應由 orchestrator 依 dependency graph 派發，例如 read-only diff inventory、test discovery、spec reference lookup、候選 JIT test review、mutation result classification。會修改檔案、推進 `workflow_step`、建立 commit 或改變 correctness decision 的步驟必須經過 merge gate，避免多個 subagents 同時寫同一個 durable state。
 
 ---
 
@@ -546,6 +636,32 @@ Sync gate：
 - atomic item 需要各自被 `codex exec`、wrapper 或 review 流程穩定引用
 - config / output / API contract 已可獨立 review 或版本化
 - 多人或多 agent 會同時修改 spec，單檔容易造成 merge conflict
+
+#### Backlog: `DOC-REORG-01` Split Oversized Playbook into Modular Documents
+
+Status: `proposed`
+
+Trigger:
+
+- `spec-driven-change-verification-workflow-playbook.md` 已累積 core workflow、spec format、atomic metadata、orchestration model、model routing、governance、anti-patterns、skills inventory 與 MVP notes。
+- 文件長度已足以讓 review、resume、context pack building 與 atomic prompt reference 成本升高。
+- 當剩餘 usage 低於 15%，尤其像 6% 這種 stop-point，僅應記錄此 backlog / handoff，不應啟動實質重整。
+
+Proposed split:
+
+- `spec-driven-change-verification-workflow-playbook.md`：保留目的、核心原則、完整 workflow 與最小執行 contract。
+- `spec-driven-spec-structure-playbook.md`：搬移 spec 格式、README / SPEC 分工、大型 spec 分層、follow-up traceability。
+- `spec-driven-atomic-orchestration-playbook.md`：搬移 atomic item metadata、Grid of Atomic Subagents、context pack、orchestrator / subagent contract。
+- `spec-driven-verification-governance-playbook.md`：搬移 mutation / JIT / test promotion / human decision / anti-pattern governance。
+- README / index：補上各拆分文件的用途、狀態與互相引用。
+
+Acceptance criteria:
+
+- 拆分後 root playbook 仍能作為入口，不遺失 core workflow sequence。
+- 舊 anchor 或重要 section 有對應新位置，避免既有 prompts / notes 失效。
+- 每個新文件都有明確 scope、non-goals 與 cross-links。
+- `rg` 可從 root playbook 找到 orchestration、atomic metadata、mutation governance 與 spec structure 的新入口。
+- 拆分必須在充足 usage / context 下作為獨立 atomic doc item 執行，並完成 diff check、link/readback verification 與 commit checkpoint。
 
 細項 spec 若會被 atomic execution 引用，建議在文件前段保留 metadata：
 
@@ -808,6 +924,14 @@ main workflow
 - 若拆解時發現 spec 不足，應回到 Step 1 / Step 2 補 drill-down 或更新 draft spec；
   若不足來自尚未處置的 review objection，應回到 Step 3.5。
 
+Grid-ready decomposition 追加規則：
+
+- 每個 atomic item 必須能被轉成一個或多個 bounded subagent jobs。
+- 每個 subagent job 必須有明確 context pack、allowed scope、output contract 與 validation hook。
+- Read-only analysis jobs 可以平行化；會修改檔案、更新 spec、推進 `workflow_step` 或 commit 的 jobs 必須由 orchestrator 串接或經過 merge gate。
+- Atomic item 之間若有依賴，必須在 dependency edges 中明確標出，不可靠聊天脈絡或執行順序暗示。
+- 若一個 item 需要同一個 subagent 長時間記住多輪背景才能完成，應拆小，或先補 spec / run note 作為 durable context。
+
 輸入：
 
 - revised spec
@@ -872,6 +996,14 @@ Completion Report:
 - `complexity`：下一步用量 gate 使用的工作複雜度，例如 `small`、`medium`、`large` 或 `unknown`
 - `model_profile`：邏輯模型層級，例如 `basic`、`medium`、`strong-coding`、`frontier`
 - `reasoning_effort`：`low`、`medium`、`high` 或 `xhigh`
+- `execution_mode`：`single-agent`、`orchestrated-subagent`、`parallel-readonly`、`serialized-writer` 或 `human-interactive`
+- `subagent_role`：例如 `spec-reviewer`、`test-designer`、`implementer`、`diff-analyst`、`mutation-reviewer`、`decision-proposer`
+- `context_pack`：此 job 允許載入的文件、diff、test output、prior artifacts 與摘要路徑
+- `dependency_edges`：必須先完成的 item / job ID，以及可平行執行的 group
+- `state_in`：orchestrator 傳入的 durable state 欄位，例如 current `workflow_step`、open gaps、human decisions
+- `state_out`：subagent 必須回傳給 orchestrator 的 state patch，例如 next `workflow_step`、completion state、new gaps
+- `artifact_contract`：預期輸出檔案、patch、report、test result 或 decision table
+- `merge_policy`：`readonly`、`single-writer`、`requires-review` 或 `human-gate`
 - `prompt_file`：atomic prompt 檔案路徑
 - `allowed_scope`：本 item 可修改的 behavior、module、file 或 test surface
 - `forbidden_scope`：明確不可順手實作的鄰近 item、future phase 或非目標
@@ -952,6 +1084,48 @@ Validation / Test Hook:
 Dependencies:
 Deferred / Non-goal Notes:
 ```
+
+#### Grid of Atomic Subagents Execution Topology
+
+Atomic decomposition 完成後，workflow 的執行單位可以再細分為 subagent job。Subagent job 不一定等於 atomic item：一個 atomic item 可能需要 test design、implementation、diff analysis、JIT test generation、mutation review 與 decision proposal 多個 jobs；也可能由一個 job 完成。
+
+建議 job 形狀：
+
+```text
+job_id:
+parent_atomic_item:
+workflow_step:
+subagent_role:
+execution_mode:
+context_pack:
+allowed_scope:
+forbidden_scope:
+state_in:
+expected_artifacts:
+validation:
+state_out:
+merge_policy:
+```
+
+Orchestrator 應把每個 job 視為可重試、可丟棄、可替換模型的工作單元。Subagent 的輸出若沒有回寫 durable state，則不算 workflow progress；只存在於聊天上下文中的「已完成」不得用來推進 `workflow_step`。
+
+可平行派發的典型 jobs：
+
+- spec reference lookup / traceability check
+- diff inventory / changed file classification
+- existing test discovery
+- candidate JIT test list review
+- mutation result first-pass classification
+- documentation sync check
+
+必須序列化或 merge gate 的 jobs：
+
+- implementation patch
+- spec update
+- test file creation / promotion
+- `workflow_step` 或 `implementation_status` 更新
+- commit checkpoint
+- human decision proposal finalization
 
 #### Atomic Item Verification Loop
 
@@ -1389,17 +1563,33 @@ spec-driven-change-verification-workflow-playbook.md
 atomic item metadata
   -> 定義 item ID、implementation status、workflow step、tier、model profile、prompt file、validation、completion report
 
+orchestrator state
+  -> 保存 workflow_step、dependencies、usage gate、human decisions、run artifacts、commit checkpoints
+
+context pack builder
+  -> 根據 job scope 取出最小必要 spec、diff、test output、prior artifacts 與 constraints
+
 wrapper / orchestrator
-  -> 讀取 metadata，選擇 model / reasoning effort，呼叫 codex exec
+  -> 讀取 metadata，排程 subagent jobs，選擇 model / reasoning effort，呼叫 codex exec
 
 codex exec / codex exec resume
-  -> 執行單一 atomic prompt
+  -> 執行單一 bounded context pack 的 stateless subagent job
 ```
+
+核心 contract：
+
+- Orchestrator 是 state machine；subagent 不是 state store。
+- Orchestrator 只把 bounded context pack 傳給 subagent，不把整段歷史聊天當成預設 context。
+- Subagent 完成後必須回傳 structured output；orchestrator 驗證後才可合併 state。
+- 下一個 subagent 只能讀 durable state 與 artifacts，不可依賴上一個 subagent 的隱性聊天記憶。
+- `codex exec resume` 只適合修復同一個 job 或同一個 atomic item 的中斷；不應作為跨 item 長期累積 context 的預設方式。
 
 Wrapper / orchestrator 應負責：
 
 - 讀取 atomic item metadata
 - 讀取 `implementation_status` 與 `workflow_step`
+- 維護 orchestrator state，包括 dependency graph、ready queue、running jobs、blocked jobs、completed jobs、usage gate 與 human decision status
+- 建立 bounded context pack，包含必要 spec refs、allowed scope、forbidden scope、validation requirements、relevant diff / test artifacts 與 prior durable findings
 - 若使用者指定單一 atomic item，直接執行該 item，完成後停在該 item 的 completion report / commit checkpoint
 - 若使用者指定 phase、CR 或 selected workflow，在每個 atomic item 完成並 commit 後執行 human-reported usage gate，使用固定提示 `已完成 <atomic_item_id> item, 請確認剩餘%數` 取得新的百分比，再決定是否啟動下一個 item
 - 在每個 step 成功完成後，將 `workflow_step` 推進到下一個應執行 step，並寫回 atomic spec、run note 或 orchestrator state
@@ -1408,6 +1598,8 @@ Wrapper / orchestrator 應負責：
 - 呼叫 `codex exec` 或 `codex exec resume`
 - 傳入 selected workflow、atomic item ID、spec refs、implementation status、workflow step、allowed scope、forbidden scope 與 validation requirements
 - 收集 changed files、test results、remaining risks、completion state、updated implementation status 與 updated workflow step
+- 驗證 subagent output 是否符合 artifact contract 與 merge policy；不符合時標記 failed / blocked，不推進 state
+- 對 parallel read-only jobs 合併報告；對 writer jobs 維持 single-writer 或 review-required merge gate
 - 必要時寫入 run note、handoff note 或 feedback，供後續 spec / playbook / skill evolution 使用
 
 Wrapper / orchestrator 不應：
@@ -1417,6 +1609,9 @@ Wrapper / orchestrator 不應：
 - 在 phase / CR 連續執行模式中，跳過 usage gate 直接啟動下一個 atomic item
 - 在缺少 spec refs 或 validation hook 時直接進入 implementation
 - 將 playbook policy 視為已經自動切換模型的保證
+- 讓同一個長對話連續承載多個 atomic items 的全部 reasoning，然後把聊天記憶當成 durable state
+- 讓 parallel subagents 同時修改同一份 spec、test 或 implementation file
+- 在 subagent 沒有輸出 structured state patch 時，推進 `workflow_step`
 
 #### Backlog: Replace Human-Reported Usage Gate with Automated Usage Gate
 
@@ -1565,6 +1760,16 @@ Basic / Fast / Tooling
 
 低階模型不應自行決定 correctness；若發現 ambiguity，應升級或回到 human decision。
 
+若使用 Grid of Atomic Subagents，交接資訊必須以 context pack 或 durable artifact 形式提供，不得只依賴上一個 subagent 的聊天記憶。每個 handoff 至少應包含：
+
+- source job ID 與 target job ID
+- parent atomic item ID
+- consumed artifacts
+- produced artifacts
+- state patch
+- unresolved gaps
+- retry / resume note
+
 ---
 
 ## Test Promotion Lifecycle
@@ -1691,6 +1896,18 @@ Agent 負責：
 
 ---
 
+### Orchestration Governance
+
+- Orchestrator owns durable state；subagents own only a bounded task.
+- Subagent output 必須是可 parse、可 review、可 merge 的 structured artifact。
+- Parallelism 只可用在 dependency graph 允許且 merge policy 明確的 jobs。
+- Writer jobs 預設 single-writer；若需要多個 writer，必須先拆 scope 或建立 explicit merge gate。
+- State update 必須可追蹤到 job ID、atomic item ID、spec refs 與 validation result。
+- Context pack 必須足夠但不過量；若需要塞入整段長對話才可執行，應回到 decomposition 或 spec sync。
+- Failed / partial subagent jobs 不得被默認視為 completed；orchestrator 必須標記 blocked、retry 或 human decision required。
+
+---
+
 ## Metrics
 
 建議使用：
@@ -1763,6 +1980,20 @@ AI / JIT 產生的測試不能直接當作可信測試。
 Agent 可以提出建議，但不應單方面決定 correctness。
 
 Ambiguity、breaking change、規格演進必須由 human 決定。
+
+---
+
+### 6. Monolithic chat as execution substrate
+
+用同一段長對話連續處理多個 atomic items、DA drill-down、JIT tests、mutation review 與 spec evolution，會造成：
+
+- token 成本隨步驟數快速膨脹
+- 已處置的假設污染後續判斷
+- subtask 邊界與 commit boundary 模糊
+- resume 時把聊天摘要誤認成 durable state
+- 無法安全平行化 read-only jobs
+
+長對話可以用於 human exploration 或高風險 correctness discussion；正式執行與自動化應回到 orchestrator state、bounded context pack 與 stateless subagent jobs。
 
 ---
 
@@ -2083,6 +2314,60 @@ Output：
 
 ---
 
+### 15. `orchestrator-state-machine`
+
+用途：
+
+- 讀取 spec / atomic metadata
+- 維護 ready / running / blocked / completed 狀態
+- 管理 `workflow_step` 推進、usage gate、dependency graph 與 commit checkpoint
+- 決定哪些 jobs 可平行、哪些 jobs 必須序列化或 human gate
+
+Output：
+
+- orchestrator state
+- next job queue
+- blocked reason table
+- state patch history
+- handoff / resume note
+
+---
+
+### 16. `context-pack-builder`
+
+用途：
+
+- 根據 atomic item / job scope 建立 bounded context pack
+- 避免把整段歷史聊天、無關 spec 或過期 artifacts 帶入 subagent
+- 將 prior findings 壓縮成可追蹤的 durable references
+
+Output：
+
+- context pack manifest
+- included / excluded source list
+- token budget note
+- stale / missing artifact warning
+
+---
+
+### 17. `atomic-subagent-runner`
+
+用途：
+
+- 啟動短生命週期 subagent job
+- 傳入 context pack、allowed scope、forbidden scope、validation requirements 與 output contract
+- 收集 structured output，交回 orchestrator merge gate
+
+Output：
+
+- job result
+- artifact list
+- validation result
+- state patch proposal
+- retry / blocked note
+
+---
+
 ## 建議目錄結構
 
 ```text
@@ -2122,6 +2407,12 @@ personal-ai-runtime/
     decision-proposal/
       SKILL.md
     test-promotion/
+      SKILL.md
+    orchestrator-state-machine/
+      SKILL.md
+    context-pack-builder/
+      SKILL.md
+    atomic-subagent-runner/
       SKILL.md
 ```
 
@@ -2172,11 +2463,14 @@ LLM Runtime / Integration
 3. Devil's Advocate Review
 4. Numbered Devil's Advocate Drill-down Gate
 5. Workflow Atomic Decomposition
-6. Spec-Based Test Design
-7. Diff Analysis
-8. JIT Test Suggestion
-9. Mutation Result Review
-10. Human Decision Proposal
+6. Orchestrator State Machine MVP
+7. Context Pack Builder MVP
+8. Stateless Atomic Subagent Runner MVP
+9. Spec-Based Test Design
+10. Diff Analysis
+11. JIT Test Suggestion
+12. Mutation Result Review
+13. Human Decision Proposal
 ```
 
 第一階段可以先不自動生成正式 test 檔，而是讓 agent 產生：
@@ -2184,6 +2478,8 @@ LLM Runtime / Integration
 - main workflow map
 - human-selected workflow
 - atomic implementation items
+- job queue / dependency graph
+- context pack manifest
 - suggested test cases
 - expected behavior
 - mutation survived interpretation
@@ -2195,6 +2491,6 @@ LLM Runtime / Integration
 
 ## 一句話總結
 
-本 workflow 的核心不是讓 AI 自動寫更多測試，而是建立一條從 **spec clarity → plan challenge → numbered risk drill-down → implementation → diff-aware verification → mutation validation → human governance → spec/test evolution** 的閉環。
+本 workflow 的核心不是讓 AI 自動寫更多測試，而是建立一條從 **spec clarity → plan challenge → numbered risk drill-down → orchestrated atomic execution → diff-aware verification → mutation validation → human governance → spec/test evolution** 的閉環。
 
-它把測試從 CI 裡的一個檢查步驟，提升成一套可以隨著專案演進而自我強化的 verification system。
+它把測試從 CI 裡的一個檢查步驟，提升成一套由 durable orchestrator state、bounded context packs 與 stateless atomic subagents 支撐，並可隨著專案演進而自我強化的 verification system。
