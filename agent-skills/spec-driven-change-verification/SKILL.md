@@ -7,11 +7,26 @@ description: Use for spec-driven implementation and verification workflows, incl
 
 ## Purpose
 
-Run a spec-first, mutation-aware, human-governed verification workflow without relying on one long chat as the source of state. Use this as the root/orchestrator skill for `agent-playbooks/spec-driven-change-verification-workflow-playbook.md`.
+Run a spec-first, mutation-aware, human-governed verification workflow without relying on one long chat as the source of state. Use this as the root/orchestrator skill; treat `agent-playbooks/spec-driven-change-verification-workflow-playbook.md` as design background, not as default execution context.
+
+## Playbook Access Rule
+
+Do not read the full source playbook during normal execution.
+
+Start with this root skill, the relevant child skill, project instructions, the target spec or atomic item, current diff, tests, and durable state artifacts.
+
+Read `agent-playbooks/spec-driven-change-verification-workflow-playbook.md` only when:
+
+- the user asks for playbook/skill alignment, extraction, or workflow design;
+- a child-skill boundary or extraction map must be checked;
+- the skills conflict and the original design rationale is needed;
+- the task explicitly requires updating the playbook itself.
+
+When playbook context is needed, search for the specific section and read only the relevant excerpt. Do not pull the full playbook into context as a routine setup step.
 
 ## Workflow
 
-1. Read the relevant project instructions, spec, active atomic item or phase, README/index files, and current git status.
+1. Read the relevant project instructions, spec, active atomic item or phase, README/index files, current git status, and durable state artifacts. Do not read the full source playbook by default.
 2. If the task is complex or ambiguous, run `preflight-protocol` before changing files.
 3. Identify the current workflow step, selected workflow, atomic item ID, spec refs, durable state location, allowed scope, forbidden scope, and human decision status.
 4. If requirements or acceptance criteria are unclear, stop implementation and produce spec drill-down questions or a spec gap report.
@@ -58,6 +73,7 @@ Use these child skills when the task matches their trigger:
 - Treat subagents as stateless bounded workers. Pass only the required context pack and require structured output.
 - Prefer commit-then-advance for atomic items when the workflow uses commit checkpoints.
 - Keep backlog, proposed, accepted, deferred, and rejected items clearly separated.
+- Keep the full source playbook out of routine execution context unless the Playbook Access Rule allows it.
 
 ## Boundaries
 
@@ -65,6 +81,7 @@ Use these child skills when the task matches their trigger:
 - Do not start implementation while spec refs, allowed scope, or acceptance criteria are materially unclear.
 - Do not merge unrelated refactors into an atomic item.
 - Do not mark a workflow step complete when validation, state updates, or human decisions are still missing.
+- Do not use the source playbook as a substitute for selecting the correct child skill.
 
 ## Validation
 
@@ -76,6 +93,7 @@ Before reporting completion, check:
 4. Diff analysis found no unrelated changes.
 5. Durable state, README/index files, spec files, or run notes were updated when required.
 6. Remaining gaps and human decision points are explicit.
+7. If the source playbook was read, the reason and section scope are reported.
 
 ## Output
 
@@ -83,6 +101,7 @@ Report:
 
 - current workflow step and atomic item
 - spec refs and allowed scope
+- playbook sections read, if any
 - changes made
 - tests and validation run
 - mutation result or manual mutation note
