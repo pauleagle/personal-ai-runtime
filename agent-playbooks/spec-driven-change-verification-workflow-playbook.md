@@ -480,6 +480,64 @@ candidate / proposed / accepted / deferred / rejected
 
 只有 `accepted` 且被 `SPEC.md` 或 active workflow 索引的項目，才應進入 implementation 或 atomic execution。
 
+#### Follow-up Items / Parent Traceability
+
+Phase、CR 或 EXP 在實作、manual run、review 或人類決策後，若產生 cleanup、runtime reliability、semantic refinement、migration debt、prompt / review calibration 等後續工作，應拆成明確 follow-up item，而不是隱性塞回 parent item 或散落在聊天紀錄。
+
+建議 ID 格式：
+
+```text
+<phase-id>-FU-<流水號>      例如 P0-FU-01
+<cr-id>-FU-<流水號>         例如 CR-001-FU-01
+<exp-id>-FU-<流水號>        例如 EXP-001-FU-01
+```
+
+Follow-up item 適合用於：
+
+- parent item 已接受或已部分完成，但後續觀察發現 default behavior、migration、prompt quality、runtime reliability 或文件索引仍有缺口。
+- 後續工作必須保留 parent 語意脈絡，例如「CR 已決定取代舊行為，但部分舊入口仍是預設」。
+- 該項目不應變成全新 CR / EXP，除非它改變 artifact contract、top-level lifecycle、正式 schema 或跨 phase architecture。
+
+Follow-up item 必須保留最小 metadata：
+
+```yaml
+item_id: CR-001-FU-01
+item_type: follow-up
+parent_type: CR
+parent_id: CR-001
+status: proposed
+title: Deprecate legacy Phase 0 default paths
+source_path: backlog/CR-001-FU-01-deprecate-legacy-phase0-default-paths.md
+parent_spec_path: specs/backlog/CR-001-appeal-point-and-art-style-extraction.md
+root_spec_path: SPEC.md
+integration_status: backlink-required
+```
+
+整理 follow-up 進 spec 時必須雙向 trace：
+
+- Follow-up -> parent：follow-up metadata 或 `Parent` 區塊必須列出 parent phase / CR / EXP ID、parent spec path、產生原因，以及對應的 spec refs / acceptance criteria / risk item。
+- Parent -> follow-up：parent spec 必須新增或更新 `## Follow-ups` 區塊，列出 follow-up ID、title、status、source path、reason、是否阻擋 parent completion，以及目前 integration / implementation 狀態。
+- Root index -> both：若專案已有 root `SPEC.md`、spec map 或 backlog index，必須能從 root index 找到 parent 與 follow-up；不能只讓 follow-up 存在於未索引 backlog 檔。
+- Tests / atomic items -> both：由 follow-up 產生的 tests、atomic items 或 prompts，`spec_refs` 應同時包含 follow-up ID 與 parent ID，例如 `CR-001-FU-01`, `CR-001`。
+- Completion check：若只更新了 follow-up 檔而沒有更新 parent backlink，或只更新了 parent `Follow-ups` 區塊而找不到 follow-up source，該整理不得視為完成，必須標成 spec gap / traceability gap。
+
+整理 follow-up 進 spec 時，應同步檢查並更新下列文件層：
+
+| 文件層 | 必須同步的內容 |
+|---|---|
+| Source backlog draft | 原始 `backlog/*-FU-*.md` 應標出已整理到哪個 formal spec、parent spec、root spec，以及目前 `integration_status` / `workflow_step`。 |
+| Formal follow-up spec | `specs/backlog/*-FU-*.md` 或對應細項 spec 應承載完整 scope、decisions、acceptance criteria、testing implications、atomic split draft / accepted items。 |
+| Parent spec | Parent phase / CR / EXP spec 必須有 `## Follow-ups` backlink，並能說明 follow-up 是否阻擋 parent completion。 |
+| Root spec / spec map | `SPEC.md` 或 root spec manifest 必須索引 parent 與 follow-up，讓 reviewer 不需要掃未索引 backlog 才能找到後續工作。 |
+| Local spec index | 若存在 `specs/README.md`、`specs/backlog/README.md`、`specs/features/README.md` 等 index，必須補上 follow-up row、status、parent ID、source / formal spec path。 |
+| Atomic prompts / work items | 後續 atomic item、prompt、test matrix 必須同時帶 parent ID 與 follow-up ID，避免實作完成後只 trace 到子項而失去原始 CR / EXP / phase 脈絡。 |
+
+Sync gate：
+
+- 若任一既有文件層適用但尚未更新，`integration_status` 不得標成 `ready`、`accepted` 或 `completed`。
+- 若某文件層在專案中尚不存在，不必為單一 follow-up 強行新增；但 formal spec 或 completion report 必須註記「not present / not applicable」，避免看起來像漏同步。
+- 每次 sync 後應用 `rg` / `Select-String` 或等效工具確認 parent ID 與 follow-up ID 在 root、parent、formal spec、source draft、local index 中可互相找到。
+
 建議拆檔訊號：
 
 - `SPEC.md` 已超過約 800-1500 行，或 review 時經常需要跳過大量不相關段落
@@ -560,6 +618,16 @@ Prompt File: agent-prompts/<project>/P0-02-<atomic-item>.md
 
 若政策是 `replacement`，spec 必須列出要被替換的舊入口、舊 artifact、舊預設行為、測試期望與文件索引。
 若政策不是 `replacement`，spec 必須列出 legacy 行為如何被保留、如何選擇、何時移除或為何不移除。
+
+## Follow-ups
+
+若此 spec / phase / CR / EXP 已產生 follow-up，使用表格保留 parent -> follow-up trace：
+
+| ID | Status | Source | Reason | Blocks parent completion | Notes |
+|---|---|---|---|---|---|
+| CR-001-FU-01 | proposed | backlog/CR-001-FU-01-...md | Legacy defaults still active after CR replacement | Yes / No | Requires CR-001 native default paths |
+
+每個 follow-up source 也必須反向列出 parent ID 與 parent spec path；若只能單向追蹤，視為 traceability gap。
 
 ## 不變條件
 
@@ -796,6 +864,8 @@ Completion Report:
 - `title`：短任務名稱
 - `workflow`：所屬 selected workflow
 - `spec_refs`：對應 SPEC section、acceptance criteria、error condition 或 risk item
+- `parent_item`：若此 item 來自 follow-up，列出 parent phase / CR / EXP ID 與路徑，例如 `CR-001`
+- `followup_refs`：若此 item 實作或整理 follow-up，列出 follow-up ID 與 source path，例如 `CR-001-FU-01`
 - `implementation_status`：此 atomic spec 的實作狀態，例如 `not-started`、`in-progress`、`implemented`、`verified`、`blocked` 或 `deferred`
 - `workflow_step`：此 atomic spec 下一個待執行或正在執行的 playbook step，例如 `Step 4.5`、`Step 6`、`Step 11`、`Step 12`、`Step 14`
 - `tier`：預期難度 / 風險層級，例如 Basic、Medium、High
@@ -1250,6 +1320,7 @@ Human 不需要手動驗證所有細節，但必須治理 correctness。
 - discard weak generated tests
 - refine JIT generation rules
 - update playbook / skill if workflow 本身有新發現
+- sync affected spec documents, including root spec manifest, parent spec backlinks, formal follow-up specs, source backlog drafts, local spec indexes, and atomic prompts / work items
 
 ---
 
@@ -1539,6 +1610,9 @@ Else -> discard, refine, or keep ephemeral
 - 行為變更必須更新 spec
 - 不允許 implicit spec drift
 - 若 code 與 spec 衝突，必須由 human 決定哪一方修正
+- Follow-up items 必須保留雙向 trace：follow-up 指回 parent，parent spec 也列出 follow-up；只有單向連結時不得視為已整理進 spec
+- 由 follow-up 產生的 tests、atomic items、prompts 或 docs 必須同時 trace 到 follow-up ID 與 parent phase / CR / EXP ID
+- Spec sync 必須涵蓋所有既有相關文件層：root spec / spec map、parent spec、formal child spec、source backlog draft、local README / index，以及 atomic prompts / work items；任一適用層缺漏時，應標成 `traceability gap` 或 `sync gap`
 
 ---
 
