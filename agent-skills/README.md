@@ -47,6 +47,7 @@ When a skill is based on a playbook, keep the two aligned:
 - Make the skill concise and execution-oriented.
 - Add implementation rules only when they help the agent apply the workflow reliably.
 - Re-check the related playbook when changing the skill.
+- For large playbooks, one playbook may map to a root/orchestrator skill plus child or shared skills; keep the root skill first in README mappings and mark the set `aligned` only after all mapped skills are reviewed together.
 
 ## Skill Inventory
 
@@ -56,7 +57,7 @@ Status follows the definitions in `agent-playbooks/README.md`.
 |---|---|---|---|
 | `preflight-protocol/` | `preflight-protocol.md` | `aligned` | Check task understanding, assumptions, uncertainty, risks, next steps, and likely files before non-trivial work. |
 | `changelog-normalization/` | `changelog-normalization.md` | `aligned` | Normalize changelog drafts or mixed notes into stable release history. |
-| `playbook-to-skill/` | `playbook-to-skill.md` | `aligned` | Extract human-readable playbooks into concise, command-oriented Codex skills. |
+| `playbook-to-skill/` | `playbook-to-skill.md` | `aligned` | Extract human-readable playbooks into one or more concise Codex skills, including orchestrator/child layouts and alignment checks. |
 | `prompt-to-playbook/` | `prompt-to-playbook.md` | `aligned` | Generalize one-off prompts, successful examples, or repeated instructions into maintainable playbooks. |
 | `nested-module-git-initialization/` | `nested-module-git-initialization.md` | `skill-extracted` | Check and initialize Git boundaries for nested child projects under `modules/` or `poc-modules/`. |
 | `utf8-traditional-chinese-defaults/` | `utf8-traditional-chinese-defaults.md` | `aligned` | Default text work to UTF-8, prefer Traditional Chinese for Chinese output, and use explicit UTF-8 encoding for PowerShell text I/O. |
