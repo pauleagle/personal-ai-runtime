@@ -13,7 +13,7 @@ Create or update the formal correctness contract that implementation, tests, JIT
 
 1. Read clarified requirements, existing README, existing spec files, open questions, and current project structure.
 2. Decide where the spec belongs: existing `SPEC.md`, a split file under `specs/`, or a new formal spec file.
-3. Define context, goal, scope, non-goals, inputs, outputs, business rules, invariants, error conditions, acceptance criteria, and testing implications.
+3. Define context, goal, scope, non-goals, inputs, outputs, business rules, invariants, error conditions, acceptance criteria, testing implications, and main workflow candidates.
 4. Keep README as an entry point; move correctness contracts into spec files when they become detailed.
 5. Separate accepted behavior from backlog, proposed, deferred, or rejected items.
 6. Preserve traceability for follow-up items, parent IDs, root spec indexes, and local spec indexes when applicable.
@@ -54,5 +54,6 @@ Report:
 - accepted behavior
 - open questions
 - testing implications
+- main workflow candidates
 - index or README updates
 - next gate

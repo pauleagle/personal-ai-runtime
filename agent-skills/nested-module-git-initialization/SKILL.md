@@ -44,6 +44,16 @@ git -C <project-root> status --short
 - Do not run `git add`, `git commit`, `git remote add`, or `git tag` unless the user explicitly asks.
 - If `git init` fails, report the error and the next suggested action.
 
+## Validation
+
+Check:
+
+1. The child project root was identified as `modules/<project>/` or `poc-modules/<project>/`.
+2. `.git` was checked directly at the child project root.
+3. `git init` was run only when `.git` was missing and the task was actively editing or organizing that child project.
+4. `git -C <project-root> status --short` was run after the check or initialization.
+5. No commit, remote, tag, or parent-repo initialization was performed unless explicitly requested.
+
 ## Output
 
 When reporting the boundary check, use this concise format:

@@ -52,5 +52,6 @@ Report:
 - hidden assumptions
 - compatibility or replacement concerns
 - testing or mutation concerns
+- simplification proposals
 - blocking status
 - recommended drill-down order

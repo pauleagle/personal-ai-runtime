@@ -51,6 +51,7 @@ Report:
 - spec updates
 - test updates
 - index or README updates
+- workflow note updates
 - traceability updates
 - rerun point
 - remaining gaps

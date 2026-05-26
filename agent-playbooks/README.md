@@ -104,12 +104,12 @@ Skill 不應只是複製 playbook 全文。若 playbook 有背景說明、設計
 | `prompt-to-playbook.md` | `prompt-to-playbook/` | `aligned` | 將一次性 prompt、成功案例或重複任務指令整理成可維護 playbook |
 | `personal-ai-assistant-bootstrap.md` | - | `draft` | 建立或更新個人 AI 分身資料層，包含資料夾骨架、入口規則、記憶、private context 引用與 skill 候選整理 |
 | `chat-to-note.md` | - | `draft` | 將聊天回答、AI 草稿或貼上的 Markdown 片段整理成乾淨、可維護且保留來源邊界的 note |
-| `spec-driven-change-verification-workflow-playbook.md` | `spec-driven-change-verification/` + child skills | `skill-extracted` | 以 spec、diff、mutation testing、atomic orchestration 與人工決策控制程式、測試和規格的共同演進；root skill 與主要 child skills 已萃取，完整對照依 extraction map |
+| `spec-driven-change-verification-workflow-playbook.md` | `spec-driven-change-verification/` + child skills | `aligned` | 以 spec、diff、mutation testing、atomic orchestration 與人工決策控制程式、測試和規格的共同演進；root skill 與 child skills 已依 extraction map 複查同步 |
 | `external-source-to-playbook.md` | - | `draft` | 將 `external-source/` 中的外部來源整理成帶有來源、license 與 attribution 資訊的 playbook |
 | `external-source-repo-import.md` | - | `draft` | 將外部 Git repository 匯入 `external-source/`，建立 metadata、notes、extracted、upstream 與 `.gitignore` 規則 |
 | `external-source-copyright-notice-review.md` | - | `draft` | 補查外部來源中非標準 license 檔的版權、授權、重用與公開分享限制 notice |
 | `external-source-to-rag-source.md` | - | `draft` | 將 `external-source/` 來源轉成帶有 rights、license manifest 與處理紀錄的 RAG source workspace |
-| `nested-module-git-initialization.md` | `nested-module-git-initialization/` | `skill-extracted` | 整理 `modules/` 或 `poc-modules/` 子專案時檢查獨立 Git 邊界，必要時執行 `git init` |
+| `nested-module-git-initialization.md` | `nested-module-git-initialization/` | `aligned` | 整理 `modules/` 或 `poc-modules/` 子專案時檢查獨立 Git 邊界，必要時執行 `git init` |
 | `release-preflight.md` | - | `draft` | 發版、tag、README、CHANGELOG 與 Git 狀態檢查流程 |
 | `utf8-traditional-chinese-defaults.md` | `utf8-traditional-chinese-defaults/` | `aligned` | 文件讀寫預設 UTF-8、繁體中文優先，並在 PowerShell 文字輸出時明確使用 `-Encoding UTF8` |
 

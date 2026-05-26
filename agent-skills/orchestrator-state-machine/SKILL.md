@@ -54,6 +54,6 @@ Report:
 - ready queue
 - blocked queue and reasons
 - selected next job
-- state patch proposal
+- state patch proposal or history
 - checkpoint status
 - resume note

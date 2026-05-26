@@ -44,7 +44,8 @@ Check:
 3. Mutants are described.
 4. Commands and tests are reported.
 5. Results are classified.
-6. Manual mutants were reverted.
+6. Framework mutation score is included when the tool produces one.
+7. Manual mutants were reverted.
 
 ## Output
 
@@ -54,6 +55,7 @@ Report:
 - impacted scope
 - mutants
 - commands run
+- framework mutation score, when produced
 - killed mutations
 - survived mutations
 - equivalent or suspicious mutations
