@@ -127,7 +127,7 @@ This follow-up should not:
 - Require all internal reasoning traces to be exposed to the user.
 - Treat gate results as weighted scores.
 - Use compression as an excuse to omit required DONE items.
-- Publish source attribution before the author confirms the preferred credit format.
+- Use attribution beyond the confirmed GitHub profile link.
 
 ---
 
@@ -227,7 +227,7 @@ Stop when verification passes and no shorter valid result is available.
 3. Add a short reference from the existing `Workflow Decomposition / Atomic Work Items` section.
 4. Add a short reference from the existing `Completion Check` or final verification section.
 5. If a root skill exists for `spec-driven-change-verification`, consider whether the skill should receive a compressed version of this kernel.
-6. Keep attribution as pending until the shadowMAS author confirms whether and how they want to be credited.
+6. Preserve the confirmed attribution format: GitHub profile link only.
 
 ---
 
@@ -252,8 +252,8 @@ This follow-up is complete when:
 - [ ] The section clearly separates validity gates from compression objective.
 - [ ] The section explains when to split, merge, delete, repair, and stop.
 - [ ] The section maps naturally to existing Preflight, DA, Atomic Decomposition, and Completion Check stages.
-- [ ] Attribution is marked as pending until the shadowMAS author confirms preferred credit.
-- [ ] No personal attribution is published without explicit confirmation.
+- [ ] Attribution uses the confirmed GitHub profile link only.
+- [ ] No additional personal name, handle, or private context is added beyond the confirmed attribution.
 - [ ] The update does not require rewriting the full parent playbook.
 
 ---
@@ -283,17 +283,17 @@ Mitigation:
 - Emphasize that compression happens only after every DONE item and gate passes.
 - Keep `usability` as a gate.
 
-### DA-PB-FU-002-003 — Risk: Attribution ambiguity
+### DA-PB-FU-002-003 — Risk: Attribution drift
 
-Severity: Medium
+Severity: Low
 
-The idea came from a shared external note, but the preferred attribution is not yet confirmed.
+The source author confirmed GitHub profile link attribution only, but future edits may accidentally add extra personal names, handles, or context.
 
 Mitigation:
 
-- Keep attribution as pending.
-- Use neutral wording such as `inspired by an externally shared mdl_kernel note`.
-- Add explicit TODO to update attribution after confirmation.
+- Preserve the confirmed GitHub profile link.
+- Do not add extra personal attribution unless explicitly confirmed later.
+- Keep the source note factual and minimal.
 
 ### DA-PB-FU-002-004 — Risk: Full workflow becomes too heavy for small tasks
 
@@ -308,27 +308,19 @@ Mitigation:
 
 ---
 
-## Attribution TODO
+## Attribution Note
 
-Before publishing this in a public-facing or explicitly credited form, confirm with the shadowMAS author:
+The `mdl_kernel | minimal faithful execution kernel` concept was shared by https://github.com/scyprodigy.
 
-1. Should the source be credited?
-2. Which name, handle, or project name should be used?
-3. Is the exact `mdl_kernel` text allowed to be quoted?
-4. Should the repo include a source URL, private note reference, or no link?
-5. Is this considered an idea contribution, inspiration, or reusable external material?
+Confirmed attribution preference:
 
-Until confirmed, use:
-
-```md
-External inspiration: `mdl_kernel | minimal faithful execution kernel`, shared by the shadowMAS author. Attribution format pending confirmation.
-```
+- Credit by GitHub profile link only.
+- Do not add additional personal names, handles, or private context unless explicitly confirmed later.
 
 ---
 
 ## Recommended Commit Message
 
 ```text
-docs(backlog): add PB-FU-002 for mdl kernel integration
+docs(backlog): finalize PB-FU-002 attribution wording
 ```
-
