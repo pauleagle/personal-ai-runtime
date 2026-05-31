@@ -107,7 +107,7 @@ Skill 不應只是複製 playbook 全文。若 playbook 有背景說明、設計
 | `prompt-to-playbook.md` | `prompt-to-playbook/` | `aligned` | 將一次性 prompt、成功案例或重複任務指令整理成可維護 playbook |
 | `personal-ai-assistant-bootstrap.md` | - | `draft` | 建立或更新個人 AI 分身資料層，包含資料夾骨架、入口規則、記憶、private context 引用與 skill 候選整理 |
 | `chat-to-note.md` | - | `draft` | 將聊天回答、AI 草稿或貼上的 Markdown 片段整理成乾淨、可維護且保留來源邊界的 note |
-| `spec-driven-change-verification-workflow-playbook.md` | `spec-driven-change-verification/` + child skills | `aligned-with-followups` | 以 spec、diff、mutation testing、atomic orchestration 與人工決策控制程式、測試和規格的共同演進；root skill 與 child skills 已依 extraction map 複查同步，並有 `SKILL-RUN-FU-01` closeout checklist refinement backlog |
+| `spec-driven-change-verification-workflow-playbook.md` | `spec-driven-change-verification/` + child skills | `aligned-with-followups` | 以 spec、diff、mutation testing、atomic orchestration 與人工決策控制程式、測試和規格的共同演進；root skill 與 child skills 已依 extraction map 複查同步，並有 `PB-FU-001` closeout checklist refinement backlog |
 | `external-source-to-playbook.md` | - | `draft` | 將 `external-source/` 中的外部來源整理成帶有來源、license 與 attribution 資訊的 playbook |
 | `external-source-repo-import.md` | - | `draft` | 將外部 Git repository 匯入 `external-source/`，建立 metadata、notes、extracted、upstream 與 `.gitignore` 規則 |
 | `external-source-copyright-notice-review.md` | - | `draft` | 補查外部來源中非標準 license 檔的版權、授權、重用與公開分享限制 notice |

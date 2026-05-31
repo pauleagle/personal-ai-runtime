@@ -663,69 +663,19 @@ Acceptance criteria:
 - `rg` 可從 root playbook 找到 orchestration、atomic metadata、mutation governance 與 spec structure 的新入口。
 - 拆分必須在充足 usage / context 下作為獨立 atomic doc item 執行，並完成 diff check、link/readback verification 與 commit checkpoint。
 
-#### Backlog: `SKILL-RUN-FU-01` Add Short Skill Execution Closeout Checklist
+#### Backlog: `PB-FU-001` Add Short Skill Execution Closeout Checklist
 
-Status: `proposed`
+Status: `draft`
 
-Non-impact note:
+Source: `backlog/PB-FU-001-add-short-skill-execution-closeout-checklist.md`
 
-- This is a follow-up backlog item only. Do not change the current spec-driven
-  workflow, skill trigger rules, extraction map, or child-skill contracts while
-  recording this item.
+Legacy ID: `SKILL-RUN-FU-01`
 
-Trigger:
-
-- A late-stage `CR-001-FU-01` execution used the extracted skills successfully,
-  but the operator still had to manually compress the full workflow into a
-  practical closeout loop.
-- The most useful repeated actions were: find the next unimplemented atomic
-  slice, run the smallest sufficient verification, update durable
-  `workflow_step` / implementation status, checkpoint with a commit, and verify
-  that only expected untracked artifacts remain.
-
-Observed friction:
-
-- `workflow_step` semantics were clear, but deciding when to advance from
-  atomic execution to final verified state still required manual judgement.
-- Multiple relevant skills can be correct at once, but loading too many full
-  skill/playbook bodies creates overhead during an 80%+ closeout round.
-- Small CLI help / docs mismatches need a policy that they are usually
-  self-fixable inside the current atomic item unless they change behavior or
-  expose a real human decision.
-- Verification level still needs an explicit closeout decision table for docs,
-  help text, implementation behavior, import graph changes, and mutation/manual
-  mutation expectations.
-
-Proposed addition:
-
-Create a compact "skill execution closeout checklist" for late-stage atomic
-items:
-
-1. Read durable state and identify the next incomplete atomic slice.
-2. Confirm no human decision gap blocks the slice.
-3. Keep edits to the smallest behavior/docs surface needed by that slice.
-4. Run focused verification, then the module's minimum full verification.
-5. Run smoke checks for any touched entrypoint/import/help surface.
-6. State whether mutation tooling or scoped manual mutation was run, skipped,
-   or not applicable, and why.
-7. Update `workflow_step`, atomic item status, parent/root indexes, and handoff
-   notes in durable artifacts.
-8. Run whitespace/diff checks, commit the checkpoint, and verify remaining
-   worktree noise is expected.
-
-Acceptance criteria:
-
-- The checklist is short enough to load before a closeout round without reading
-  the full playbook.
-- It preserves current governance: no hidden promotion of backlog items, no
-  skipped human decision gates, and no silent weakening of mutation/test
-  effectiveness language.
-- It names which situations are self-fixable during closeout, such as stale
-  help text or status cursor drift, versus which situations require human
-  intervention, such as behavior-policy changes or new CLI contracts.
-- It can be implemented either as a small playbook section or as a future
-  refinement to the root `spec-driven-change-verification` /
-  `orchestrator-state-machine` skills.
+The former inline `SKILL-RUN-FU-01` follow-up has been consolidated into the
+backlog file above. It remains non-blocking: recording or later implementing it
+must not change the current spec-driven workflow, skill trigger rules,
+extraction map, or child-skill contracts unless an explicit refinement item
+accepts those changes.
 
 細項 spec 若會被 atomic execution 引用，建議在文件前段保留 metadata：
 
