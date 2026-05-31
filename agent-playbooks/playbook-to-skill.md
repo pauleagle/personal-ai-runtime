@@ -46,6 +46,8 @@ Skill 不應保留：
 
 在 playbook-to-skill 流程中，凡是可由 deterministic command、parser、validator 或檔案讀取確認的事實，應先用工具確認，再讓 LLM 做解讀、比較與決策。
 
+若需要新增 reusable skill script，預設同時支援 Windows 與 Linux。優先使用一份 portable implementation，例如 Python，再用薄 PowerShell / POSIX shell wrapper 改善呼叫體驗；若無法跨平台，必須在 skill 中明確寫出限制與驗證缺口。
+
 優先用 script / command 確認：
 
 - `agent-playbooks/README.md` 與 `agent-skills/README.md` 的 inventory rows
@@ -186,9 +188,10 @@ Playbook / skill / README 更新規則：
 8. 判斷哪些內容應保留在 playbook，哪些內容應萃取到 root、child 或 shared skill。
 9. 建立或更新 `agent-skills/<skill-name>/SKILL.md`。
 10. 確認每個 skill 使用短版、命令式、可執行的規則。
-11. 確認每個 skill frontmatter 只包含必要的 `name` 與 `description`。
-12. 更新 `agent-playbooks/README.md` 與 `agent-skills/README.md` 的對照表與狀態。
-13. 若有 skill validator，執行驗證；若沒有，做手動結構檢查。
+11. 若新增 reusable skill script，確認 Windows 與 Linux invocation 都有文件，且路徑處理避免硬編碼單一 OS separator。
+12. 確認每個 skill frontmatter 只包含必要的 `name` 與 `description`。
+13. 更新 `agent-playbooks/README.md` 與 `agent-skills/README.md` 的對照表與狀態。
+14. 若有 skill validator，執行驗證；若沒有，做手動結構檢查。
 
 ## Playbook 整理規則
 

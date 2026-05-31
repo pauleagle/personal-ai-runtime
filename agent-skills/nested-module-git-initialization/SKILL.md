@@ -9,28 +9,68 @@ description: Check and initialize Git boundaries for nested child projects under
 
 Ensure child projects under `modules/` or `poc-modules/` have their own Git repository when they are being actively organized or edited.
 
+## Script-First Execution
+
+Use the bundled helper for routine boundary checks before falling back to manual commands. The canonical implementation is cross-platform Python, with PowerShell and POSIX shell wrappers.
+
+Windows / PowerShell:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File agent-skills\nested-module-git-initialization\scripts\check_nested_module_git.ps1 -ProjectRoot modules\<project>
+```
+
+Linux / POSIX shell:
+
+```sh
+sh agent-skills/nested-module-git-initialization/scripts/check_nested_module_git.sh --project-root modules/<project>
+```
+
+Direct Python fallback:
+
+```sh
+python3 agent-skills/nested-module-git-initialization/scripts/check_nested_module_git.py --project-root modules/<project>
+```
+
+If the helper reports that `.git` is missing and the task is actively editing or organizing that child project, rerun it with initialization enabled:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File agent-skills\nested-module-git-initialization\scripts\check_nested_module_git.ps1 -ProjectRoot modules\<project> -Initialize
+```
+
+```sh
+sh agent-skills/nested-module-git-initialization/scripts/check_nested_module_git.sh --project-root modules/<project> --initialize
+```
+
+The helper is the deterministic evidence collector for this skill. Use LLM judgment for identifying the intended child project root, resolving ambiguity, and summarizing the result in the user-facing handoff.
+
 ## Workflow
 
 1. Identify each target child project root from task paths:
    - `modules/<project>/`
    - `poc-modules/<project>/`
-2. Check whether the child project root has `.git`:
+2. Run the script-first boundary check when available:
+   - On Windows, use `scripts/check_nested_module_git.ps1 -ProjectRoot <project-root>`.
+   - On Linux, use `scripts/check_nested_module_git.sh --project-root <project-root>`.
+   - Use the Python script directly when a wrapper is unavailable.
+   - Use `-Json` / `--json` when another workflow step needs structured evidence.
+3. If the script is unavailable, manually check whether the child project root has `.git`:
    - Use `Test-Path <project-root>/.git` on PowerShell.
+   - Use `test -e <project-root>/.git` on Linux / POSIX shell.
    - Treat either a `.git` directory or `.git` file as already initialized.
-3. Do not rely only on `git -C <project-root> rev-parse --show-toplevel`; it may report the parent workspace repository.
-4. If `.git` is missing and the task is actively editing or organizing that child project, run:
+4. Do not rely only on `git -C <project-root> rev-parse --show-toplevel`; it may report the parent workspace repository.
+5. If `.git` is missing and the task is actively editing or organizing that child project, run the helper with `-Initialize` or run:
 
 ```powershell
 git -C <project-root> init
 ```
 
-5. After checking or initializing, run:
+6. After checking or initializing, ensure the resulting status was captured by the helper or run:
 
 ```powershell
 git -C <project-root> status --short
 ```
 
-6. Continue the requested work only after the Git boundary is clear.
+7. Continue the requested work only after the Git boundary is clear.
 
 ## Rules
 
@@ -49,10 +89,12 @@ git -C <project-root> status --short
 Check:
 
 1. The child project root was identified as `modules/<project>/` or `poc-modules/<project>/`.
-2. `.git` was checked directly at the child project root.
-3. `git init` was run only when `.git` was missing and the task was actively editing or organizing that child project.
-4. `git -C <project-root> status --short` was run after the check or initialization.
-5. No commit, remote, tag, or parent-repo initialization was performed unless explicitly requested.
+2. The script-first boundary check was used when available, or the manual fallback reason is clear.
+3. `.git` was checked directly at the child project root.
+4. `git init` was run only when `.git` was missing and the task was actively editing or organizing that child project.
+5. `git -C <project-root> status --short` was run after the check or initialization.
+6. Windows and Linux invocation paths are documented when the helper script is changed.
+7. No commit, remote, tag, or parent-repo initialization was performed unless explicitly requested.
 
 ## Output
 

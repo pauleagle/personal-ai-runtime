@@ -15,6 +15,7 @@
 - Principle: 能用 script 就不用 LLM
 - Integration Status: Partially integrated
 - Status Impact: No current README status change; this is a non-blocking cross-skill maintenance follow-up.
+- Script Portability: Future reusable skill scripts should support Windows and Linux by default, preferably through one portable implementation plus thin shell wrappers.
 
 ---
 
@@ -36,6 +37,8 @@ Completed:
 - Added a `Profile` column to the skill inventory.
 - Classified each current aligned / aligned-with-followups skill as `script`, `hybrid`, `low-llm`, or `heavy-llm`.
 - Kept the classification at the README index layer only, so existing `SKILL.md` frontmatter and trigger behavior remain unchanged.
+- Added cross-platform script guidance for future reusable skill scripts.
+- Added Windows / Linux wrapper guidance to `nested-module-git-initialization`.
 
 Still open:
 
@@ -43,6 +46,7 @@ Still open:
 - Add or document a repeatable inventory audit script.
 - Decide whether each `SKILL.md` should later receive machine-readable `metadata.execution_profile`.
 - Review high-priority skills one by one before adding per-skill script-first rules beyond the README profile hint.
+- Audit future script additions for Windows and Linux invocation coverage.
 
 ---
 
@@ -96,6 +100,7 @@ This causes avoidable issues:
 - Skill frontmatter validation may be skipped or run inconsistently.
 - Windows UTF-8 pitfalls can make a validator fail before the skill content is actually inspected.
 - Spec-driven skills may ask an LLM to classify state before basic artifacts, diffs, statuses, and test outputs are collected.
+- Script helpers may accidentally become Windows-only or Linux-only if path separators, shells, or command names are hard-coded without wrappers.
 
 ---
 
@@ -148,6 +153,12 @@ For aligned skills, prefer deterministic checks before LLM reasoning. If a scrip
 Do not ask the LLM to infer file existence, status rows, frontmatter validity, changed files, command availability, or test outcomes when a local command can verify them.
 ```
 
+Suggested script portability rule:
+
+```md
+When adding reusable skill scripts, support Windows and Linux by default. Prefer one portable implementation, such as Python, with thin PowerShell and POSIX shell wrappers when wrapper ergonomics help. If a script cannot be cross-platform, document the limitation and validation gap in the skill.
+```
+
 Suggested compact rule for individual skills:
 
 ```md
@@ -167,6 +178,7 @@ Before semantic judgement, run deterministic discovery and validation available 
 | Git boundaries | Use `Test-Path <module>/.git` and `git -C <module> status --short` before child-module edits. |
 | Diff analysis | Use `git status`, `git diff --name-only`, `git diff --stat`, and targeted `rg` before LLM impact analysis. |
 | Encoding | Read Markdown with explicit UTF-8 and fail clearly on mojibake or validator encoding errors. |
+| Script portability | Prefer portable runtimes, avoid hard-coded path separators, and document Windows plus Linux invocation. |
 | Mutation/test availability | Detect installed mutation/test tools before claiming they ran. |
 
 ---
@@ -234,9 +246,11 @@ These are more judgement-heavy. Scripts should collect evidence first, but shoul
 This follow-up is complete when:
 
 - [x] A shared script-first minimization rule exists in the skill maintenance docs.
+- [x] Cross-platform script guidance exists for future reusable skill scripts.
 - [ ] Skill validation is UTF-8-safe on Windows.
 - [ ] A repeatable inventory audit exists or is documented.
 - [ ] High-priority aligned / aligned-with-followups skills explicitly prefer deterministic discovery before LLM judgement where applicable.
+- [ ] Future script additions include Windows and Linux invocation coverage or explicitly document why not.
 - [ ] The rule does not require scripts for purely semantic judgement tasks.
 - [ ] The update does not silently change current skill triggers, output contracts, or extraction maps.
 - [ ] `agent-skills/README.md` and `agent-playbooks/README.md` remain synchronized after any status or mapping changes.

@@ -17,6 +17,8 @@ Before semantic judgement, use deterministic checks for facts that commands can 
 
 Use LLM reasoning for extraction strategy, semantic alignment, gap classification, and recommendations after those facts are collected.
 
+When adding reusable skill scripts, support Windows and Linux by default. Prefer one portable implementation, such as Python, with thin PowerShell and POSIX shell wrappers when wrapper ergonomics help. If a script cannot be cross-platform, document the limitation and validation gap in the skill.
+
 ## Workflow
 
 1. Run deterministic checks first when available: parse README rows, check mapped files, inspect frontmatter, compare skill folder/name, collect git diff/status, and run validators.
@@ -27,8 +29,9 @@ Use LLM reasoning for extraction strategy, semantic alignment, gap classificatio
 6. If the playbook is large or contains independent workflows, create an extraction map before editing skills.
 7. Create or update only the needed `agent-skills/<skill-name>/SKILL.md` files.
 8. Keep each skill concise, imperative, executable, and scoped to its trigger.
-9. Update `agent-playbooks/README.md` and `agent-skills/README.md` when mappings, descriptions, or statuses change.
-10. Validate frontmatter, naming, scope, README status, and alignment with the source playbook.
+9. For any reusable skill script, document Windows and Linux invocation and prefer portable path handling.
+10. Update `agent-playbooks/README.md` and `agent-skills/README.md` when mappings, descriptions, or statuses change.
+11. Validate frontmatter, naming, scope, README status, and alignment with the source playbook.
 
 ## Extraction Modes
 

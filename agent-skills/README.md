@@ -14,6 +14,8 @@ agent-skills/
 
 Optional supporting files may be added when a skill needs reusable scripts, references, templates, or assets.
 
+When adding scripts, prefer a cross-platform core that works on Windows and Linux, such as Python or another portable runtime already expected by the workspace. If a shell-specific entry point is useful, provide thin wrappers for both Windows PowerShell and Linux/POSIX shell, or document the platform limitation explicitly in `SKILL.md`.
+
 ```text
 agent-skills/
   example-skill/

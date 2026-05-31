@@ -16,6 +16,36 @@ Nested Module Git Initialization 是整理 `modules/` 或 `poc-modules/` 底下�
 
 初始化 Git repository 不等於自動 commit。除非使用者明確要求，agent 不應自動建立 commit、tag 或 remote。
 
+## Script-first 對齊
+
+例行 Git 邊界檢查屬於可由 script 穩定取得的狀態，應優先使用對應 skill script，避免讓 LLM 手動重複判讀 `Test-Path` 與 `git status` 結果。
+
+此 helper 的 canonical implementation 是跨平台 Python，並提供 Windows PowerShell 與 Linux/POSIX shell wrapper。
+
+Windows / PowerShell：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File agent-skills\nested-module-git-initialization\scripts\check_nested_module_git.ps1 -ProjectRoot modules\<project>
+```
+
+Linux / POSIX shell：
+
+```sh
+sh agent-skills/nested-module-git-initialization/scripts/check_nested_module_git.sh --project-root modules/<project>
+```
+
+若 script 回報 `.git` 不存在，且本次任務正在整理該子專案內容，再使用初始化 flag 執行初始化：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File agent-skills\nested-module-git-initialization\scripts\check_nested_module_git.ps1 -ProjectRoot modules\<project> -Initialize
+```
+
+```sh
+sh agent-skills/nested-module-git-initialization/scripts/check_nested_module_git.sh --project-root modules/<project> --initialize
+```
+
+需要讓後續流程或其他工具消費結果時，可加上 `-Json` / `--json` 取得結構化輸出。
+
 ## 適用時機
 
 - 任務目標位於 `modules/<project>/`
@@ -49,10 +79,24 @@ poc-modules/<project>/
 
 ### 2. 檢查是否已有獨立 Git repository
 
-優先檢查：
+優先使用 skill script：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File agent-skills\nested-module-git-initialization\scripts\check_nested_module_git.ps1 -ProjectRoot <project-root>
+```
+
+```sh
+sh agent-skills/nested-module-git-initialization/scripts/check_nested_module_git.sh --project-root <project-root>
+```
+
+若 script 暫時不可用，再手動檢查：
 
 ```powershell
 Test-Path <project-root>/.git
+```
+
+```sh
+test -e <project-root>/.git
 ```
 
 若 `.git` 存在，視為已初始化。它可能是 directory，也可能是 worktree 或 submodule 使用的 file。
