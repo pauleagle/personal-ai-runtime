@@ -1,0 +1,258 @@
+# SK-FU-001 Script-First Skill Execution Minimization
+
+## Metadata
+
+- Type: Skill Follow-up
+- ID: SK-FU-001
+- Status: Draft
+- Source Review: `agent-skills/README.md` aligned / aligned-with-followups inventory review
+- Suggested Location: `backlog/SK-FU-001-script-first-skill-execution-minimization.md`
+- Scope:
+  - `agent-skills/README.md`
+  - `agent-playbooks/README.md`
+  - aligned skills
+  - aligned-with-followups skills
+- Principle: 能用 script 就不用 LLM
+- Integration Status: Partially integrated
+- Status Impact: No current README status change; this is a non-blocking cross-skill maintenance follow-up.
+
+---
+
+## Summary
+
+Review the `aligned` and `aligned-with-followups` skills under the minimization principle:
+
+> If a deterministic script, parser, validator, grep, status command, or test command can answer a question reliably, run that first and reserve LLM reasoning for interpretation, judgement, synthesis, and unresolved ambiguity.
+
+The current skill inventory is usable, but many skills still describe human/LLM review steps without explicitly requiring deterministic discovery or validation before semantic reasoning. This follow-up should add a shared script-first execution rule and supporting validation scripts where they reduce repeated LLM work.
+
+---
+
+## Current Integration Progress
+
+Completed:
+
+- Added an `Execution Profile` section to `agent-skills/README.md`.
+- Added a `Profile` column to the skill inventory.
+- Classified each current aligned / aligned-with-followups skill as `script`, `hybrid`, `low-llm`, or `heavy-llm`.
+- Kept the classification at the README index layer only, so existing `SKILL.md` frontmatter and trigger behavior remain unchanged.
+
+Still open:
+
+- Add a UTF-8-safe validator or wrapper for skill validation on Windows.
+- Add or document a repeatable inventory audit script.
+- Decide whether each `SKILL.md` should later receive machine-readable `metadata.execution_profile`.
+- Review high-priority skills one by one before adding per-skill script-first rules beyond the README profile hint.
+
+---
+
+## Review Method
+
+The review intentionally used scriptable checks first:
+
+- Parsed `agent-skills/README.md` for rows with status `aligned` or `aligned-with-followups`.
+- Counted matching skills and grouped by status.
+- Checked each mapped `agent-skills/<skill>/SKILL.md` for:
+  - frontmatter `name`,
+  - line count,
+  - presence of `scripts/`,
+  - whether the skill text mentions scriptable tools or commands.
+- Ran the existing `quick_validate.py` validator against the target skills where possible.
+- Used `rg` / `Select-String` style searches for command/tool references.
+
+No semantic alignment was accepted purely from memory or impression.
+
+---
+
+## Scripted Review Findings
+
+| Status | Skills Reviewed | Mention Scriptable Tooling | Has `scripts/` Directory |
+|---|---:|---:|---:|
+| `aligned` | 6 | 5 | 0 |
+| `aligned-with-followups` | 19 | 4 | 0 |
+| Total | 25 | 9 | 0 |
+
+Validator result:
+
+- 23 / 25 skills were mechanically valid with `quick_validate.py`.
+- `changelog-normalization` and `prompt-to-playbook` triggered `UnicodeDecodeError` under Windows `cp950` default decoding.
+- The two failures appear to be validator UTF-8 handling issues, not confirmed skill frontmatter defects, because both files read correctly with `Get-Content -Encoding UTF8`.
+
+Important caveat:
+
+- The existing validator script uses Python `Path.read_text()` without explicit `encoding="utf-8"`.
+- For Traditional Chinese or mixed-language skills, validation itself should be UTF-8-safe before its result is treated as authoritative.
+
+---
+
+## Problem
+
+Several aligned skills can benefit from deterministic pre-checks, but the current skill set does not define a shared rule for when scripts or command output must precede LLM judgement.
+
+This causes avoidable issues:
+
+- LLM review may re-derive facts that `rg`, `git`, tests, or validators could answer directly.
+- Alignment checks may depend on prose reading instead of inventory parsing.
+- Skill frontmatter validation may be skipped or run inconsistently.
+- Windows UTF-8 pitfalls can make a validator fail before the skill content is actually inspected.
+- Spec-driven skills may ask an LLM to classify state before basic artifacts, diffs, statuses, and test outputs are collected.
+
+---
+
+## Objective
+
+Add a shared script-first minimization rule for aligned and aligned-with-followups skills.
+
+The rule should make deterministic checks the first step whenever the question is about:
+
+- file existence,
+- README inventory rows,
+- frontmatter validity,
+- status values,
+- changed files and diffs,
+- path routing,
+- Git boundaries,
+- available tests,
+- command availability,
+- generated artifacts,
+- changelog headings,
+- encoding/readability,
+- or validation outputs.
+
+LLM reasoning should then summarize, interpret, compare, or decide only after those facts are collected.
+
+---
+
+## Non-goals
+
+This follow-up should not:
+
+- Replace semantic review, risk analysis, design judgement, or human decisions with scripts.
+- Force every skill to have a `scripts/` directory.
+- Add heavyweight automation for one-off judgement tasks.
+- Change all `aligned` statuses to `aligned-with-followups` immediately.
+- Edit all skill files in one large sweep without a focused implementation plan.
+- Treat script output as authoritative when the script is known to be encoding-unsafe or scope-blind.
+
+---
+
+## Proposed Shared Rule
+
+Suggested concise rule for `agent-skills/README.md` or a shared skill maintenance section:
+
+```md
+### Script-First Minimization
+
+For aligned skills, prefer deterministic checks before LLM reasoning. If a script, parser, `rg`, `git`, test command, validator, or file read can establish a fact, run it first and use the LLM only to interpret the result, resolve ambiguity, or make a judgement that cannot be scripted safely.
+
+Do not ask the LLM to infer file existence, status rows, frontmatter validity, changed files, command availability, or test outcomes when a local command can verify them.
+```
+
+Suggested compact rule for individual skills:
+
+```md
+Before semantic judgement, run deterministic discovery and validation available for this task. Use LLM reasoning only for synthesis, gap classification, and decisions that cannot be answered safely by command output.
+```
+
+---
+
+## Candidate Scriptable Checks
+
+| Area | Candidate Check |
+|---|---|
+| Skill inventory | Parse `agent-skills/README.md` and `agent-playbooks/README.md` tables; detect missing mapped files and status mismatches. |
+| Skill frontmatter | Validate `SKILL.md` YAML with explicit UTF-8 decoding; confirm `name` matches folder name. |
+| Skill size / shape | Count lines, detect unexpectedly long skills, and flag missing required sections. |
+| Playbook mapping | Confirm mapped playbooks exist and that one-to-many mappings list the root skill first. |
+| Git boundaries | Use `Test-Path <module>/.git` and `git -C <module> status --short` before child-module edits. |
+| Diff analysis | Use `git status`, `git diff --name-only`, `git diff --stat`, and targeted `rg` before LLM impact analysis. |
+| Encoding | Read Markdown with explicit UTF-8 and fail clearly on mojibake or validator encoding errors. |
+| Mutation/test availability | Detect installed mutation/test tools before claiming they ran. |
+
+---
+
+## Priority Candidates
+
+### High
+
+- `playbook-to-skill`
+- `prompt-to-playbook`
+- `spec-driven-change-verification`
+- `diff-analysis`
+- `impact-analysis`
+- `mutation-testing`
+- `nested-module-git-initialization`
+- `utf8-traditional-chinese-defaults`
+
+Reason:
+
+These skills already depend on inventory, filesystem, Git, test, mutation, or encoding facts that scripts can verify cheaply.
+
+### Medium
+
+- `changelog-normalization`
+- `context-pack-builder`
+- `orchestrator-state-machine`
+- `spec-test-evolution`
+- `test-effectiveness-evaluation`
+
+Reason:
+
+These skills still need judgement, but deterministic pre-checks can reduce context load and prevent missed files, stale state, or weak validation claims.
+
+### Lower
+
+- `devils-advocate-review`
+- `intent-analysis`
+- `decision-proposal`
+- `test-promotion`
+
+Reason:
+
+These are more judgement-heavy. Scripts should collect evidence first, but should not replace the actual reasoning output.
+
+---
+
+## Suggested Implementation Steps
+
+1. Add the shared script-first minimization rule to `agent-skills/README.md`. Completed partially via the `Execution Profile` section and `Profile` inventory column.
+2. Add a UTF-8-safe skill validator wrapper or update validation guidance so `quick_validate.py` failures caused by Windows default encoding are not misclassified as skill defects.
+3. Add or document a small skill inventory audit script that checks:
+   - README rows,
+   - mapped skill/playbook existence,
+   - frontmatter `name`,
+   - status values,
+   - missing `SKILL.md`,
+   - and one-to-many mapping shape.
+4. Update high-priority skills with a short "run deterministic checks first" line only where it changes execution behavior.
+5. Re-run validation and confirm statuses remain correct.
+
+---
+
+## Acceptance Criteria
+
+This follow-up is complete when:
+
+- [x] A shared script-first minimization rule exists in the skill maintenance docs.
+- [ ] Skill validation is UTF-8-safe on Windows.
+- [ ] A repeatable inventory audit exists or is documented.
+- [ ] High-priority aligned / aligned-with-followups skills explicitly prefer deterministic discovery before LLM judgement where applicable.
+- [ ] The rule does not require scripts for purely semantic judgement tasks.
+- [ ] The update does not silently change current skill triggers, output contracts, or extraction maps.
+- [ ] `agent-skills/README.md` and `agent-playbooks/README.md` remain synchronized after any status or mapping changes.
+
+---
+
+## Review Notes
+
+This backlog item is intentionally non-blocking.
+
+The existing aligned and aligned-with-followups skills remain usable. The gap is execution efficiency and verification discipline, not a known correctness failure in the current skill contracts.
+
+---
+
+## Recommended Commit Message
+
+```text
+docs(backlog): add SK-FU-001 script-first skill follow-up
+```

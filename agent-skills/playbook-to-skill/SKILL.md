@@ -9,17 +9,26 @@ description: Convert an existing playbook into one or more executable agent skil
 
 Turn `agent-playbooks/` workflows into concise Codex skills while keeping playbooks human-readable. Support single-skill extraction, multi-skill extraction, orchestrator-plus-children layouts, alignment checks, and resync after playbook changes.
 
+## Script-First Minimization
+
+能用 script 就不用 LLM。
+
+Before semantic judgement, use deterministic checks for facts that commands can verify: README inventory rows, mapped file existence, `SKILL.md` frontmatter, folder/name agreement, allowed status values, git diff/status, and validator results.
+
+Use LLM reasoning for extraction strategy, semantic alignment, gap classification, and recommendations after those facts are collected.
+
 ## Workflow
 
-1. Read the target playbook, `agent-playbooks/README.md`, `agent-skills/README.md`, and any mapped skills.
-2. Determine whether the user wants assessment only, a single skill, a root/orchestrator skill, child skills, an extraction map only, an alignment check, or resync after playbook changes.
-3. Choose an extraction mode: `single-skill`, `multi-skill`, `orchestrator-plus-children`, `alignment-check`, or `resync-after-playbook-change`.
-4. If the user did not clearly ask to modify files, report assessment and extraction strategy only.
-5. If the playbook is large or contains independent workflows, create an extraction map before editing skills.
-6. Create or update only the needed `agent-skills/<skill-name>/SKILL.md` files.
-7. Keep each skill concise, imperative, executable, and scoped to its trigger.
-8. Update `agent-playbooks/README.md` and `agent-skills/README.md` when mappings, descriptions, or statuses change.
-9. Validate frontmatter, naming, scope, README status, and alignment with the source playbook.
+1. Run deterministic checks first when available: parse README rows, check mapped files, inspect frontmatter, compare skill folder/name, collect git diff/status, and run validators.
+2. Read the target playbook, `agent-playbooks/README.md`, `agent-skills/README.md`, and any mapped skills.
+3. Determine whether the user wants assessment only, a single skill, a root/orchestrator skill, child skills, an extraction map only, an alignment check, or resync after playbook changes.
+4. Choose an extraction mode: `single-skill`, `multi-skill`, `orchestrator-plus-children`, `alignment-check`, or `resync-after-playbook-change`.
+5. If the user did not clearly ask to modify files, report assessment and extraction strategy only.
+6. If the playbook is large or contains independent workflows, create an extraction map before editing skills.
+7. Create or update only the needed `agent-skills/<skill-name>/SKILL.md` files.
+8. Keep each skill concise, imperative, executable, and scoped to its trigger.
+9. Update `agent-playbooks/README.md` and `agent-skills/README.md` when mappings, descriptions, or statuses change.
+10. Validate frontmatter, naming, scope, README status, and alignment with the source playbook.
 
 ## Extraction Modes
 
@@ -89,6 +98,7 @@ Each skill should omit:
 
 Check that playbook and skills agree on:
 
+- script-collected inventory, file, frontmatter, status, git, and validator facts
 - core intent
 - trigger conditions
 - workflow

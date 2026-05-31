@@ -40,6 +40,30 @@ Skill 不應保留：
 - playbook 全文
 - 不必要的 README、references、assets、scripts
 
+### Script-first minimization
+
+能用 script 就不用 LLM。
+
+在 playbook-to-skill 流程中，凡是可由 deterministic command、parser、validator 或檔案讀取確認的事實，應先用工具確認，再讓 LLM 做解讀、比較與決策。
+
+優先用 script / command 確認：
+
+- `agent-playbooks/README.md` 與 `agent-skills/README.md` 的 inventory rows
+- 對應 playbook / skill 檔案是否存在
+- `SKILL.md` frontmatter 是否可解析
+- `name` 是否與資料夾名稱一致
+- README status 是否屬於允許值
+- one-to-many mapping 是否列出 root skill
+- git diff / status 是否只包含預期檔案
+- validator / test command 是否通過
+
+LLM 應保留給：
+
+- 判斷 playbook 與 skill 的核心意圖是否一致
+- 判斷 workflow、rules、output contract 是否語意對齊
+- 評估是否需要 single-skill、multi-skill 或 orchestrator-plus-children
+- 產生 extraction strategy、gap analysis 與 human-readable recommendation
+
 ## 適用時機
 
 - 已有 playbook，想萃取成一個 Codex skill
@@ -152,18 +176,19 @@ Playbook / skill / README 更新規則：
 
 ## 工作流程
 
-1. 先閱讀目標 playbook、`agent-playbooks/README.md`、`agent-skills/README.md` 與既有對應 skill。
-2. 判斷使用者要的是 assessment、單一 skill、root/orchestrator skill、多個 child skills、extraction map、alignment check，或 playbook change resync。
-3. 判斷 extraction mode：`single-skill`、`multi-skill`、`orchestrator-plus-children`、`alignment-check` 或 `resync-after-playbook-change`。
-4. 若使用者沒有明確要求修改檔案，先輸出 assessment 與 extraction strategy，不直接改檔。
-5. 若 playbook 過大或包含多個獨立 workflow，先提出 extraction map，不直接建立單一巨大 skill。
-6. 視需要補齊 playbook 的目的、核心原則、適用時機、不適用時機、Agent 行為規則、標準 Prompt 與建議輸出格式。
-7. 判斷哪些內容應保留在 playbook，哪些內容應萃取到 root、child 或 shared skill。
-8. 建立或更新 `agent-skills/<skill-name>/SKILL.md`。
-9. 確認每個 skill 使用短版、命令式、可執行的規則。
-10. 確認每個 skill frontmatter 只包含必要的 `name` 與 `description`。
-11. 更新 `agent-playbooks/README.md` 與 `agent-skills/README.md` 的對照表與狀態。
-12. 若有 skill validator，執行驗證；若沒有，做手動結構檢查。
+1. 先用 script-first checks 取得可機械驗證的事實，例如 README rows、檔案存在性、frontmatter、資料夾名稱、狀態值、git diff/status 與 validator 結果。
+2. 再閱讀目標 playbook、`agent-playbooks/README.md`、`agent-skills/README.md` 與既有對應 skill。
+3. 判斷使用者要的是 assessment、單一 skill、root/orchestrator skill、多個 child skills、extraction map、alignment check，或 playbook change resync。
+4. 判斷 extraction mode：`single-skill`、`multi-skill`、`orchestrator-plus-children`、`alignment-check` 或 `resync-after-playbook-change`。
+5. 若使用者沒有明確要求修改檔案，先輸出 assessment 與 extraction strategy，不直接改檔。
+6. 若 playbook 過大或包含多個獨立 workflow，先提出 extraction map，不直接建立單一巨大 skill。
+7. 視需要補齊 playbook 的目的、核心原則、適用時機、不適用時機、Agent 行為規則、標準 Prompt 與建議輸出格式。
+8. 判斷哪些內容應保留在 playbook，哪些內容應萃取到 root、child 或 shared skill。
+9. 建立或更新 `agent-skills/<skill-name>/SKILL.md`。
+10. 確認每個 skill 使用短版、命令式、可執行的規則。
+11. 確認每個 skill frontmatter 只包含必要的 `name` 與 `description`。
+12. 更新 `agent-playbooks/README.md` 與 `agent-skills/README.md` 的對照表與狀態。
+13. 若有 skill validator，執行驗證；若沒有，做手動結構檢查。
 
 ## Playbook 整理規則
 
@@ -247,6 +272,8 @@ agent 在執行 playbook-to-skill 時，應先判斷使用者要的是：
 7. 將已修改 playbook 重新同步到 skill
 
 若使用者沒有明確要求修改檔案，應先輸出 assessment 與 extraction strategy，不要直接改檔。
+
+執行 assessment、alignment check 或 resync 時，應先跑可用的 deterministic checks。不要讓 LLM 憑印象推斷 inventory row、檔案存在、frontmatter 合法性、status 值、git diff 或 validator 結果。
 
 若 playbook 過大或包含多個獨立 workflow，agent 不應直接建立單一巨大 skill，應先提出 multi-skill extraction map。
 
