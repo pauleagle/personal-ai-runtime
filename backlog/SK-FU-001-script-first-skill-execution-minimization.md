@@ -48,6 +48,7 @@ Completed:
 - Added a prompt-to-playbook request inspection helper under `prompt-to-playbook` with regression tests and documented invocation.
 - Added a root script-first evidence gate to `spec-driven-change-verification` that points to existing deterministic helpers.
 - Added script-first evidence guidance to judgement-heavy `intent-analysis` without adding unnecessary automation.
+- Added script-first evidence guidance to judgement-heavy `decision-proposal` without adding unnecessary automation.
 
 Still open:
 
@@ -627,6 +628,31 @@ Test / validation actions:
 Direct smoke result:
 
 - The UTF-8-safe validator reported `intent-analysis` as valid.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+
+#### `decision-proposal`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Added script-first guidance before framing human decision options.
+- Pointed local repo evidence collection to existing impact, validation-result, mutation/tool availability, and orchestrator-state helpers.
+- Required fallback evidence to be stated when local artifacts are unavailable.
+- Kept LLM judgement scoped to why a decision is needed, option tradeoffs, recommendation labeling, and required updates.
+- Avoided adding a new helper because the skill is primarily human-governance framing and can reuse existing deterministic evidence collectors.
+
+Test / validation actions:
+
+- Updated `agent-skills/decision-proposal/SKILL.md` with script-first evidence guidance.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\decision-proposal --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The UTF-8-safe validator reported `decision-proposal` as valid.
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 
 ### Medium
