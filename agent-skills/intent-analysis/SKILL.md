@@ -9,15 +9,27 @@ description: Use to infer developer intent from diff, prompt, plan, commit, or P
 
 Infer what a change is trying to accomplish and where intent is uncertain, so impact analysis and JIT testing target the right behavior.
 
+## Script-First Execution
+
+Before inferring intent, collect deterministic evidence when local repo artifacts are available:
+
+```powershell
+python agent-skills/diff-analysis/scripts/collect_git_diff_evidence.py --repo-root . --json
+python agent-skills/impact-analysis/scripts/collect_impact_evidence.py --repo-root . --json
+```
+
+Use commit messages, PR text, user prompts, specs, and atomic item metadata as stated evidence when available. Use LLM judgement only to infer the likely intent, confidence, contradictions, spec alignment, and behavior drift risk. Do not ask the LLM to rediscover changed files, path categories, or git status when the local helpers can collect them.
+
 ## Workflow
 
-1. Read the user request, plan, spec refs, atomic item, commit message or PR context, and diff summary.
-2. State the most likely intended change.
-3. Identify evidence supporting that intent.
-4. Identify uncertainty, contradictions, or missing context.
-5. Compare inferred intent with spec and acceptance criteria.
-6. Flag possible intent/spec mismatch or behavior drift.
-7. Hand off impacted areas to `impact-analysis` or decision ambiguity to `decision-proposal`.
+1. Run deterministic diff and impact evidence checks when local repo artifacts are available; if not, state the fallback evidence source.
+2. Read the user request, plan, spec refs, atomic item, commit message or PR context, and diff summary.
+3. State the most likely intended change.
+4. Identify evidence supporting that intent.
+5. Identify uncertainty, contradictions, or missing context.
+6. Compare inferred intent with spec and acceptance criteria.
+7. Flag possible intent/spec mismatch or behavior drift.
+8. Hand off impacted areas to `impact-analysis` or decision ambiguity to `decision-proposal`.
 
 ## Mandatory Rules
 

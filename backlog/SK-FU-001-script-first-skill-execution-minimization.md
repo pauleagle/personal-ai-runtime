@@ -47,6 +47,7 @@ Completed:
 - Added a spec/test evolution plan validator under `spec-test-evolution` with regression tests and documented invocation.
 - Added a prompt-to-playbook request inspection helper under `prompt-to-playbook` with regression tests and documented invocation.
 - Added a root script-first evidence gate to `spec-driven-change-verification` that points to existing deterministic helpers.
+- Added script-first evidence guidance to judgement-heavy `intent-analysis` without adding unnecessary automation.
 
 Still open:
 
@@ -601,6 +602,31 @@ Test / validation actions:
 Direct smoke result:
 
 - The UTF-8-safe validator reported the root skill as valid.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+
+#### `intent-analysis`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Added script-first guidance before intent inference.
+- Pointed local repo evidence collection to existing diff and impact evidence helpers.
+- Required fallback evidence to be stated when local repo artifacts are unavailable.
+- Kept LLM judgement scoped to inferred intent, confidence, contradictions, spec alignment, and behavior drift risk.
+- Avoided adding a new helper because the skill is primarily semantic and can reuse existing deterministic evidence collectors.
+
+Test / validation actions:
+
+- Updated `agent-skills/intent-analysis/SKILL.md` with script-first evidence guidance.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\intent-analysis --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The UTF-8-safe validator reported `intent-analysis` as valid.
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 
 ### Medium
