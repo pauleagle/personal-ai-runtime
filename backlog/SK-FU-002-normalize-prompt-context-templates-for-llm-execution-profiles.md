@@ -527,6 +527,59 @@ The shared stack should be implemented as guidance first. Reusable files or snip
 
 ---
 
+## Devil's Advocate Drill-down
+
+### Review Scope
+
+This drill-down challenges the profile pattern analysis before implementation begins. The goal is to prevent SK-FU-002 from turning into a large prompt framework, while preserving the prompt-cache benefit that motivated the follow-up.
+
+### Objection Resolution Table
+
+| ID | Severity | Objection | Status | Resolution |
+|---|---|---|---|---|
+| `DA-SK-FU-002-001` | Low | Six profile patterns may be too many and could make small tasks heavier. | resolved | Keep patterns as design guidance, not mandatory templates. Add a minimal-contract path for small low-risk tasks. |
+| `DA-SK-FU-002-002` | Low | `low-llm` has only one current skill, so over-optimizing this profile may be premature. | resolved | Keep `low-llm` to one compact bounded-transformation pattern. Do not add multiple low-llm variants until another skill needs them. |
+| `DA-SK-FU-002-003` | Medium | Prompt cache benefits can be lost if dynamic command output, diffs, or snippets are mixed into the reusable prefix. | resolved | Make stable prefix and dynamic run packet separation a core requirement. Volatile evidence must sit after the stable contract. |
+| `DA-SK-FU-002-004` | Medium | Shared template artifacts may add maintenance overhead or create a new directory convention too early. | deferred-with-rationale | Start with README/backlog guidance and selected high-impact skill text. Defer `agent-skills/_shared/` template files until repeated use proves they reduce churn. This is non-blocking because cache-friendly structure can be adopted before new files exist. |
+| `DA-SK-FU-002-005` | Medium | `atomic-subagent-runner` JSON contracts could become schema-heavy if `prompt_contract` is required too soon. | resolved | Recommend a prompt contract shape for subagent handoffs, but do not require a new JSON field or validator rule in this follow-up pass. |
+| `DA-SK-FU-002-006` | High | A universal prompt template could over-constrain `heavy-llm` skills and reduce useful reasoning quality. | resolved | Use profile-specific patterns and reasoning frames, not one universal mega-prompt. Heavy-llm prompts keep explicit option/risk/traceability frames while preserving task-specific judgement. |
+| `DA-SK-FU-002-007` | High | Template adoption might silently change skill triggers, README statuses, or make `script` skills LLM-heavy. | resolved | Implementation must be guidance-only for this follow-up: no trigger changes, no README status changes, no playbook mapping changes, and no prompt template requirement for `script` profile skills. |
+
+### Spec Patch Requirements
+
+- Update SK-FU-002 implementation guidance to start with shared README guidance or selected high-impact skill guidance before creating shared template files.
+- Preserve the stable-prefix / dynamic-run-packet split in any future template artifact.
+- Add an explicit minimal-contract path wherever shared guidance is implemented.
+- Treat subagent prompt contracts as recommended handoff shape only; do not require a new JSON job-contract field in this pass.
+- Keep `script` profile skills excluded from LLM prompt template adoption unless a later human decision requests an LLM closeout pattern.
+
+### Compatibility / Replacement Decision Table
+
+| Topic | Decision |
+|---|---|
+| Existing `SKILL.md` triggers | No replacement or behavior change in this follow-up. |
+| Existing README status values | No change. `SK-FU-002` remains non-blocking maintenance guidance. |
+| Existing script-first execution from SK-FU-001 | Preserved. Prompt/context templates start after deterministic evidence is collected. |
+| Existing subagent job contract JSON | No required schema change in this pass. |
+| Future shared template files | Deferred until guidance has been proven useful by at least one high-impact integration step. |
+
+### Deferred Items
+
+- `DA-SK-FU-002-004`: shared template file location remains deferred. The next implementation item can still add cache-friendly guidance to `agent-skills/README.md` without deciding a new directory convention.
+- Machine-readable `metadata.execution_profile` remains out of scope for this drill-down and should stay a separate design decision.
+
+### Gate Status
+
+`pass` for the next small implementation item.
+
+Recommended next item:
+
+- Add cache-friendly prompt/context guidance to `agent-skills/README.md`, using the stable-prefix / dynamic-run-packet model and minimal-contract escape hatch.
+- Do not create shared template files yet.
+- Do not modify skill triggers, README status values, playbook mappings, or JSON contract schemas.
+
+---
+
 ## Proposed Template Layers
 
 ### 1. Context Contract
