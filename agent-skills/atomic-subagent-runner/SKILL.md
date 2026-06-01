@@ -19,6 +19,29 @@ python agent-skills/atomic-subagent-runner/scripts/validate_subagent_job_contrac
 
 Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape. The helper checks required fields, non-empty context and validation fields, allowed/forbidden scope shape, likely hidden chat-history dependency, and whether state patch or merge gate governance is declared. Use LLM judgement after this deterministic check to decide whether the job is small enough, semantically safe, and ready to run.
 
+## Prompt / Handoff Contract
+
+When a context pack includes a stable prefix plus dynamic run packet, preserve that shape as the subagent handoff contract. Treat `prompt_contract` as recommended prose or artifact structure for this follow-up pass; do not require a new JSON field or validator rule.
+
+Stable prefix:
+
+- Skill:
+- Execution Profile:
+- Reusable Rules:
+- Scope / Governance Defaults:
+- Output Contract:
+- Validation / Closeout Defaults:
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
+
+Use the stable prefix as fixed execution instructions and the dynamic packet as run-specific evidence. Do not rely on hidden chat history to fill either section.
+
 ## Workflow
 
 1. Run the script-first job contract validation when a local JSON job contract exists; if the helper is unavailable or the contract is not local JSON, state the fallback.
@@ -60,6 +83,7 @@ Check:
 Report:
 
 - job result
+- consumed stable prefix / dynamic run packet, when provided
 - consumed artifacts
 - produced artifacts
 - validation result

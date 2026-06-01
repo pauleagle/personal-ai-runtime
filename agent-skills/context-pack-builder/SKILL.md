@@ -21,6 +21,28 @@ The helper checks file existence, source kind, relative path, byte size, line co
 
 Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
 
+## Prompt / Handoff Contract
+
+When building a context pack for a subagent, use the shared stable-prefix / dynamic-run-packet shape from `agent-skills/README.md`. Treat this as a handoff recommendation, not a new file format or schema requirement.
+
+Stable prefix:
+
+- Skill: `context-pack-builder`
+- Execution Profile: `hybrid`
+- Reusable Rules: subagents are stateless, scope must be bounded, and missing or stale artifacts must be explicit.
+- Scope / Governance Defaults: allowed scope, forbidden scope, validation requirements, output contract, and human-decision boundaries.
+- Output Contract: included sources, excluded sources, compact prior findings, stale or missing artifact warnings, and next recipient.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
+
+Keep source snippets and command output in the dynamic run packet after the stable prefix so repeated handoff instructions remain cache-friendly.
+
 ## Workflow
 
 1. Read the selected job, atomic item metadata, spec refs, dependency notes, allowed scope, forbidden scope, and output contract.
@@ -63,6 +85,7 @@ Check:
 Report:
 
 - context pack manifest
+- stable prefix / dynamic run packet, when handing off to a subagent
 - included sources
 - excluded sources
 - compact prior findings

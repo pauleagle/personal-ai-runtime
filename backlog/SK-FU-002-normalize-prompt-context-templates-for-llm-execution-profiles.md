@@ -35,11 +35,11 @@ Completed:
   - `G3` Traceable Design Generation
 - Completed Devil's Advocate drill-down for the pattern matrix and set the next implementation gate to `pass`.
 - Added cache-friendly prompt/context guidance to `agent-skills/README.md`.
+- Added shared subagent handoff contract guidance to `context-pack-builder` and `atomic-subagent-runner`.
 
 Still open:
 
 - Decide whether to add shared template files after README guidance has proven useful.
-- Decide whether `context-pack-builder` should own reusable context contract templates.
 - Decide whether `atomic-subagent-runner` should recommend or later validate a `prompt_contract` shape.
 - Add selected high-impact skill guidance only where it materially changes execution behavior.
 
@@ -626,6 +626,31 @@ Direct smoke result:
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 - The first sandboxed inventory audit run hit the known `windows sandbox: spawn setup refresh`; the same command succeeded when rerun with escalated execution.
 
+### Implementation Log: Subagent Handoff Contract Guidance
+
+Status: completed for this follow-up pass.
+
+Changes made:
+
+- Updated `context-pack-builder` with a `Prompt / Handoff Contract` section.
+- Updated `atomic-subagent-runner` with a matching `Prompt / Handoff Contract` section.
+- Used the shared stable-prefix / dynamic-run-packet shape from `agent-skills/README.md`.
+- Kept the contract as recommended prose / artifact structure, not a new JSON field, validator rule, trigger change, README status change, or playbook mapping change.
+
+Validation actions:
+
+- Ran `git diff --check`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\context-pack-builder --json`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\atomic-subagent-runner --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+
+Direct smoke result:
+
+- The UTF-8-safe validator reported `context-pack-builder` as valid.
+- The UTF-8-safe validator reported `atomic-subagent-runner` as valid.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+- The first sandboxed inventory audit run hit the known `windows sandbox: spawn setup refresh`; the same command succeeded when rerun with escalated execution.
+
 ---
 
 ## Proposed Template Layers
@@ -757,7 +782,7 @@ This follow-up is complete when:
 - [x] `low-llm` guidance stays compact and transformation-oriented.
 - [x] `heavy-llm` guidance supports deeper reasoning without unbounded context dumps.
 - [x] The design includes a minimal-contract path so small tasks are not forced into oversized templates.
-- [ ] Subagent-oriented skills can reuse the same contract shape for handoffs.
+- [x] Subagent-oriented skills can reuse the same contract shape for handoffs.
 - [x] The update does not require current `script` profile skills to add LLM prompts.
 - [x] The update does not silently change skill triggers, README status values, or playbook mappings.
 
