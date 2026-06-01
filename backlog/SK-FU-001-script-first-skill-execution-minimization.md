@@ -44,6 +44,7 @@ Completed:
 - Added a repeatable playbook/skill inventory audit script under `playbook-to-skill` with regression tests and documented invocation.
 - Added a changelog structure evidence helper under `changelog-normalization` with regression tests and documented script-first invocation.
 - Added an atomic subagent job contract validator under `atomic-subagent-runner` with regression tests and documented invocation.
+- Added a spec/test evolution plan validator under `spec-test-evolution` with regression tests and documented invocation.
 
 Still open:
 
@@ -504,6 +505,39 @@ Test / validation actions:
 Direct smoke result:
 
 - The helper reported the temporary sample job contract as `valid: true` with no findings.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+
+#### `spec-test-evolution`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Validating local JSON spec/test evolution plan artifacts before editing specs, tests, indexes, or workflow notes.
+- Checking required `decision_source`, `affected_artifacts`, `updates`, `traceability`, `rerun_point`, and `next_validation_step` fields.
+- Checking affected artifacts and updates shape.
+- Checking at least one non-empty update group is declared.
+- Checking parent and child traceability refs are present and non-empty.
+- Warning when decision source appears unresolved.
+- Warning when root index traceability is absent or empty.
+- Structured JSON output for downstream workflow and merge-gate checks.
+
+Test / validation actions:
+
+- Added `agent-skills/spec-test-evolution/scripts/validate_spec_test_evolution_plan.py`.
+- Added `tests/agent_skills/test_validate_spec_test_evolution_plan.py`.
+- Updated `agent-skills/spec-test-evolution/SKILL.md` with script-first invocation guidance.
+- Covered valid evolution plans, missing required fields, empty update groups, missing traceability refs, ambiguous decision-source warnings, and missing root-index traceability warnings.
+- Ran `python -m unittest tests.agent_skills.test_validate_spec_test_evolution_plan`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\spec-test-evolution --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `python agent-skills\spec-test-evolution\scripts\validate_spec_test_evolution_plan.py <temp-sample-evolution-plan.json> --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The helper reported the temporary sample evolution plan as `valid: true` with no findings.
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 
 ### Medium

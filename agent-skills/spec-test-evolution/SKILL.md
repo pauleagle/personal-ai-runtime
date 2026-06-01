@@ -9,15 +9,26 @@ description: Use after human decisions or validation gap analysis to update spec
 
 Apply accepted governance decisions to specs, tests, and workflow artifacts so behavior changes do not become implicit spec drift.
 
+## Script-First Execution
+
+When the spec/test evolution work is represented as a local JSON plan, validate the plan before editing specs, tests, indexes, or workflow notes:
+
+```powershell
+python agent-skills/spec-test-evolution/scripts/validate_spec_test_evolution_plan.py path/to/evolution-plan.json --json
+```
+
+Use the same Python command on Linux/macOS shells. The helper checks that decision source, affected artifacts, update groups, traceability refs, rerun point, and next validation step are present. It warns when the decision source looks unresolved or root index traceability is absent. Use LLM judgement after this deterministic check to decide whether the evolution is semantically correct and whether human approval is still required.
+
 ## Workflow
 
-1. Read the human decision, decision proposal, spec refs, test effectiveness evaluation, mutation results, and impacted artifacts.
-2. Determine whether to update spec, tests, README/index files, atomic metadata, backlog, follow-up items, or workflow notes.
-3. Preserve traceability between parent items, follow-ups, atomic items, tests, and specs.
-4. Keep accepted behavior separate from proposed, deferred, rejected, or backlog work.
-5. Update tests only when they remain traceable to accepted spec or risk.
-6. Update durable workflow state and rerun point when changes require earlier workflow steps.
-7. Report remaining gaps and next validation step.
+1. Run the script-first evolution plan validation when a local JSON evolution plan exists; if the helper is unavailable or the work is not represented as local JSON, state the fallback.
+2. Read the human decision, decision proposal, spec refs, test effectiveness evaluation, mutation results, and impacted artifacts.
+3. Determine whether to update spec, tests, README/index files, atomic metadata, backlog, follow-up items, or workflow notes.
+4. Preserve traceability between parent items, follow-ups, atomic items, tests, and specs.
+5. Keep accepted behavior separate from proposed, deferred, rejected, or backlog work.
+6. Update tests only when they remain traceable to accepted spec or risk.
+7. Update durable workflow state and rerun point when changes require earlier workflow steps.
+8. Report remaining gaps and next validation step.
 
 ## Mandatory Rules
 
