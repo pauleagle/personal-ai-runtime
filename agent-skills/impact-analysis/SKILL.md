@@ -9,9 +9,25 @@ description: Use to identify impacted components, specs, tests, contracts, risks
 
 Determine what a change can affect and classify verification gaps so testing, mutation, and human decisions stay focused.
 
+## Script-First Execution
+
+Collect changed-path evidence before semantic impact judgement:
+
+```powershell
+python agent-skills\impact-analysis\scripts\collect_impact_evidence.py --repo-root . --json
+```
+
+For staged-only impact review:
+
+```powershell
+python agent-skills\impact-analysis\scripts\collect_impact_evidence.py --repo-root . --staged --json
+```
+
+The helper records Git status/diff paths and mechanically classifies paths as `source`, `tests`, `specs`, `docs`, `config`, `generated`, or `other`. Use this as evidence for likely affected areas; use LLM judgement after that to classify risk, confidence, validation recommendations, rerun point, and human decision needs.
+
 ## Workflow
 
-1. Read diff analysis, intent analysis, spec refs, dependency notes, test map, and known risk items.
+1. Read deterministic changed-path evidence, diff analysis, intent analysis, spec refs, dependency notes, test map, and known risk items.
 2. Identify impacted components, APIs, data contracts, workflows, specs, tests, and documentation.
 3. Classify risks as code issue, test gap, spec gap, behavior drift, compatibility gap, migration gap, or human decision required.
 4. Estimate impact confidence and blast radius.
@@ -42,6 +58,7 @@ Check:
 3. Confidence is stated.
 4. Focused validation recommendations are present.
 5. Human decision needs are flagged.
+6. If the helper script changed, run its unit tests and a CLI smoke check.
 
 ## Output
 

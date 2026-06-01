@@ -334,6 +334,31 @@ Direct smoke result:
 
 - The helper reported `mutationToolingAvailable: false` for the current repository and suggested `python -m unittest discover -s tests` as test tooling evidence. No mutation tooling or tests were executed by the helper.
 
+#### `impact-analysis`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Collecting `git status --short`, `git diff --name-only`, and `git diff --name-status` as changed-path evidence.
+- Mechanically classifying changed paths as `source`, `tests`, `specs`, `docs`, `config`, `generated`, or `other`.
+- Expanding untracked directories while excluding Python cache noise.
+- Optional staged-only evidence collection.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Added `agent-skills/impact-analysis/scripts/collect_impact_evidence.py`.
+- Added `tests/agent_skills/test_collect_impact_evidence.py`.
+- Covered changed/untracked path classification, staged evidence collection, non-repository rejection, and untracked directory expansion.
+- Ran `python -m unittest tests.agent_skills.test_collect_impact_evidence`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\impact-analysis\scripts\collect_impact_evidence.py --repo-root . --json`.
+
+Direct smoke result:
+
+- The helper reported the current root repo status and classified this follow-up's then-untracked script as `other` and test file as `tests`; cache files were excluded.
+
 ### Medium
 
 - `changelog-normalization`
