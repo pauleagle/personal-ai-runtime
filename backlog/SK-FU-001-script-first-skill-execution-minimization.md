@@ -308,6 +308,32 @@ Direct smoke result:
 
 - The helper reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings for the current repository.
 
+#### `mutation-testing`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Detecting available mutation binaries without running them.
+- Detecting available test runners without running tests.
+- Parsing `package.json` test and mutation scripts.
+- Detecting Python project markers and test directories.
+- Producing candidate test/mutation commands as availability evidence.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Added `agent-skills/mutation-testing/scripts/detect_mutation_test_tools.py`.
+- Added `tests/agent_skills/test_detect_mutation_test_tools.py`.
+- Covered `package.json` test/mutation scripts, Python test directory detection, invalid package JSON reporting, missing repo rejection, and `npx` not counting as mutation tooling by itself.
+- Ran `python -m unittest tests.agent_skills.test_detect_mutation_test_tools`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\mutation-testing\scripts\detect_mutation_test_tools.py --repo-root . --json`.
+
+Direct smoke result:
+
+- The helper reported `mutationToolingAvailable: false` for the current repository and suggested `python -m unittest discover -s tests` as test tooling evidence. No mutation tooling or tests were executed by the helper.
+
 ### Medium
 
 - `changelog-normalization`

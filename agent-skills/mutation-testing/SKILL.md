@@ -9,9 +9,19 @@ description: Use to validate test effectiveness with mutation tooling or scoped 
 
 Check whether tests can detect meaningful broken behavior, not merely whether code is covered.
 
+## Script-First Execution
+
+Before choosing framework mutation, manual mutation, or a blocked/skipped result, collect deterministic tooling evidence:
+
+```powershell
+python agent-skills\mutation-testing\scripts\detect_mutation_test_tools.py --repo-root . --json
+```
+
+The helper detects available mutation/test binaries, `package.json` test or mutation scripts, Python project markers, test directories, and candidate commands. It does not run tests or mutation tooling. Treat its output as availability evidence only; do not report killed, survived, equivalent, or mutation score unless a separate mutation or manual mutation check was actually executed.
+
 ## Workflow
 
-1. Read impacted scope, selected tests, spec refs, risk items, and available mutation tooling.
+1. Read impacted scope, selected tests, spec refs, risk items, and deterministic tooling evidence.
 2. Decide whether to use framework mutation or scoped manual mutation.
 3. If using a framework, restrict mutation to impacted scope when practical.
 4. If using manual mutation, define one to three meaningful mutants tied to the diff risk.
@@ -46,6 +56,7 @@ Check:
 5. Results are classified.
 6. Framework mutation score is included when the tool produces one.
 7. Manual mutants were reverted.
+8. Tooling availability is based on command evidence, not assumption.
 
 ## Output
 
