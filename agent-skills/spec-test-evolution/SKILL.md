@@ -17,7 +17,7 @@ When the spec/test evolution work is represented as a local JSON plan, validate 
 python agent-skills/spec-test-evolution/scripts/validate_spec_test_evolution_plan.py path/to/evolution-plan.json --json
 ```
 
-Use the same Python command on Linux/macOS shells. The helper checks that decision source, affected artifacts, update groups, traceability refs, rerun point, and next validation step are present. It warns when the decision source looks unresolved or root index traceability is absent. Use LLM judgement after this deterministic check to decide whether the evolution is semantically correct and whether human approval is still required.
+Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape. The helper checks that decision source, affected artifacts, update groups, traceability refs, rerun point, and next validation step are present. It warns when the decision source looks unresolved or root index traceability is absent. Use LLM judgement after this deterministic check to decide whether the evolution is semantically correct and whether human approval is still required.
 
 ## Workflow
 

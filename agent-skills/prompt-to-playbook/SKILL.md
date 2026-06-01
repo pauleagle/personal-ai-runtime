@@ -23,7 +23,7 @@ If the source prompt or example is a local file, include it:
 python agent-skills/prompt-to-playbook/scripts/inspect_playbook_request.py --repo-root . --source path/to/prompt.md --target-playbook agent-playbooks/name.md --json
 ```
 
-Use the same Python commands on Linux/macOS shells. The helper checks source file evidence, target playbook path safety, `agent-playbooks/README.md` mapping presence, mapped skills, status values, and whether updating a mapped aligned playbook requires `skill-extracted` status until resync. Use LLM judgement after this evidence to decide whether the prompt is reusable, how to generalize it, and what content belongs in the playbook.
+Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape. The helper checks source file evidence, target playbook path safety, `agent-playbooks/README.md` mapping presence, mapped skills, status values, and whether updating a mapped aligned playbook requires `skill-extracted` status until resync. Use LLM judgement after this evidence to decide whether the prompt is reusable, how to generalize it, and what content belongs in the playbook.
 
 ## Workflow
 

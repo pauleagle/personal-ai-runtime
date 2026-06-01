@@ -51,12 +51,12 @@ Completed:
 - Added script-first evidence guidance to judgement-heavy `decision-proposal` without adding unnecessary automation.
 - Added script-first evidence guidance to judgement-heavy `devils-advocate-review` without adding unnecessary automation.
 - Added script-first evidence guidance to judgement-heavy `test-promotion` without adding unnecessary automation.
+- Extended the playbook/skill inventory audit to warn when skills with `scripts/` lack Windows plus Linux/POSIX/macOS invocation coverage or a documented platform limitation.
+- Added Windows plus Linux/macOS invocation coverage notes to existing script-bearing skills that did not explicitly document both sides.
 
 Still open:
 
 - Decide whether each `SKILL.md` should later receive machine-readable `metadata.execution_profile`.
-- Review remaining high-priority skills one by one before adding per-skill script-first rules beyond the README profile hint.
-- Audit future script additions for Windows and Linux invocation coverage.
 
 ---
 
@@ -705,6 +705,39 @@ Direct smoke result:
 - The UTF-8-safe validator reported `test-promotion` as valid.
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 
+#### `playbook-to-skill` script portability audit
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Extended `audit_skill_inventory.py` to inspect skills that contain `scripts/`.
+- Added a `script-portability` warning when a script-bearing skill does not document Windows plus Linux/POSIX/macOS invocation coverage or a platform limitation / validation gap.
+- Kept portability findings as warnings, not errors, so legacy or intentionally limited helpers can still be reviewed without breaking inventory validity.
+- Added regression coverage for missing and present script portability guidance.
+- Added explicit Windows PowerShell plus Linux/macOS invocation coverage notes to existing script-bearing skills that lacked both terms.
+- Updated `playbook-to-skill` skill and playbook text so the audit coverage is discoverable.
+
+Test / validation actions:
+
+- Updated `agent-skills/playbook-to-skill/scripts/audit_skill_inventory.py`.
+- Updated `tests/agent_skills/test_audit_skill_inventory.py`.
+- Updated script-bearing `SKILL.md` files with explicit cross-platform invocation coverage notes.
+- Updated `agent-playbooks/playbook-to-skill.md` with matching audit guidance.
+- Ran `python -m unittest tests.agent_skills.test_audit_skill_inventory`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\playbook-to-skill --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The focused audit test reported 5 tests OK.
+- The full test suite reported 53 tests OK.
+- The UTF-8-safe validator reported `playbook-to-skill` as valid.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+- The first sandboxed inventory audit rerun hit the known `windows sandbox: spawn setup refresh`; the same command succeeded when rerun with escalated execution.
+
 ### Medium
 
 - `changelog-normalization`
@@ -755,7 +788,7 @@ This follow-up is complete when:
 - [x] Skill validation is UTF-8-safe on Windows.
 - [x] A repeatable inventory audit exists or is documented.
 - [x] High-priority aligned / aligned-with-followups skills explicitly prefer deterministic discovery before LLM judgement where applicable.
-- [ ] Future script additions include Windows and Linux invocation coverage or explicitly document why not.
+- [x] Future script additions include Windows and Linux invocation coverage or explicitly document why not.
 - [x] The rule does not require scripts for purely semantic judgement tasks.
 - [x] The update does not silently change current skill triggers, output contracts, or extraction maps.
 - [x] `agent-skills/README.md` and `agent-playbooks/README.md` remain synchronized after any status or mapping changes.

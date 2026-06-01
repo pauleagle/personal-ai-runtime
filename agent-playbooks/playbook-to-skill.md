@@ -50,7 +50,7 @@ Skill 不應保留：
 python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json
 ```
 
-這個 helper 會解析 `agent-playbooks/README.md` 與 `agent-skills/README.md`，檢查 status / profile 是否屬於允許值、對應 playbook / skill 檔案是否存在，以及 `SKILL.md` frontmatter 的 `name` 是否和資料夾名稱一致。
+這個 helper 會解析 `agent-playbooks/README.md` 與 `agent-skills/README.md`，檢查 status / profile 是否屬於允許值、對應 playbook / skill 檔案是否存在、`SKILL.md` frontmatter 的 `name` 是否和資料夾名稱一致，並在 skill 有 `scripts/` 但未記錄 Windows 加 Linux/POSIX/macOS invocation coverage 或平台限制時提出 warning。
 
 在 playbook-to-skill 流程中，凡是可由 deterministic command、parser、validator 或檔案讀取確認的事實，應先用工具確認，再讓 LLM 做解讀、比較與決策。
 
@@ -63,6 +63,7 @@ python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-ro
 - `SKILL.md` frontmatter 是否可解析
 - `name` 是否與資料夾名稱一致
 - README status 是否屬於允許值
+- 有 `scripts/` 的 skill 是否記錄 Windows 與 Linux/POSIX/macOS invocation coverage，或明確記錄平台限制 / validation gap
 - one-to-many mapping 是否列出 root skill
 - git diff / status 是否只包含預期檔案
 - validator / test command 是否通過

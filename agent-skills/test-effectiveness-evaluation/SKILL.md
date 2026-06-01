@@ -19,6 +19,8 @@ python agent-skills\test-effectiveness-evaluation\scripts\collect_validation_res
 
 The helper reads text result files, detects unittest run counts and pass/fail status, and extracts mutation term counts such as `killed`, `survived`, `equivalent`, `skipped`, and `blocked`. It does not decide whether a survived mutation is a test gap, spec gap, implementation issue, or equivalent mutation; use LLM judgement for that classification after evidence is collected.
 
+Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+
 ## Workflow
 
 1. Read deterministic validation-result evidence, baseline test results, JIT test results, mutation results, spec refs, risk items, and impact analysis.

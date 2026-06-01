@@ -25,6 +25,8 @@ python agent-skills\impact-analysis\scripts\collect_impact_evidence.py --repo-ro
 
 The helper records Git status/diff paths and mechanically classifies paths as `source`, `tests`, `specs`, `docs`, `config`, `generated`, or `other`. Use this as evidence for likely affected areas; use LLM judgement after that to classify risk, confidence, validation recommendations, rerun point, and human decision needs.
 
+Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+
 ## Workflow
 
 1. Read deterministic changed-path evidence, diff analysis, intent analysis, spec refs, dependency notes, test map, and known risk items.

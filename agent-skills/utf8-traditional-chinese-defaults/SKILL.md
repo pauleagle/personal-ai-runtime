@@ -21,6 +21,8 @@ python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf
 
 The validator reads `SKILL.md` with explicit `encoding="utf-8"` and reports decode errors cleanly. Use LLM judgement after this deterministic check to decide whether the issue is a file encoding problem, terminal display problem, validator limitation, or actual frontmatter defect.
 
+Run the validator from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+
 ## Workflow
 
 1. Before reading or editing text files, check whether the project or nearby files already imply a language or encoding convention.

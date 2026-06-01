@@ -19,6 +19,8 @@ python agent-skills\mutation-testing\scripts\detect_mutation_test_tools.py --rep
 
 The helper detects available mutation/test binaries, `package.json` test or mutation scripts, Python project markers, test directories, and candidate commands. It does not run tests or mutation tooling. Treat its output as availability evidence only; do not report killed, survived, equivalent, or mutation score unless a separate mutation or manual mutation check was actually executed.
 
+Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+
 ## Workflow
 
 1. Read impacted scope, selected tests, spec refs, risk items, and deterministic tooling evidence.

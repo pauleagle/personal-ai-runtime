@@ -25,6 +25,8 @@ python agent-skills\diff-analysis\scripts\collect_git_diff_evidence.py --repo-ro
 
 The helper records `git status --short`, `git diff --name-only`, `git diff --name-status`, and `git diff --stat`. Use this output as the file-level evidence layer; use LLM judgement only after that to classify changed components, behavior-change candidates, unrelated edits, impacted specs/tests, and validation scope.
 
+Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+
 ## Workflow
 
 1. Run deterministic Git evidence collection for the current repository boundary, or manually read git status and the relevant diff or commit when the helper is unavailable.

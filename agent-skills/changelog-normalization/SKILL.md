@@ -17,7 +17,7 @@ Before semantic cleanup, collect deterministic changelog structure evidence when
 python agent-skills/changelog-normalization/scripts/analyze_changelog_structure.py --repo-root . --changelog CHANGELOG.md --json
 ```
 
-Use the same Python command on Linux/macOS shells. The helper checks file existence, UTF-8 readability, Markdown headings, version sections, ISO dates, category headings, newest-first date order, uncategorized entries, and likely TODO / commit-log / AI residue. Use LLM judgement only after this evidence to decide what to keep, merge, move, rewrite, remove, or ask the user about.
+Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape. The helper checks file existence, UTF-8 readability, Markdown headings, version sections, ISO dates, category headings, newest-first date order, uncategorized entries, and likely TODO / commit-log / AI residue. Use LLM judgement only after this evidence to decide what to keep, merge, move, rewrite, remove, or ask the user about.
 
 ## Workflow
 

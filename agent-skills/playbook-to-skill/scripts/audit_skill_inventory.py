@@ -19,6 +19,13 @@ PLAYBOOK_STATUSES = {
     "deprecated",
 }
 SKILL_PROFILES = {"script", "hybrid", "low-llm", "heavy-llm"}
+WINDOWS_PORTABILITY_TERMS = ("windows", "powershell", ".ps1")
+UNIX_PORTABILITY_TERMS = ("linux", "posix", "macos", "mac/linux", ".sh")
+PORTABILITY_LIMITATION_TERMS = (
+    "platform limitation",
+    "validation gap",
+    "cannot be cross-platform",
+)
 
 
 def read_utf8(path: Path) -> str:
@@ -135,6 +142,19 @@ def validate_skill_frontmatter(skill_dir: Path) -> tuple[bool, str, dict[str, An
     return True, "Skill frontmatter is valid.", details
 
 
+def skill_has_scripts(skill_dir: Path) -> bool:
+    scripts_dir = skill_dir / "scripts"
+    return scripts_dir.is_dir() and any(path.is_file() for path in scripts_dir.iterdir())
+
+
+def has_script_portability_guidance(content: str) -> bool:
+    lowered = content.lower()
+    has_windows = any(term in lowered for term in WINDOWS_PORTABILITY_TERMS)
+    has_unix = any(term in lowered for term in UNIX_PORTABILITY_TERMS)
+    has_limitation = any(term in lowered for term in PORTABILITY_LIMITATION_TERMS)
+    return has_limitation or (has_windows and has_unix)
+
+
 def audit(repo_root: Path) -> dict[str, Any]:
     repo_root = repo_root.resolve()
     playbooks_readme = repo_root / "agent-playbooks" / "README.md"
@@ -182,6 +202,19 @@ def audit(repo_root: Path) -> dict[str, Any]:
             valid, message, _details = validate_skill_frontmatter(skill_dir)
             if not valid:
                 add_finding("error", "skill-frontmatter", f"{skill_name}: {message}")
+                continue
+
+            if skill_has_scripts(skill_dir):
+                skill_content = read_utf8(skill_dir / "SKILL.md")
+                if not has_script_portability_guidance(skill_content):
+                    add_finding(
+                        "warning",
+                        "script-portability",
+                        (
+                            f"{skill_name}: scripts/ exists but SKILL.md does not document "
+                            "Windows and Linux/POSIX/macOS invocation coverage or a platform limitation."
+                        ),
+                    )
 
         for playbook_value in playbook_values:
             playbook_path = repo_root / "agent-playbooks" / playbook_value

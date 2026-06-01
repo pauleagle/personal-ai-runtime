@@ -43,7 +43,13 @@ class AuditSkillInventoryTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
 
-    def write_skill(self, name: str, frontmatter_name: str | None = None) -> None:
+    def write_skill(
+        self,
+        name: str,
+        frontmatter_name: str | None = None,
+        with_script: bool = False,
+        portability_guidance: str = "",
+    ) -> None:
         skill_dir = self.repo / "agent-skills" / name
         skill_dir.mkdir()
         actual_name = frontmatter_name or name
@@ -53,9 +59,14 @@ class AuditSkillInventoryTest(unittest.TestCase):
             f"description: Use {actual_name} during tests.\n"
             "---\n"
             "\n"
-            f"# {actual_name}\n",
+            f"# {actual_name}\n"
+            f"{portability_guidance}\n",
             encoding="utf-8",
         )
+        if with_script:
+            scripts_dir = skill_dir / "scripts"
+            scripts_dir.mkdir()
+            (scripts_dir / "helper.py").write_text("print('ok')\n", encoding="utf-8")
 
     def write_playbook(self, name: str) -> None:
         (self.repo / "agent-playbooks" / name).write_text(
@@ -138,3 +149,39 @@ class AuditSkillInventoryTest(unittest.TestCase):
                 for finding in result["findings"]
             )
         )
+
+    def test_warns_when_script_portability_guidance_is_missing(self) -> None:
+        self.write_playbook("sample-playbook.md")
+        self.write_skill("sample-skill", with_script=True)
+        self.write_readmes()
+
+        code, result, stderr = self.run_script()
+
+        self.assertEqual(0, code)
+        self.assertEqual("", stderr)
+        self.assertTrue(result["valid"])
+        self.assertTrue(
+            any(
+                finding["severity"] == "warning"
+                and finding["area"] == "script-portability"
+                for finding in result["findings"]
+            )
+        )
+
+    def test_accepts_script_portability_guidance(self) -> None:
+        self.write_playbook("sample-playbook.md")
+        self.write_skill(
+            "sample-skill",
+            with_script=True,
+            portability_guidance=(
+                "Run the helper from Windows PowerShell and Linux/macOS shells.\n"
+            ),
+        )
+        self.write_readmes()
+
+        code, result, stderr = self.run_script()
+
+        self.assertEqual(0, code)
+        self.assertEqual("", stderr)
+        self.assertTrue(result["valid"])
+        self.assertEqual([], result["findings"])

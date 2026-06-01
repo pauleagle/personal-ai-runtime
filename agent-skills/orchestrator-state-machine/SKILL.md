@@ -19,6 +19,8 @@ python agent-skills\orchestrator-state-machine\scripts\validate_orchestrator_sta
 
 The helper checks required cursor/status fields and queue shapes. It does not decide which job should run next; use LLM judgement after validation for dependency, usage, validation, human decision, and merge gates.
 
+Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+
 ## Workflow
 
 1. Read the root spec, atomic item index, current state artifact, dependency graph, git status, validation results, and human decision status.

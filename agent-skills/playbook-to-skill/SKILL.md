@@ -19,7 +19,7 @@ For routine README inventory and mapping checks, run the bundled audit helper be
 python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json
 ```
 
-The helper parses `agent-playbooks/README.md` and `agent-skills/README.md`, checks allowed status/profile values, confirms mapped files exist, and validates `SKILL.md` frontmatter names against folder names.
+The helper parses `agent-playbooks/README.md` and `agent-skills/README.md`, checks allowed status/profile values, confirms mapped files exist, validates `SKILL.md` frontmatter names against folder names, and warns when a skill has `scripts/` without Windows plus Linux/POSIX/macOS invocation guidance or a documented platform limitation.
 
 Before semantic judgement, use deterministic checks for facts that commands can verify: README inventory rows, mapped file existence, `SKILL.md` frontmatter, folder/name agreement, allowed status values, git diff/status, and validator results.
 

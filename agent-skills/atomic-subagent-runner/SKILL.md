@@ -17,7 +17,7 @@ When the subagent job is represented as a local JSON contract, validate the cont
 python agent-skills/atomic-subagent-runner/scripts/validate_subagent_job_contract.py path/to/job.json --json
 ```
 
-Use the same Python command on Linux/macOS shells. The helper checks required fields, non-empty context and validation fields, allowed/forbidden scope shape, likely hidden chat-history dependency, and whether state patch or merge gate governance is declared. Use LLM judgement after this deterministic check to decide whether the job is small enough, semantically safe, and ready to run.
+Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape. The helper checks required fields, non-empty context and validation fields, allowed/forbidden scope shape, likely hidden chat-history dependency, and whether state patch or merge gate governance is declared. Use LLM judgement after this deterministic check to decide whether the job is small enough, semantically safe, and ready to run.
 
 ## Workflow
 
