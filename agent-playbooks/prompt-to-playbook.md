@@ -73,6 +73,8 @@ agent 在執行 prompt-to-playbook 時，應先判斷使用者要的是：
 3. 更新既有 playbook
 4. 將多個 prompt 合併成同一個 playbook
 
+若目標 playbook 位於本機 `agent-playbooks/`，應先用 deterministic 檢查取得來源檔、目標路徑、README 對照列、既有狀態與 mapped skill 證據；再判斷 prompt 是否值得抽象、如何泛化，以及是否需要更新 README 狀態。
+
 若使用者只要求建立 playbook，不應自動建立一般任務 skill。
 
 若新建立的 playbook 不存在於 `agent-playbooks/README.md` 的 Playbook / Skill 對照表中，agent 應加入新列，Skill 欄位填 `-`，狀態標記為 `draft`。

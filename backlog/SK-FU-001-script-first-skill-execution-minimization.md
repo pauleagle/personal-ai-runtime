@@ -45,6 +45,7 @@ Completed:
 - Added a changelog structure evidence helper under `changelog-normalization` with regression tests and documented script-first invocation.
 - Added an atomic subagent job contract validator under `atomic-subagent-runner` with regression tests and documented invocation.
 - Added a spec/test evolution plan validator under `spec-test-evolution` with regression tests and documented invocation.
+- Added a prompt-to-playbook request inspection helper under `prompt-to-playbook` with regression tests and documented invocation.
 
 Still open:
 
@@ -538,6 +539,42 @@ Test / validation actions:
 Direct smoke result:
 
 - The helper reported the temporary sample evolution plan as `valid: true` with no findings.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+
+#### `prompt-to-playbook`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Inspecting deterministic repository facts before creating or updating a local playbook.
+- Checking optional source prompt/example file existence and kind.
+- Checking target playbook path stays under `agent-playbooks/`.
+- Checking target playbook uses a Markdown filename.
+- Parsing `agent-playbooks/README.md` Playbook / Skill mapping rows.
+- Detecting whether the target playbook already has a README row.
+- Extracting mapped skills and playbook status.
+- Warning when a new playbook needs a README row with Skill `-` and Status `draft`.
+- Warning when updating a mapped `aligned` or `aligned-with-followups` playbook requires `skill-extracted` status until resync.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Added `agent-skills/prompt-to-playbook/scripts/inspect_playbook_request.py`.
+- Added `tests/agent_skills/test_inspect_playbook_request.py`.
+- Updated `agent-skills/prompt-to-playbook/SKILL.md` with script-first invocation guidance.
+- Updated `agent-playbooks/prompt-to-playbook.md` with matching deterministic evidence guidance.
+- Covered existing unmapped draft playbooks, missing README rows for new playbooks, mapped aligned playbooks requiring status changes, outside-playbook target rejection, and source prompt file evidence.
+- Ran `python -m unittest tests.agent_skills.test_inspect_playbook_request`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\prompt-to-playbook --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `python agent-skills\prompt-to-playbook\scripts\inspect_playbook_request.py --repo-root . --target-playbook agent-playbooks\prompt-to-playbook.md --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The helper reported `valid: true` for `agent-playbooks/prompt-to-playbook.md`, detected the existing README mapping to `prompt-to-playbook/`, and warned that updating a mapped `aligned` playbook requires `skill-extracted` status until resync.
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 
 ### Medium
