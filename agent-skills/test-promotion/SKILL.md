@@ -9,6 +9,12 @@ description: Use to decide whether generated, JIT, candidate, or mutation-valida
 
 Move tests through the generated-to-trusted lifecycle only when evidence shows they are useful, stable, traceable, and worth keeping.
 
+## Script-First Execution
+
+Before promotion judgement, collect deterministic evidence for the candidate tests. Prefer existing validation artifacts, test runner output, mutation/effectiveness summaries, diff/impact evidence helpers, and targeted file reads over memory or inference.
+
+Use LLM judgement only after evidence collection to classify promotion level, weigh mutation strength, identify traceability gaps, and decide whether a test should be refined, persisted, or discarded.
+
 ## Workflow
 
 1. Read test origin, spec refs, baseline results, mutation results, stability notes, and test effectiveness evaluation.

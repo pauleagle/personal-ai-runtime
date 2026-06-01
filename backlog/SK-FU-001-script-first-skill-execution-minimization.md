@@ -49,6 +49,8 @@ Completed:
 - Added a root script-first evidence gate to `spec-driven-change-verification` that points to existing deterministic helpers.
 - Added script-first evidence guidance to judgement-heavy `intent-analysis` without adding unnecessary automation.
 - Added script-first evidence guidance to judgement-heavy `decision-proposal` without adding unnecessary automation.
+- Added script-first evidence guidance to judgement-heavy `devils-advocate-review` without adding unnecessary automation.
+- Added script-first evidence guidance to judgement-heavy `test-promotion` without adding unnecessary automation.
 
 Still open:
 
@@ -655,6 +657,54 @@ Direct smoke result:
 - The UTF-8-safe validator reported `decision-proposal` as valid.
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 
+#### `devils-advocate-review`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Added script-first guidance before adversarial semantic review.
+- Required deterministic evidence collection from file reads, targeted `rg`, diff/impact evidence helpers, existing test results, or context manifests when available.
+- Kept LLM judgement scoped to hidden assumptions, edge cases, compatibility risk, migration cost, overdesign, and decomposition-blocking objections.
+- Avoided adding a new helper because the skill is primarily review judgement and can reuse existing deterministic evidence collectors.
+
+Test / validation actions:
+
+- Updated `agent-skills/devils-advocate-review/SKILL.md` with script-first evidence guidance.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\devils-advocate-review --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The UTF-8-safe validator reported `devils-advocate-review` as valid.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+
+#### `test-promotion`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Added script-first guidance before promotion judgement.
+- Required deterministic evidence collection from validation artifacts, test runner output, mutation/effectiveness summaries, diff/impact evidence helpers, and targeted file reads when available.
+- Kept LLM judgement scoped to promotion level classification, mutation strength, traceability gaps, and whether a test should be refined, persisted, or discarded.
+- Avoided adding a new helper because the skill is primarily evidence-based judgement and can reuse existing deterministic validation and mutation evidence collectors.
+
+Test / validation actions:
+
+- Updated `agent-skills/test-promotion/SKILL.md` with script-first evidence guidance.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\test-promotion --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The UTF-8-safe validator reported `test-promotion` as valid.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+
 ### Medium
 
 - `changelog-normalization`
@@ -704,11 +754,11 @@ This follow-up is complete when:
 - [x] Cross-platform script guidance exists for future reusable skill scripts.
 - [x] Skill validation is UTF-8-safe on Windows.
 - [x] A repeatable inventory audit exists or is documented.
-- [ ] High-priority aligned / aligned-with-followups skills explicitly prefer deterministic discovery before LLM judgement where applicable.
+- [x] High-priority aligned / aligned-with-followups skills explicitly prefer deterministic discovery before LLM judgement where applicable.
 - [ ] Future script additions include Windows and Linux invocation coverage or explicitly document why not.
-- [ ] The rule does not require scripts for purely semantic judgement tasks.
-- [ ] The update does not silently change current skill triggers, output contracts, or extraction maps.
-- [ ] `agent-skills/README.md` and `agent-playbooks/README.md` remain synchronized after any status or mapping changes.
+- [x] The rule does not require scripts for purely semantic judgement tasks.
+- [x] The update does not silently change current skill triggers, output contracts, or extraction maps.
+- [x] `agent-skills/README.md` and `agent-playbooks/README.md` remain synchronized after any status or mapping changes.
 
 ---
 

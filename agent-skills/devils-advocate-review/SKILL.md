@@ -9,6 +9,12 @@ description: Use before finalizing a plan or spec to challenge hidden assumption
 
 Challenge a draft plan or spec before implementation so unresolved risks are found early and routed into a numbered drill-down queue.
 
+## Script-First Execution
+
+Before semantic review, collect deterministic evidence that is available for the draft under review. Use file reads, targeted `rg`, diff/impact evidence helpers, existing test results, or context manifests to establish facts about changed files, spec sections, acceptance criteria, known tests, and referenced artifacts.
+
+Use LLM judgement for the actual adversarial review: hidden assumptions, edge cases, compatibility risk, migration cost, overdesign, and whether an objection should block atomic decomposition.
+
 ## Workflow
 
 1. Read the draft plan/spec, scope, non-goals, acceptance criteria, architecture constraints, and known risks.
