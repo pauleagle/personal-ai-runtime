@@ -163,6 +163,30 @@ Suggested compact log shape:
 - Temp files: none.
 - Notes: This observation is weaker than the inventory-audit cases because `rg` can legitimately exit non-zero when no matches are found. Keep it as a possible spawn-layer occurrence, not as proof of an `rg` defect.
 
+### 2026-06-02 Early Morning - SK-FU-002 / HOOK-MVP-001 Continuation
+
+#### Observation 5 - Repeated Inventory Audit Validation
+
+- Command: `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`
+- Workdir: `C:\personal-ai-runtime`
+- Failure: `execution error: Io(Custom { kind: Other, error: "windows sandbox: spawn setup refresh" })`
+- Sandbox retry: not retained as successful evidence for the same exact run; the workflow followed the escalation rule for important validation commands.
+- Escalated retry: succeeded repeatedly.
+- Writes: none expected.
+- Temp files: none expected.
+- Notes: Successful escalated reruns returned `valid: true`, `playbookRows: 16`, `skillRows: 25`, and `findings: []`. The command was used while validating SK-FU-002 README guidance, subagent handoff guidance, and closeout.
+
+#### Observation 6 - Runtime Hook Gate Contract CLI Smoke
+
+- Command: `python runtime-hooks\scripts\validate_gate_contract.py tests\fixtures\gate_contract_pre_run_sample.json --json`
+- Workdir: `C:\personal-ai-runtime`
+- Failure: `execution error: Io(Custom { kind: Other, error: "windows sandbox: spawn setup refresh" })`
+- Sandbox retry: not retained as successful evidence for the same exact run; the important smoke check was rerun with escalation.
+- Escalated retry: succeeded.
+- Writes: none expected.
+- Temp files: none.
+- Notes: Successful escalated rerun returned `gate: pre-run`, `status: pass`, `blocking_reasons: []`, and `next_allowed_action: edit`, which supports treating the original failure as sandbox startup noise rather than a defect in `validate_gate_contract.py`.
+
 ---
 
 ## Current Working Hypothesis
