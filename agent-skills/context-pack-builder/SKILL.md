@@ -9,15 +9,26 @@ description: Use to prepare bounded context packs for stateless subagents, selec
 
 Create minimal but sufficient context packs so subagents can run one bounded job without inheriting long chat history or stale artifacts.
 
+## Script-First Execution
+
+After selecting candidate sources, build deterministic source metadata before handing the pack to a subagent:
+
+```powershell
+python agent-skills\context-pack-builder\scripts\build_context_manifest.py --repo-root . --json <source> [<source> ...]
+```
+
+The helper checks file existence, source kind, relative path, byte size, line count, SHA-256, missing sources, directories, outside-repo paths, and per-file size warnings. Use this as the manifest evidence layer; use LLM judgement to decide inclusion rationale, exclusions, compact prior findings, allowed scope, forbidden scope, validation requirements, and output contract.
+
 ## Workflow
 
 1. Read the selected job, atomic item metadata, spec refs, dependency notes, allowed scope, forbidden scope, and output contract.
 2. Identify required source files, artifacts, tests, diffs, prior findings, and human decisions.
-3. Exclude unrelated history, obsolete drafts, closed objections, and out-of-scope files.
-4. Summarize prior findings only as durable references or compact handoff notes.
-5. Record included and excluded sources.
-6. Note token budget, stale artifacts, missing sources, and assumptions.
-7. Hand the context pack to `atomic-subagent-runner` or the root orchestrator.
+3. Run deterministic manifest building for selected source paths when available.
+4. Exclude unrelated history, obsolete drafts, closed objections, and out-of-scope files.
+5. Summarize prior findings only as durable references or compact handoff notes.
+6. Record included and excluded sources.
+7. Note token budget, stale artifacts, missing sources, and assumptions.
+8. Hand the context pack to `atomic-subagent-runner` or the root orchestrator.
 
 ## Mandatory Rules
 
@@ -43,6 +54,7 @@ Check:
 4. Allowed and forbidden scopes are explicit.
 5. Validation requirements are explicit.
 6. Missing or stale context is reported.
+7. If the manifest helper changed, run its unit tests and a CLI smoke check.
 
 ## Output
 

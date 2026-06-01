@@ -359,6 +359,30 @@ Direct smoke result:
 
 - The helper reported the current root repo status and classified this follow-up's then-untracked script as `other` and test file as `tests`; cache files were excluded.
 
+#### `context-pack-builder`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Building deterministic metadata for selected context source paths.
+- Checking source existence, kind, repo-relative path, byte size, line count, and SHA-256.
+- Reporting missing sources, directory inputs, outside-repo paths, and per-file size warnings.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Added `agent-skills/context-pack-builder/scripts/build_context_manifest.py`.
+- Added `tests/agent_skills/test_build_context_manifest.py`.
+- Covered UTF-8 file metadata, missing source invalidation, directory and large-file warnings, and outside-repo warnings.
+- Ran `python -m unittest tests.agent_skills.test_build_context_manifest`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\context-pack-builder\scripts\build_context_manifest.py --repo-root . --json agent-skills\context-pack-builder\SKILL.md backlog\SK-FU-001-script-first-skill-execution-minimization.md`.
+
+Direct smoke result:
+
+- The helper reported two existing file sources, total bytes, line counts, SHA-256 hashes, and no warnings for the sampled context-pack inputs.
+
 ### Medium
 
 - `changelog-normalization`
