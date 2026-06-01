@@ -9,9 +9,25 @@ description: Use to analyze git diffs, commits, or file changes for changed comp
 
 Inspect changes after implementation or before review so verification is driven by actual diff impact, not assumptions.
 
+## Script-First Execution
+
+Collect deterministic Git evidence before semantic diff judgement.
+
+```powershell
+python agent-skills\diff-analysis\scripts\collect_git_diff_evidence.py --repo-root . --json
+```
+
+For staged-only review:
+
+```powershell
+python agent-skills\diff-analysis\scripts\collect_git_diff_evidence.py --repo-root . --staged --json
+```
+
+The helper records `git status --short`, `git diff --name-only`, `git diff --name-status`, and `git diff --stat`. Use this output as the file-level evidence layer; use LLM judgement only after that to classify changed components, behavior-change candidates, unrelated edits, impacted specs/tests, and validation scope.
+
 ## Workflow
 
-1. Read git status and the relevant diff or commit.
+1. Run deterministic Git evidence collection for the current repository boundary, or manually read git status and the relevant diff or commit when the helper is unavailable.
 2. Identify changed files, changed components, data contracts, public APIs, tests, docs, and generated artifacts.
 3. Separate intended changes from unrelated edits or workspace noise.
 4. Identify possible behavior-change candidates and compatibility risks.
@@ -42,6 +58,7 @@ Check:
 3. Unrelated or suspicious changes are flagged.
 4. Affected specs/tests are named when known.
 5. Recommended validation scope is included.
+6. If the helper script changed, run its unit tests and a CLI smoke check.
 
 ## Output
 

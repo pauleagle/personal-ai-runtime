@@ -252,6 +252,34 @@ Test / validation actions:
 - Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\changelog-normalization --json`.
 - Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\prompt-to-playbook --json`.
 
+#### `diff-analysis`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Deterministic collection of `git status --short`.
+- Deterministic collection of `git diff --name-only`.
+- Deterministic collection of `git diff --name-status`.
+- Deterministic collection of `git diff --stat`.
+- Optional staged-only evidence collection.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Added `agent-skills/diff-analysis/scripts/collect_git_diff_evidence.py`.
+- Added `tests/agent_skills/test_collect_git_diff_evidence.py`.
+- Covered working tree diff evidence, staged diff evidence, and non-repository rejection.
+- Ran `python -m unittest tests.agent_skills.test_collect_git_diff_evidence`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python C:/Users/pauleagle/.codex/skills/.system/skill-creator/scripts/quick_validate.py agent-skills/diff-analysis`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\diff-analysis --json`.
+- Ran `python agent-skills\diff-analysis\scripts\collect_git_diff_evidence.py --repo-root . --json`.
+
+Direct smoke result:
+
+- The helper reported the current root repo status and confirmed no unstaged diff entries at smoke-check time; the only reported status entries were this follow-up's then-untracked script and test files.
+
 ### Medium
 
 - `changelog-normalization`
