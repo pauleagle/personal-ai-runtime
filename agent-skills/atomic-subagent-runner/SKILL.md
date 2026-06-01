@@ -9,15 +9,26 @@ description: Use to launch, supervise, or evaluate one stateless bounded subagen
 
 Run one short-lived bounded job and return a structured result that can be validated and merged by the orchestrator.
 
+## Script-First Execution
+
+When the subagent job is represented as a local JSON contract, validate the contract before launching or evaluating the worker:
+
+```powershell
+python agent-skills/atomic-subagent-runner/scripts/validate_subagent_job_contract.py path/to/job.json --json
+```
+
+Use the same Python command on Linux/macOS shells. The helper checks required fields, non-empty context and validation fields, allowed/forbidden scope shape, likely hidden chat-history dependency, and whether state patch or merge gate governance is declared. Use LLM judgement after this deterministic check to decide whether the job is small enough, semantically safe, and ready to run.
+
 ## Workflow
 
-1. Read the context pack, job ID, parent atomic item ID, allowed scope, forbidden scope, validation requirements, and output contract.
-2. Confirm the job is small enough for one bounded worker.
-3. Execute only the requested analysis, patch, test, review, or summary task.
-4. Reject or stop when required context is missing, scope is unsafe, or the task would require hidden chat history.
-5. Produce structured output with consumed artifacts, produced artifacts, validation result, gaps, and state patch proposal.
-6. Do not advance durable state directly unless this job is explicitly the single writer for that state artifact.
-7. Return retry, blocked, or human decision required when appropriate.
+1. Run the script-first job contract validation when a local JSON job contract exists; if the helper is unavailable or the contract is not local JSON, state the fallback.
+2. Read the context pack, job ID, parent atomic item ID, allowed scope, forbidden scope, validation requirements, and output contract.
+3. Confirm the job is small enough for one bounded worker.
+4. Execute only the requested analysis, patch, test, review, or summary task.
+5. Reject or stop when required context is missing, scope is unsafe, or the task would require hidden chat history.
+6. Produce structured output with consumed artifacts, produced artifacts, validation result, gaps, and state patch proposal.
+7. Do not advance durable state directly unless this job is explicitly the single writer for that state artifact.
+8. Return retry, blocked, or human decision required when appropriate.
 
 ## Mandatory Rules
 

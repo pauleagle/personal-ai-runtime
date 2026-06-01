@@ -43,6 +43,7 @@ Completed:
 - Added a UTF-8-safe skill validation wrapper under `utf8-traditional-chinese-defaults` with regression tests and documented invocation.
 - Added a repeatable playbook/skill inventory audit script under `playbook-to-skill` with regression tests and documented invocation.
 - Added a changelog structure evidence helper under `changelog-normalization` with regression tests and documented script-first invocation.
+- Added an atomic subagent job contract validator under `atomic-subagent-runner` with regression tests and documented invocation.
 
 Still open:
 
@@ -470,6 +471,39 @@ Direct smoke result:
 
 - The helper reported `valid: false` for the current repository because no root `CHANGELOG.md` exists; this is the expected deterministic missing-file evidence for this repo state.
 - The UTF-8-safe validator reported the skill as valid. Legacy `quick_validate.py` still raised `UnicodeDecodeError` under Windows `cp950`, matching the known validator encoding limitation already recorded in this follow-up.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+
+#### `atomic-subagent-runner`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Validating local JSON subagent job contract artifacts before launch or evaluation.
+- Checking required `job_id`, `parent_atomic_item_id`, `subagent_role`, `context_pack`, `allowed_scope`, `forbidden_scope`, `validation_requirements`, and `output_contract` fields.
+- Checking non-empty context, scope, validation, and output contract fields.
+- Checking allowed / forbidden scope field shape.
+- Warning when `forbidden_scope` is empty.
+- Warning when `state_patch_policy` or `merge_gate` governance is absent.
+- Warning when `context_pack` appears to rely on hidden chat history instead of durable artifacts.
+- Structured JSON output for downstream orchestration or merge-gate checks.
+
+Test / validation actions:
+
+- Added `agent-skills/atomic-subagent-runner/scripts/validate_subagent_job_contract.py`.
+- Added `tests/agent_skills/test_validate_subagent_job_contract.py`.
+- Updated `agent-skills/atomic-subagent-runner/SKILL.md` with script-first invocation guidance.
+- Covered valid contracts, missing required fields, empty required values, missing governance warnings, empty forbidden-scope warnings, and hidden chat-history context warnings.
+- Ran `python -m unittest tests.agent_skills.test_validate_subagent_job_contract`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\atomic-subagent-runner --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `python agent-skills\atomic-subagent-runner\scripts\validate_subagent_job_contract.py <temp-sample-job.json> --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The helper reported the temporary sample job contract as `valid: true` with no findings.
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 
 ### Medium
