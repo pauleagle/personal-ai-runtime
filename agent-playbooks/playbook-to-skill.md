@@ -44,6 +44,14 @@ Skill 不應保留：
 
 能用 script 就不用 LLM。
 
+例行 README inventory 與 mapping 檢查應先跑 audit helper：
+
+```powershell
+python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json
+```
+
+這個 helper 會解析 `agent-playbooks/README.md` 與 `agent-skills/README.md`，檢查 status / profile 是否屬於允許值、對應 playbook / skill 檔案是否存在，以及 `SKILL.md` frontmatter 的 `name` 是否和資料夾名稱一致。
+
 在 playbook-to-skill 流程中，凡是可由 deterministic command、parser、validator 或檔案讀取確認的事實，應先用工具確認，再讓 LLM 做解讀、比較與決策。
 
 若需要新增 reusable skill script，預設同時支援 Windows 與 Linux。優先使用一份 portable implementation，例如 Python，再用薄 PowerShell / POSIX shell wrapper 改善呼叫體驗；若無法跨平台，必須在 skill 中明確寫出限制與驗證缺口。

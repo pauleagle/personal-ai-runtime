@@ -13,6 +13,14 @@ Turn `agent-playbooks/` workflows into concise Codex skills while keeping playbo
 
 能用 script 就不用 LLM。
 
+For routine README inventory and mapping checks, run the bundled audit helper before semantic alignment review:
+
+```powershell
+python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json
+```
+
+The helper parses `agent-playbooks/README.md` and `agent-skills/README.md`, checks allowed status/profile values, confirms mapped files exist, and validates `SKILL.md` frontmatter names against folder names.
+
 Before semantic judgement, use deterministic checks for facts that commands can verify: README inventory rows, mapped file existence, `SKILL.md` frontmatter, folder/name agreement, allowed status values, git diff/status, and validator results.
 
 Use LLM reasoning for extraction strategy, semantic alignment, gap classification, and recommendations after those facts are collected.

@@ -41,10 +41,10 @@ Completed:
 - Added Windows / Linux wrapper guidance to `nested-module-git-initialization`.
 - Completed the first low-complexity per-skill script-first pass for `nested-module-git-initialization` by adding regression tests for its existing Python helper and wrappers contract.
 - Added a UTF-8-safe skill validation wrapper under `utf8-traditional-chinese-defaults` with regression tests and documented invocation.
+- Added a repeatable playbook/skill inventory audit script under `playbook-to-skill` with regression tests and documented invocation.
 
 Still open:
 
-- Add or document a repeatable inventory audit script.
 - Decide whether each `SKILL.md` should later receive machine-readable `metadata.execution_profile`.
 - Review remaining high-priority skills one by one before adding per-skill script-first rules beyond the README profile hint.
 - Audit future script additions for Windows and Linux invocation coverage.
@@ -280,6 +280,34 @@ Direct smoke result:
 
 - The helper reported the current root repo status and confirmed no unstaged diff entries at smoke-check time; the only reported status entries were this follow-up's then-untracked script and test files.
 
+#### `playbook-to-skill`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Parsing `agent-playbooks/README.md` Playbook / Skill mapping rows.
+- Parsing `agent-skills/README.md` skill inventory rows.
+- Checking allowed playbook status values and skill execution profiles.
+- Checking mapped playbook and skill paths exist.
+- Checking `SKILL.md` frontmatter `name` matches the skill folder.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Added `agent-skills/playbook-to-skill/scripts/audit_skill_inventory.py`.
+- Added `tests/agent_skills/test_audit_skill_inventory.py`.
+- Covered synchronized inventory, invalid status/profile values, and frontmatter/folder name mismatch.
+- Ran `python -m unittest tests.agent_skills.test_audit_skill_inventory`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\playbook-to-skill --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Legacy `quick_validate.py` still hit `UnicodeDecodeError` on this UTF-8 skill under Windows cp950 defaults; this was treated as a validator encoding limitation because the UTF-8-safe validator passed.
+
+Direct smoke result:
+
+- The helper reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings for the current repository.
+
 ### Medium
 
 - `changelog-normalization`
@@ -328,7 +356,7 @@ This follow-up is complete when:
 - [x] A shared script-first minimization rule exists in the skill maintenance docs.
 - [x] Cross-platform script guidance exists for future reusable skill scripts.
 - [x] Skill validation is UTF-8-safe on Windows.
-- [ ] A repeatable inventory audit exists or is documented.
+- [x] A repeatable inventory audit exists or is documented.
 - [ ] High-priority aligned / aligned-with-followups skills explicitly prefer deterministic discovery before LLM judgement where applicable.
 - [ ] Future script additions include Windows and Linux invocation coverage or explicitly document why not.
 - [ ] The rule does not require scripts for purely semantic judgement tasks.
