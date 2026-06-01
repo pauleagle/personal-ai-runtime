@@ -1,0 +1,11 @@
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.042s
+
+OK
+
+mutation summary:
+killed: 2
+survived: 0
+equivalent: 0
+blocked: 0

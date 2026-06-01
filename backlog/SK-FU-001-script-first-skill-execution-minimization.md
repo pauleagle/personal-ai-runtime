@@ -383,6 +383,32 @@ Direct smoke result:
 
 - The helper reported two existing file sources, total bytes, line counts, SHA-256 hashes, and no warnings for the sampled context-pack inputs.
 
+#### `test-effectiveness-evaluation`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Extracting deterministic evidence from text test or mutation result artifacts.
+- Detecting unittest run count, runtime, and pass/fail status.
+- Extracting mutation term counts for `killed`, `survived`, `equivalent`, `skipped`, and `blocked`.
+- Reporting missing result files without crashing.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Added `agent-skills/test-effectiveness-evaluation/scripts/collect_validation_result_evidence.py`.
+- Added `tests/agent_skills/test_collect_validation_result_evidence.py`.
+- Added `tests/fixtures/validation_result_sample.txt` for smoke-check evidence.
+- Covered unittest pass evidence, unittest failure evidence, mutation term count extraction, and missing result files.
+- Ran `python -m unittest tests.agent_skills.test_collect_validation_result_evidence`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\test-effectiveness-evaluation\scripts\collect_validation_result_evidence.py --json tests\fixtures\validation_result_sample.txt`.
+
+Direct smoke result:
+
+- The helper reported `testsRun: 5`, `status: passed`, `killed: 2`, and `survived: 0` from the sample validation result fixture. No gap classification was performed by the helper.
+
 ### Medium
 
 - `changelog-normalization`
