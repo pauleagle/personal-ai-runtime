@@ -46,6 +46,7 @@ Completed:
 - Added an atomic subagent job contract validator under `atomic-subagent-runner` with regression tests and documented invocation.
 - Added a spec/test evolution plan validator under `spec-test-evolution` with regression tests and documented invocation.
 - Added a prompt-to-playbook request inspection helper under `prompt-to-playbook` with regression tests and documented invocation.
+- Added a root script-first evidence gate to `spec-driven-change-verification` that points to existing deterministic helpers.
 
 Still open:
 
@@ -575,6 +576,31 @@ Test / validation actions:
 Direct smoke result:
 
 - The helper reported `valid: true` for `agent-playbooks/prompt-to-playbook.md`, detected the existing README mapping to `prompt-to-playbook/`, and warned that updating a mapped `aligned` playbook requires `skill-extracted` status until resync.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+
+#### `spec-driven-change-verification`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Added a root skill script-first evidence gate before LLM judgement.
+- Pointed routine entry checks to existing diff, impact, and mutation/test tooling evidence helpers.
+- Pointed artifact-specific checks to existing orchestrator state, context manifest, subagent job contract, and spec/test evolution plan validators.
+- Required the root workflow to run available deterministic checks for the current step or state why no local script-first check applies.
+- Kept the full source playbook out of routine execution context and did not change trigger behavior or README status.
+
+Test / validation actions:
+
+- Updated `agent-skills/spec-driven-change-verification/SKILL.md` with script-first evidence gate guidance.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\spec-driven-change-verification --json`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The UTF-8-safe validator reported the root skill as valid.
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 
 ### Medium

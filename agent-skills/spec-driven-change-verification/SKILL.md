@@ -9,6 +9,29 @@ description: Use for spec-driven implementation and verification workflows, incl
 
 Run a spec-first, mutation-aware, human-governed verification workflow without relying on one long chat as the source of state. Use this as the root/orchestrator skill; treat `agent-playbooks/spec-driven-change-verification-workflow-playbook.md` as design background, not as default execution context.
 
+## Script-First Execution
+
+Before LLM judgement, collect deterministic evidence that matches the current workflow step and available artifacts. Use only the relevant helpers; do not run scripts just to create noise.
+
+Common entry checks:
+
+```powershell
+python agent-skills/diff-analysis/scripts/collect_git_diff_evidence.py --repo-root . --json
+python agent-skills/impact-analysis/scripts/collect_impact_evidence.py --repo-root . --json
+python agent-skills/mutation-testing/scripts/detect_mutation_test_tools.py --repo-root . --json
+```
+
+When the corresponding artifacts exist, validate them before semantic interpretation:
+
+```powershell
+python agent-skills/orchestrator-state-machine/scripts/validate_orchestrator_state.py path/to/state.json --json
+python agent-skills/context-pack-builder/scripts/build_context_manifest.py --repo-root . --json <source> [<source> ...]
+python agent-skills/atomic-subagent-runner/scripts/validate_subagent_job_contract.py path/to/job.json --json
+python agent-skills/spec-test-evolution/scripts/validate_spec_test_evolution_plan.py path/to/evolution-plan.json --json
+```
+
+Use LLM reasoning after these checks to interpret impact, resolve ambiguity, classify gaps, frame human decisions, and decide which child skill should own the next step.
+
 ## Playbook Access Rule
 
 Do not read the full source playbook during normal execution.
@@ -26,18 +49,19 @@ When playbook context is needed, search for the specific section and read only t
 
 ## Workflow
 
-1. Read the relevant project instructions, spec, active atomic item or phase, README/index files, current git status, and durable state artifacts. Do not read the full source playbook by default.
-2. If the task is complex or ambiguous, run `preflight-protocol` before changing files.
-3. Identify the current workflow step, selected workflow, atomic item ID, spec refs, durable state location, allowed scope, forbidden scope, and human decision status.
-4. If requirements or acceptance criteria are unclear, stop implementation and produce spec drill-down questions or a spec gap report.
-5. Before atomic decomposition, ensure Devil's Advocate objections are numbered, resolved, deferred with rationale, or accepted by the human; unresolved objections block implementation.
-6. Work on one atomic item at a time. Design or select spec-traced tests before or alongside implementation.
-7. After implementation, inspect the diff to infer intent, impacted components, impacted specs, impacted tests, risks, and validation gaps.
-8. Run focused tests and add or select JIT tests when the diff exposes uncovered behavior.
-9. Validate test effectiveness with mutation testing when available; for small impacted scopes, use scoped manual mutation checks when framework mutation is not practical.
-10. Classify results as code issue, test gap, spec gap, equivalent mutation, accepted risk, or human decision required.
-11. Update specs, tests, README/index files, orchestrator state, atomic metadata, run notes, or handoff artifacts when the workflow step requires durable state.
-12. Advance `workflow_step` only after the current step's validation and durable-state updates are complete.
+1. Run deterministic evidence checks available for the current workflow step, or state why no local script-first check applies.
+2. Read the relevant project instructions, spec, active atomic item or phase, README/index files, current git status, and durable state artifacts. Do not read the full source playbook by default.
+3. If the task is complex or ambiguous, run `preflight-protocol` before changing files.
+4. Identify the current workflow step, selected workflow, atomic item ID, spec refs, durable state location, allowed scope, forbidden scope, and human decision status.
+5. If requirements or acceptance criteria are unclear, stop implementation and produce spec drill-down questions or a spec gap report.
+6. Before atomic decomposition, ensure Devil's Advocate objections are numbered, resolved, deferred with rationale, or accepted by the human; unresolved objections block implementation.
+7. Work on one atomic item at a time. Design or select spec-traced tests before or alongside implementation.
+8. After implementation, inspect the diff to infer intent, impacted components, impacted specs, impacted tests, risks, and validation gaps.
+9. Run focused tests and add or select JIT tests when the diff exposes uncovered behavior.
+10. Validate test effectiveness with mutation testing when available; for small impacted scopes, use scoped manual mutation checks when framework mutation is not practical.
+11. Classify results as code issue, test gap, spec gap, equivalent mutation, accepted risk, or human decision required.
+12. Update specs, tests, README/index files, orchestrator state, atomic metadata, run notes, or handoff artifacts when the workflow step requires durable state.
+13. Advance `workflow_step` only after the current step's validation and durable-state updates are complete.
 
 ## Child Skill Delegation
 
