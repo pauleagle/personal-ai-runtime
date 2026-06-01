@@ -40,10 +40,10 @@ Completed:
 - Added cross-platform script guidance for future reusable skill scripts.
 - Added Windows / Linux wrapper guidance to `nested-module-git-initialization`.
 - Completed the first low-complexity per-skill script-first pass for `nested-module-git-initialization` by adding regression tests for its existing Python helper and wrappers contract.
+- Added a UTF-8-safe skill validation wrapper under `utf8-traditional-chinese-defaults` with regression tests and documented invocation.
 
 Still open:
 
-- Add a UTF-8-safe validator or wrapper for skill validation on Windows.
 - Add or document a repeatable inventory audit script.
 - Decide whether each `SKILL.md` should later receive machine-readable `metadata.execution_profile`.
 - Review remaining high-priority skills one by one before adding per-skill script-first rules beyond the README profile hint.
@@ -229,6 +229,29 @@ Direct smoke result:
 
 - The helper reported `action: existing-boundary` for `modules/style-fit-profiler`; no initialization was needed.
 
+#### `utf8-traditional-chinese-defaults`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- UTF-8-safe `SKILL.md` validation using explicit `encoding="utf-8"`.
+- Clean decode-error reporting for non-UTF-8 skill files.
+- Structured JSON output for downstream workflow consumption.
+- Deterministic frontmatter validation before LLM interpretation of encoding or validator failures.
+
+Test / validation actions:
+
+- Added `agent-skills/utf8-traditional-chinese-defaults/scripts/validate_skill_utf8.py`.
+- Added `tests/agent_skills/test_validate_skill_utf8.py`.
+- Covered valid UTF-8 Traditional Chinese frontmatter, non-UTF-8 rejection, and invalid frontmatter shape.
+- Ran `python -m unittest tests.agent_skills.test_validate_skill_utf8`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python C:/Users/pauleagle/.codex/skills/.system/skill-creator/scripts/quick_validate.py agent-skills/utf8-traditional-chinese-defaults`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\utf8-traditional-chinese-defaults --json`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\changelog-normalization --json`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\prompt-to-playbook --json`.
+
 ### Medium
 
 - `changelog-normalization`
@@ -276,7 +299,7 @@ This follow-up is complete when:
 
 - [x] A shared script-first minimization rule exists in the skill maintenance docs.
 - [x] Cross-platform script guidance exists for future reusable skill scripts.
-- [ ] Skill validation is UTF-8-safe on Windows.
+- [x] Skill validation is UTF-8-safe on Windows.
 - [ ] A repeatable inventory audit exists or is documented.
 - [ ] High-priority aligned / aligned-with-followups skills explicitly prefer deterministic discovery before LLM judgement where applicable.
 - [ ] Future script additions include Windows and Linux invocation coverage or explicitly document why not.

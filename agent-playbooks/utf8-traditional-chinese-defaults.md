@@ -46,6 +46,22 @@
 
 讀取檔案時若需要確認或避免誤判，也應使用 `Get-Content -Encoding UTF8`，或改用已知會保留 UTF-8 的工具與 API。
 
+### Skill validation 的 script-first 檢查
+
+當要驗證 `agent-skills/<skill>/SKILL.md`，或遇到 Windows 預設編碼造成的 validator 失敗時，應先使用 UTF-8-safe validator：
+
+```powershell
+python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\<skill-name>
+```
+
+需要給後續流程或 agent 消費時，可加上 `--json`：
+
+```powershell
+python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\<skill-name> --json
+```
+
+這個檢查會明確用 UTF-8 讀取 `SKILL.md`，並把 decode error 回報為驗證結果，而不是讓 shell 或 Python 的平台預設編碼決定成敗。LLM 判斷應在這個 deterministic evidence 之後進行，用來分辨是檔案編碼問題、終端顯示問題、validator 限制，或 frontmatter 內容本身錯誤。
+
 手動編輯 repo 檔案時，優先使用既有安全編輯工具與專案流程；批次轉換或格式化前，先確認目標檔案範圍，避免把不相關檔案改成不同換行、編碼或語言風格。
 
 ## Agent 行為準則

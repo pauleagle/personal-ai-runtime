@@ -5,6 +5,22 @@ description: Use when creating, reading, updating, normalizing, or converting te
 
 # UTF-8 Traditional Chinese Defaults
 
+## Script-First Execution
+
+When validating Codex skills or investigating Windows encoding failures, use the bundled UTF-8-safe validator before treating a validation failure as a skill defect.
+
+```powershell
+python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\<skill-name>
+```
+
+For structured evidence:
+
+```powershell
+python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\<skill-name> --json
+```
+
+The validator reads `SKILL.md` with explicit `encoding="utf-8"` and reports decode errors cleanly. Use LLM judgement after this deterministic check to decide whether the issue is a file encoding problem, terminal display problem, validator limitation, or actual frontmatter defect.
+
 ## Workflow
 
 1. Before reading or editing text files, check whether the project or nearby files already imply a language or encoding convention.
@@ -15,6 +31,7 @@ description: Use when creating, reading, updating, normalizing, or converting te
 6. When using PowerShell commands that write text files, specify UTF-8 explicitly, such as `Set-Content -Encoding UTF8`, `Add-Content -Encoding UTF8`, `Out-File -Encoding UTF8`, or `Export-Csv -Encoding UTF8`.
 7. If output looks garbled, first determine whether the issue is terminal display, incorrect read encoding, or damaged file contents before rewriting the file.
 8. After document changes, verify the relevant file snippets, README indexes, or rendered text when practical.
+9. When skill validation touches Traditional Chinese or mixed-language `SKILL.md` files, prefer the bundled UTF-8-safe validator or another command that explicitly decodes as UTF-8.
 
 ## Rules
 
