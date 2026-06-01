@@ -9,6 +9,16 @@ description: Use to maintain durable workflow state for spec-driven execution, i
 
 Keep long-running spec-driven work in durable artifacts rather than chat context, and decide which bounded job can run next.
 
+## Script-First Execution
+
+Before semantic state decisions, validate durable state artifacts when they are JSON:
+
+```powershell
+python agent-skills\orchestrator-state-machine\scripts\validate_orchestrator_state.py <state-file> --json
+```
+
+The helper checks required cursor/status fields and queue shapes. It does not decide which job should run next; use LLM judgement after validation for dependency, usage, validation, human decision, and merge gates.
+
 ## Workflow
 
 1. Read the root spec, atomic item index, current state artifact, dependency graph, git status, validation results, and human decision status.

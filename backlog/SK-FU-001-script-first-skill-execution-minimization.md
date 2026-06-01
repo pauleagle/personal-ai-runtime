@@ -409,6 +409,31 @@ Direct smoke result:
 
 - The helper reported `testsRun: 5`, `status: passed`, `killed: 2`, and `survived: 0` from the sample validation result fixture. No gap classification was performed by the helper.
 
+#### `orchestrator-state-machine`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Validating durable orchestrator state JSON artifacts.
+- Checking required `workflow_step`, `implementation_status`, and queue fields.
+- Checking queue fields are lists.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Added `agent-skills/orchestrator-state-machine/scripts/validate_orchestrator_state.py`.
+- Added `tests/agent_skills/test_validate_orchestrator_state.py`.
+- Added `tests/fixtures/orchestrator_state_sample.json`.
+- Covered valid state, missing required fields, and invalid queue type.
+- Ran `python -m unittest tests.agent_skills.test_validate_orchestrator_state`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\orchestrator-state-machine\scripts\validate_orchestrator_state.py tests\fixtures\orchestrator_state_sample.json --json`.
+
+Direct smoke result:
+
+- The helper reported the sample orchestrator state as valid with `workflow_step: Step 11 - Test Execution` and empty ready/running/blocked/completed/deferred queues.
+
 ### Medium
 
 - `changelog-normalization`
