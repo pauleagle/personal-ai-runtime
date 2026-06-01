@@ -115,6 +115,56 @@ Suggested compact log shape:
 
 ---
 
+## Observation Log
+
+### 2026-06-01 Afternoon - SK-FU-001 Continuation
+
+#### Observation 1 - Inventory Audit Validation
+
+- Command: `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`
+- Workdir: `C:\personal-ai-runtime`
+- Failure: `execution error: Io(Custom { kind: Other, error: "windows sandbox: spawn setup refresh" })`
+- Sandbox retry: not consistently attempted; the workflow followed the escalation rule for important validation commands.
+- Escalated retry: succeeded repeatedly.
+- Writes: none expected.
+- Temp files: none expected.
+- Notes: Successful escalated reruns returned `valid: true`, `playbookRows: 16`, `skillRows: 25`, and `findings: []`, which supports treating the original failure as sandbox startup noise rather than an inventory defect.
+
+#### Observation 2 - Directory Creation For Skill Scripts
+
+- Command: `New-Item -ItemType Directory -Force agent-skills\<skill-name>\scripts`
+- Workdir: `C:\personal-ai-runtime`
+- Failure: `execution error: Io(Custom { kind: Other, error: "windows sandbox: spawn setup refresh" })`
+- Sandbox retry: not retained as successful evidence.
+- Escalated retry: succeeded for script directory creation.
+- Writes: creates a repo-local `scripts/` directory.
+- Temp files: none.
+- Notes: The command is simple PowerShell directory creation. The successful escalated rerun suggests the failure happened before normal PowerShell command completion.
+
+#### Observation 3 - Temporary JSON Smoke Checks
+
+- Command shape: create a JSON file under `$env:TEMP`, run a helper script against it, then remove the temp file.
+- Workdir: `C:\personal-ai-runtime`
+- Failure: `execution error: Io(Custom { kind: Other, error: "windows sandbox: spawn setup refresh" })`
+- Sandbox retry: not retained as successful evidence.
+- Escalated retry: succeeded for the observed smoke checks.
+- Writes: Windows temp directory only.
+- Temp files: yes, short-lived JSON fixtures.
+- Notes: Successful escalated reruns returned valid helper JSON, including `valid: true` and empty findings for the sample contracts/plans.
+
+#### Observation 4 - Read/Search Command
+
+- Command shape: `rg ... backlog\SK-FU-001-script-first-skill-execution-minimization.md`
+- Workdir: `C:\personal-ai-runtime`
+- Failure: `execution error: Io(Custom { kind: Other, error: "windows sandbox: spawn setup refresh" })`
+- Sandbox retry: not retained as successful evidence for the same exact command.
+- Escalated retry: completed as a command invocation, but one rerun produced no matching output / non-zero search status.
+- Writes: none.
+- Temp files: none.
+- Notes: This observation is weaker than the inventory-audit cases because `rg` can legitimately exit non-zero when no matches are found. Keep it as a possible spawn-layer occurrence, not as proof of an `rg` defect.
+
+---
+
 ## Current Working Hypothesis
 
 The best current hypothesis is that `windows sandbox: spawn setup refresh` is a Codex Windows sandbox process-spawn/setup failure rather than a defect in `audit_skill_inventory.py` or the helper being run.
