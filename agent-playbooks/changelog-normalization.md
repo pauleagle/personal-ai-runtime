@@ -67,6 +67,8 @@ Changelog Normalization 是在整理、發布或檢查 `CHANGELOG.md` 前執行�
 
 agent 在整理 `CHANGELOG.md` 前，應先檢查目前內容狀態，而不是直接重寫。
 
+若本機有可讀取的 `CHANGELOG.md`，應先用 deterministic 檢查取得結構證據，例如檔案存在性、UTF-8 可讀性、版本標題、日期、分類、未分類條目，以及疑似 TODO、commit log 或 AI 對話殘留；再進行語意判斷與整理策略。
+
 除非使用者明確要求直接修改，否則應先輸出整理評估與建議策略。
 
 agent 應判斷：

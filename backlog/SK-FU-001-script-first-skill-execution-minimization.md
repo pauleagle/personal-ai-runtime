@@ -42,6 +42,7 @@ Completed:
 - Completed the first low-complexity per-skill script-first pass for `nested-module-git-initialization` by adding regression tests for its existing Python helper and wrappers contract.
 - Added a UTF-8-safe skill validation wrapper under `utf8-traditional-chinese-defaults` with regression tests and documented invocation.
 - Added a repeatable playbook/skill inventory audit script under `playbook-to-skill` with regression tests and documented invocation.
+- Added a changelog structure evidence helper under `changelog-normalization` with regression tests and documented script-first invocation.
 
 Still open:
 
@@ -433,6 +434,43 @@ Test / validation actions:
 Direct smoke result:
 
 - The helper reported the sample orchestrator state as valid with `workflow_step: Step 11 - Test Execution` and empty ready/running/blocked/completed/deferred queues.
+
+#### `changelog-normalization`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Checking target changelog file existence.
+- Reading changelog text with explicit UTF-8 decoding.
+- Extracting Markdown headings and H2 version / `Unreleased` sections.
+- Detecting released sections missing ISO dates.
+- Detecting `Unreleased` sections that are not first.
+- Detecting dated version sections that are not newest-first.
+- Detecting category headings and list entries before a category heading.
+- Flagging likely TODO, commit-log, merge-log, or AI-residue lines as deterministic review evidence.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Added `agent-skills/changelog-normalization/scripts/analyze_changelog_structure.py`.
+- Added `tests/agent_skills/test_analyze_changelog_structure.py`.
+- Updated `agent-skills/changelog-normalization/SKILL.md` with script-first invocation guidance.
+- Updated `agent-playbooks/changelog-normalization.md` with matching deterministic evidence guidance.
+- Covered valid version/category/date extraction, missing dates, uncategorized entries, noise detection, missing changelog rejection, and outside-repo path rejection.
+- Ran `python -m unittest tests.agent_skills.test_analyze_changelog_structure`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\changelog-normalization --json`.
+- Ran `python C:/Users/pauleagle/.codex/skills/.system/skill-creator/scripts/quick_validate.py agent-skills/changelog-normalization`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+- Ran `python agent-skills\changelog-normalization\scripts\analyze_changelog_structure.py --repo-root . --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The helper reported `valid: false` for the current repository because no root `CHANGELOG.md` exists; this is the expected deterministic missing-file evidence for this repo state.
+- The UTF-8-safe validator reported the skill as valid. Legacy `quick_validate.py` still raised `UnicodeDecodeError` under Windows `cp950`, matching the known validator encoding limitation already recorded in this follow-up.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 
 ### Medium
 
