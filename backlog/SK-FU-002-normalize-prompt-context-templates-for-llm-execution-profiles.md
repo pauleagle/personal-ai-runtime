@@ -4,7 +4,7 @@
 
 - Type: Skill Follow-up
 - ID: SK-FU-002
-- Status: Draft
+- Status: Completed
 - Source Request: Backlog request to normalize and template prompts and context for `hybrid`, `low-llm`, and `heavy-llm` execution profiles.
 - Suggested Location: `backlog/SK-FU-002-normalize-prompt-context-templates-for-llm-execution-profiles.md`
 - Scope:
@@ -14,7 +14,7 @@
   - future shared prompt and context template artifacts
 - Principle: Normalize prompt and context contracts before expanding LLM reasoning.
 - Primary Goal: Make recurring LLM prompt/context prefixes cache-friendly without over-designing small tasks.
-- Integration Status: Not integrated
+- Integration Status: Integrated as README guidance plus selected high-impact skill handoff guidance
 - Status Impact: No current README status change; this is a non-blocking cross-skill maintenance follow-up.
 
 ---
@@ -37,11 +37,12 @@ Completed:
 - Added cache-friendly prompt/context guidance to `agent-skills/README.md`.
 - Added shared subagent handoff contract guidance to `context-pack-builder` and `atomic-subagent-runner`.
 
-Still open:
+Deferred follow-ups:
 
 - Decide whether to add shared template files after README guidance has proven useful.
-- Decide whether `atomic-subagent-runner` should recommend or later validate a `prompt_contract` shape.
-- Add selected high-impact skill guidance only where it materially changes execution behavior.
+- Decide whether `atomic-subagent-runner` should later validate a `prompt_contract` shape.
+- Add additional selected high-impact skill guidance only when it materially changes execution behavior.
+- Keep the current guidance-only approach unless repeated use proves a shared artifact or validator rule would reduce churn.
 
 ---
 
@@ -648,6 +649,28 @@ Direct smoke result:
 
 - The UTF-8-safe validator reported `context-pack-builder` as valid.
 - The UTF-8-safe validator reported `atomic-subagent-runner` as valid.
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+- The first sandboxed inventory audit run hit the known `windows sandbox: spawn setup refresh`; the same command succeeded when rerun with escalated execution.
+
+### Closeout
+
+Status: completed.
+
+Closeout notes:
+
+- All acceptance criteria are satisfied.
+- The remaining design questions are deferred follow-ups, not blockers for this backlog item.
+- Shared template files remain deferred until the README guidance and selected skill guidance prove they reduce repeated prompt/context churn.
+- `atomic-subagent-runner` keeps `prompt_contract` as recommended handoff shape only; no JSON schema or validator rule is required by this item.
+- No skill triggers, README status values, playbook mappings, or `script` profile behavior were changed.
+
+Validation actions:
+
+- Ran `git diff --check`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+
+Direct smoke result:
+
 - The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
 - The first sandboxed inventory audit run hit the known `windows sandbox: spawn setup refresh`; the same command succeeded when rerun with escalated execution.
 
