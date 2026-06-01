@@ -70,6 +70,41 @@ Execution profile describes how much of a skill's reliable execution should come
 
 Use the profile as an execution hint, not as a permission boundary. Script-first minimization applies to every profile: when a command, parser, validator, or file read can establish a fact, run it before LLM judgement. A `heavy-llm` skill should still use scripts for file, diff, test, or validator facts when available.
 
+## Prompt And Context Pattern
+
+For `hybrid`, `low-llm`, and `heavy-llm` skills, keep LLM-facing prompts cache-friendly without forcing large templates onto small tasks.
+
+Use a stable prefix plus a dynamic run packet:
+
+```md
+## Stable Prefix
+
+- Skill:
+- Execution Profile:
+- Reusable Rules:
+- Scope / Governance Defaults:
+- Output Contract:
+- Validation / Closeout Defaults:
+
+## Dynamic Run Packet
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
+```
+
+Keep the stable prefix text consistent across similar runs so recurring instructions and output contracts can be reused. Put volatile command output, diffs, test logs, validation results, and source snippets in the dynamic run packet after the stable prefix.
+
+Use the smallest contract that still prevents ambiguity:
+
+- `hybrid`: evidence packet first, then ask for interpretation, routing, gap classification, or gate status.
+- `low-llm`: compact bounded transformation prompt with source artifact, preservation rules, allowed/forbidden edits, and verification checklist.
+- `heavy-llm`: bounded reasoning prompt with accepted facts, constraints, options, risk categories, traceability rules, human decision boundaries, and required structured output.
+
+Do not create a universal mega-prompt. Do not add LLM prompt templates to `script` profile skills unless a future task explicitly needs an LLM-facing closeout. Do not change skill triggers, README status values, playbook mappings, or machine-ingested JSON schemas just to improve prompt shape.
+
 | Skill | Playbook | Status | Profile | Description |
 |---|---|---|---|---|
 | `preflight-protocol/` | `preflight-protocol.md` | `aligned` | `hybrid` | Check task understanding, assumptions, uncertainty, risks, next steps, and likely files before non-trivial work. |

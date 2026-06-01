@@ -19,6 +19,32 @@
 
 ---
 
+## Current Integration Progress
+
+Completed:
+
+- Added profile pattern analysis for current `hybrid`, `low-llm`, `heavy-llm`, and `script` inventory.
+- Defined cache-friendly stable-prefix / dynamic-run-packet prompt architecture.
+- Defined profile-level design patterns:
+  - `H1` Evidence Interpretation
+  - `H2` State And Contract Gate
+  - `H3` Maintenance Routing
+  - `L1` Bounded Transformation
+  - `G1` Requirements And Spec Synthesis
+  - `G2` Adversarial Review And Governance
+  - `G3` Traceable Design Generation
+- Completed Devil's Advocate drill-down for the pattern matrix and set the next implementation gate to `pass`.
+- Added cache-friendly prompt/context guidance to `agent-skills/README.md`.
+
+Still open:
+
+- Decide whether to add shared template files after README guidance has proven useful.
+- Decide whether `context-pack-builder` should own reusable context contract templates.
+- Decide whether `atomic-subagent-runner` should recommend or later validate a `prompt_contract` shape.
+- Add selected high-impact skill guidance only where it materially changes execution behavior.
+
+---
+
 ## Summary
 
 Add shared prompt and context templates for skills whose execution profile is `hybrid`, `low-llm`, or `heavy-llm`.
@@ -578,6 +604,28 @@ Recommended next item:
 - Do not create shared template files yet.
 - Do not modify skill triggers, README status values, playbook mappings, or JSON contract schemas.
 
+### Implementation Log: README Prompt/Context Guidance
+
+Status: completed for this follow-up pass.
+
+Changes made:
+
+- Added `Prompt And Context Pattern` guidance to `agent-skills/README.md`.
+- Documented stable prefix plus dynamic run packet structure for cache-friendly prompting.
+- Added minimal-contract guidance so small tasks are not forced into oversized templates.
+- Documented profile-specific prompt pattern summaries for `hybrid`, `low-llm`, and `heavy-llm`.
+- Explicitly preserved `script` profile skills, triggers, README status values, playbook mappings, and machine-ingested JSON schemas.
+
+Validation actions:
+
+- Ran `git diff --check`.
+- Ran `python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json`.
+
+Direct smoke result:
+
+- The inventory audit reported `valid: true`, 16 playbook rows, 25 skill rows, and no findings.
+- The first sandboxed inventory audit run hit the known `windows sandbox: spawn setup refresh`; the same command succeeded when rerun with escalated execution.
+
 ---
 
 ## Proposed Template Layers
@@ -700,18 +748,18 @@ This follow-up should not:
 
 This follow-up is complete when:
 
-- [ ] Shared template guidance exists for `hybrid`, `low-llm`, and `heavy-llm` profiles.
-- [ ] The guidance separates stable cacheable prompt/context prefix from dynamic run-specific evidence packets.
-- [ ] The guidance clearly separates deterministic evidence from LLM judgement.
-- [ ] At least one context contract template exists.
-- [ ] At least one prompt contract template exists.
-- [ ] At least one output contract template exists.
-- [ ] `low-llm` guidance stays compact and transformation-oriented.
-- [ ] `heavy-llm` guidance supports deeper reasoning without unbounded context dumps.
-- [ ] The design includes a minimal-contract path so small tasks are not forced into oversized templates.
+- [x] Shared template guidance exists for `hybrid`, `low-llm`, and `heavy-llm` profiles.
+- [x] The guidance separates stable cacheable prompt/context prefix from dynamic run-specific evidence packets.
+- [x] The guidance clearly separates deterministic evidence from LLM judgement.
+- [x] At least one context contract template exists.
+- [x] At least one prompt contract template exists.
+- [x] At least one output contract template exists.
+- [x] `low-llm` guidance stays compact and transformation-oriented.
+- [x] `heavy-llm` guidance supports deeper reasoning without unbounded context dumps.
+- [x] The design includes a minimal-contract path so small tasks are not forced into oversized templates.
 - [ ] Subagent-oriented skills can reuse the same contract shape for handoffs.
-- [ ] The update does not require current `script` profile skills to add LLM prompts.
-- [ ] The update does not silently change skill triggers, README status values, or playbook mappings.
+- [x] The update does not require current `script` profile skills to add LLM prompts.
+- [x] The update does not silently change skill triggers, README status values, or playbook mappings.
 
 ---
 
