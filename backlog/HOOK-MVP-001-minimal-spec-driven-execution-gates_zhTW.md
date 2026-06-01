@@ -270,7 +270,142 @@ PLAN
 
 ---
 
-# 12. 長期方向
+# 12. MVP Gate Contract
+
+本節把前三個 Gate 轉成可驗收的最小契約。
+
+MVP 不要求真正攔截所有工具呼叫；第一版只要求能以 deterministic input 判斷 gate 是否 `pass` / `blocked`，並輸出可讀的 blocking reasons。
+
+---
+
+## 12.1 共用輸入欄位
+
+三種 Gate 應共用下列概念欄位：
+
+| 欄位 | 說明 |
+|---|---|
+| `atomic_item_id` | 目前要執行的 atomic item；若沒有，Pre-Run Gate 應 blocked。 |
+| `spec_ref` | 對應 spec、backlog、issue 或 durable artifact。 |
+| `allowed_scope` | 允許讀寫或執行的路徑、artifact、workflow step。 |
+| `forbidden_scope` | 禁止碰觸的路徑、artifact、行為或決策。 |
+| `acceptance_criteria` | 完成此 item 前必須滿足的驗收條件。 |
+| `expected_artifacts` | 預期會產生或修改的 artifact。 |
+| `validation_plan` | 預期驗證方式，例如 tests、lint、validator、manual review 或 skip reason。 |
+
+---
+
+## 12.2 共用輸出欄位
+
+三種 Gate 應回傳下列最小輸出：
+
+| 欄位 | 說明 |
+|---|---|
+| `gate` | `pre-run`、`pre-edit` 或 `post-run`。 |
+| `status` | `pass` 或 `blocked`。 |
+| `blocking_reasons` | 若 blocked，列出具體缺失。 |
+| `checked_items` | 已檢查項目與結果。 |
+| `next_allowed_action` | 下一步允許做什麼，例如 ask-user、edit、validate、handoff。 |
+| `notes` | 非阻塞風險或補充資訊。 |
+
+---
+
+## 12.3 Gate 判斷規則
+
+### Pre-Run Gate
+
+`pass` 條件：
+
+- `atomic_item_id` 存在。
+- `spec_ref` 存在。
+- `allowed_scope` 與 `forbidden_scope` 已列出。
+- `acceptance_criteria` 不為空。
+- `expected_artifacts` 已列出，或明確說明此 item 不產生 artifact。
+
+`blocked` 時只允許：
+
+- 回報缺失欄位。
+- 要求使用者或 orchestrator 補齊資訊。
+- 建立或更新 backlog/spec drill-down。
+
+### Pre-Edit Gate
+
+`pass` 條件：
+
+- 每個 proposed changed file 都落在 `allowed_scope`。
+- 沒有 proposed changed file 落在 `forbidden_scope`。
+- proposed change 能對應到 `atomic_item_id` 或 declared dependency。
+- 沒有大規模 unrelated rewrite。
+
+`blocked` 時只允許：
+
+- 回報 scope violation。
+- 回到 orchestrator 重切 scope。
+- 要求人類批准擴大 scope。
+
+### Post-Run Gate
+
+`pass` 條件：
+
+- changed files 已列出。
+- validation actions 已列出。
+- acceptance criteria 已逐項對照。
+- remaining risks 已列出，或明確標示 none known。
+- follow-up items 已列出，或明確標示 none。
+- 若 workflow 使用 commit checkpoint，必須已完成 commit 或明確 blocked reason。
+
+`blocked` 時只允許：
+
+- 補跑驗證。
+- 補齊 acceptance / risk / follow-up 對照。
+- 回報未完成項，不得宣稱 item complete。
+
+---
+
+# 13. MVP Acceptance Criteria
+
+- [ ] Pre-Run Gate 有明確 input contract、pass / blocked 條件與 blocked 行為。
+- [ ] Pre-Edit Gate 有明確 input contract、pass / blocked 條件與 blocked 行為。
+- [ ] Post-Run Gate 有明確 input contract、pass / blocked 條件與 blocked 行為。
+- [ ] 三種 Gate 使用一致的 `pass` / `blocked` 狀態語義。
+- [ ] Gate output 能列出 `blocking_reasons` 與 `next_allowed_action`。
+- [ ] MVP 不要求綁定特定 runtime framework。
+- [ ] MVP 不要求攔截所有工具呼叫；可以先用 explicit gate check artifact 或 helper 實作。
+- [ ] Gate failure 不得被 prompt judgement 覆蓋；必須由補齊資訊、人類決策或 scope 調整解除。
+- [ ] 若後續進入 implementation，第一個 atomic item 應只做 deterministic contract validator，不做 full runtime hook framework。
+
+---
+
+# 14. 下一個 Atomic Slice 建議
+
+建議下一個 implementation item：
+
+```text
+HOOK-MVP-001-A1: deterministic gate contract validator
+```
+
+Scope:
+
+- 新增一個最小 helper，讀取 local JSON gate contract artifact。
+- 驗證 `pre-run`、`pre-edit`、`post-run` 的 required fields。
+- 輸出 structured JSON：`status`、`blocking_reasons`、`checked_items`、`next_allowed_action`。
+- 新增 focused unit tests。
+
+Non-goals:
+
+- 不攔截 Codex tool calls。
+- 不建立 daemon、agent wrapper 或 runtime server。
+- 不修改現有 spec-driven workflow playbook。
+- 不自動 commit、revert、擴大 scope 或作出 human-governance decision。
+
+Validation:
+
+- focused unit tests。
+- CLI smoke check。
+- `git diff --check`。
+
+---
+
+# 15. 長期方向
 
 此方向可能逐步演化為：
 
