@@ -1,0 +1,21 @@
+{
+  "gate": "pre-run",
+  "atomic_item_id": "HOOK-MVP-001-A1",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md",
+  "allowed_scope": [
+    "runtime-hooks/scripts/**",
+    "tests/runtime_hooks/**"
+  ],
+  "forbidden_scope": [
+    "agent-playbooks/spec-driven-change-verification-workflow-playbook.md"
+  ],
+  "acceptance_criteria": [
+    "contract validator returns pass or blocked"
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/scripts/validate_gate_contract.py"
+  ],
+  "validation_plan": [
+    "python -m unittest tests.runtime_hooks.test_validate_gate_contract"
+  ]
+}

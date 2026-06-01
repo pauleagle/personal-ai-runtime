@@ -364,15 +364,15 @@ MVP 不要求真正攔截所有工具呼叫；第一版只要求能以 determini
 
 # 13. MVP Acceptance Criteria
 
-- [ ] Pre-Run Gate 有明確 input contract、pass / blocked 條件與 blocked 行為。
-- [ ] Pre-Edit Gate 有明確 input contract、pass / blocked 條件與 blocked 行為。
-- [ ] Post-Run Gate 有明確 input contract、pass / blocked 條件與 blocked 行為。
-- [ ] 三種 Gate 使用一致的 `pass` / `blocked` 狀態語義。
-- [ ] Gate output 能列出 `blocking_reasons` 與 `next_allowed_action`。
-- [ ] MVP 不要求綁定特定 runtime framework。
-- [ ] MVP 不要求攔截所有工具呼叫；可以先用 explicit gate check artifact 或 helper 實作。
-- [ ] Gate failure 不得被 prompt judgement 覆蓋；必須由補齊資訊、人類決策或 scope 調整解除。
-- [ ] 若後續進入 implementation，第一個 atomic item 應只做 deterministic contract validator，不做 full runtime hook framework。
+- [x] Pre-Run Gate 有明確 input contract、pass / blocked 條件與 blocked 行為。
+- [x] Pre-Edit Gate 有明確 input contract、pass / blocked 條件與 blocked 行為。
+- [x] Post-Run Gate 有明確 input contract、pass / blocked 條件與 blocked 行為。
+- [x] 三種 Gate 使用一致的 `pass` / `blocked` 狀態語義。
+- [x] Gate output 能列出 `blocking_reasons` 與 `next_allowed_action`。
+- [x] MVP 不要求綁定特定 runtime framework。
+- [x] MVP 不要求攔截所有工具呼叫；可以先用 explicit gate check artifact 或 helper 實作。
+- [x] Gate failure 不得被 prompt judgement 覆蓋；必須由補齊資訊、人類決策或 scope 調整解除。
+- [x] 若後續進入 implementation，第一個 atomic item 應只做 deterministic contract validator，不做 full runtime hook framework。
 
 ---
 
@@ -456,6 +456,42 @@ Validation:
 - focused unit tests。
 - CLI smoke check。
 - `git diff --check`。
+
+## 15.1 Implementation Log
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/scripts/validate_gate_contract.py`.
+- Added focused tests under `tests/runtime_hooks/test_validate_gate_contract.py`.
+- Added smoke fixture `tests/fixtures/gate_contract_pre_run_sample.json`.
+- Implemented `pre-run`, `pre-edit`, and `post-run` validation.
+- Implemented binary `status`: `pass` or `blocked`.
+- Implemented `blocking_reasons`, `checked_items`, `next_allowed_action`, and `notes` output fields.
+- Implemented simple repo-relative exact / prefix / `/**` scope matching for `proposed_changed_files`.
+- Supported `commit_checkpoint.status` values `committed`, `skipped`, and `blocked`; `skipped` / `blocked` require explicit `skip_reason` or `blocked_reason`.
+
+Out of scope by design:
+
+- No tool-call interception.
+- No daemon, wrapper, or runtime server.
+- No policy DSL.
+- No automatic commit, revert, scope expansion, or human-governance decision.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_validate_gate_contract`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\validate_gate_contract.py tests\fixtures\gate_contract_pre_run_sample.json --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- Focused tests reported 6 tests OK.
+- Full test suite reported 59 tests OK.
+- CLI smoke returned `gate: pre-run`, `status: pass`, and `next_allowed_action: edit`.
+- The first sandboxed CLI smoke hit the known `windows sandbox: spawn setup refresh`; the same command succeeded when rerun with escalated execution.
 
 ---
 
