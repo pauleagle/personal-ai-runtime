@@ -111,18 +111,18 @@ def emit_markdown(result: dict[str, Any]) -> None:
     print("- Branch naming needed: manual decision")
 
 
-def main() -> int:
+def main(argv: list[str] | None = None, repo_root: Path | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Check or initialize Git boundaries for modules/<project> or poc-modules/<project>."
     )
     parser.add_argument("--project-root", "-ProjectRoot", required=True)
     parser.add_argument("--initialize", "-Initialize", action="store_true")
     parser.add_argument("--json", "-Json", action="store_true")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    repo_root = Path(__file__).resolve().parents[3]
-    project_root = resolve_project_root(repo_root, args.project_root)
-    relative_path = relative_to_workspace(project_root, repo_root)
+    workspace_root = repo_root.resolve() if repo_root else Path(__file__).resolve().parents[3]
+    project_root = resolve_project_root(workspace_root, args.project_root)
+    relative_path = relative_to_workspace(project_root, workspace_root)
     root_kind, display_relative_path = validate_child_root(relative_path)
 
     git_path = project_root / ".git"

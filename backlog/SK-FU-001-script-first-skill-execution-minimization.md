@@ -39,13 +39,14 @@ Completed:
 - Kept the classification at the README index layer only, so existing `SKILL.md` frontmatter and trigger behavior remain unchanged.
 - Added cross-platform script guidance for future reusable skill scripts.
 - Added Windows / Linux wrapper guidance to `nested-module-git-initialization`.
+- Completed the first low-complexity per-skill script-first pass for `nested-module-git-initialization` by adding regression tests for its existing Python helper and wrappers contract.
 
 Still open:
 
 - Add a UTF-8-safe validator or wrapper for skill validation on Windows.
 - Add or document a repeatable inventory audit script.
 - Decide whether each `SKILL.md` should later receive machine-readable `metadata.execution_profile`.
-- Review high-priority skills one by one before adding per-skill script-first rules beyond the README profile hint.
+- Review remaining high-priority skills one by one before adding per-skill script-first rules beyond the README profile hint.
 - Audit future script additions for Windows and Linux invocation coverage.
 
 ---
@@ -199,6 +200,34 @@ Before semantic judgement, run deterministic discovery and validation available 
 Reason:
 
 These skills already depend on inventory, filesystem, Git, test, mutation, or encoding facts that scripts can verify cheaply.
+
+### Per-Skill Implementation Log
+
+#### `nested-module-git-initialization`
+
+Status: completed for this follow-up pass.
+
+Scriptable portion covered:
+
+- Deterministic child project root validation for `modules/<project>` and `poc-modules/<project>`.
+- Direct `.git` boundary detection before LLM judgement.
+- Optional `git init` execution only when explicitly requested by the helper flag.
+- Structured JSON output for downstream workflow consumption.
+
+Test / validation actions:
+
+- Made `scripts/check_nested_module_git.py` testable with injected `argv` and `repo_root`, without changing CLI behavior.
+- Added `tests/agent_skills/test_nested_module_git_initialization.py`.
+- Covered missing boundary, requested initialization, existing boundary, and invalid nested path rejection.
+- Ran `python -m unittest tests.agent_skills.test_nested_module_git_initialization`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python C:/Users/pauleagle/.codex/skills/.system/skill-creator/scripts/quick_validate.py agent-skills/nested-module-git-initialization`.
+- Ran `python agent-skills\nested-module-git-initialization\scripts\check_nested_module_git.py --project-root modules/style-fit-profiler --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- The helper reported `action: existing-boundary` for `modules/style-fit-profiler`; no initialization was needed.
 
 ### Medium
 
