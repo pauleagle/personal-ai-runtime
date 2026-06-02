@@ -495,6 +495,59 @@ Direct smoke result:
 
 ---
 
+## 15.2 Atomic Slice: `HOOK-MVP-001-A2`
+
+```text
+HOOK-MVP-001-A2: validator usage guidance and representative fixtures
+```
+
+Scope:
+
+- Add a minimal `runtime-hooks/README.md` explaining what the MVP validator does and does not do.
+- Add representative `pre-edit` and `post-run` sample gate contract fixtures.
+- Keep A2 limited to documentation and fixtures; do not implement runtime interception, wrappers, daemons, policy DSL, or automatic governance decisions.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` documents the validator command, expected output fields, fixtures, and MVP boundaries.
+- Sample fixtures exist for `pre-run`, `pre-edit`, and `post-run`.
+- Each sample fixture passes `validate_gate_contract.py --json`.
+- Focused unit tests still pass.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No tool-call interception.
+- No daemon, runtime wrapper, or Codex CLI integration.
+- No policy DSL.
+- No automatic commit, revert, scope expansion, or approval decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/README.md` with validator purpose, command usage, output fields, fixtures, and MVP boundaries.
+- Added `tests/fixtures/gate_contract_pre_edit_sample.json`.
+- Added `tests/fixtures/gate_contract_post_run_sample.json`.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_validate_gate_contract`.
+- Ran `python runtime-hooks\scripts\validate_gate_contract.py tests\fixtures\gate_contract_pre_run_sample.json --json`.
+- Ran `python runtime-hooks\scripts\validate_gate_contract.py tests\fixtures\gate_contract_pre_edit_sample.json --json`.
+- Ran `python runtime-hooks\scripts\validate_gate_contract.py tests\fixtures\gate_contract_post_run_sample.json --json`.
+- Ran `git diff --check`.
+
+Direct smoke result:
+
+- Focused tests reported 6 tests OK.
+- All three fixture smoke checks returned `status: pass`.
+- The sandboxed fixture smoke checks hit the known `windows sandbox: spawn setup refresh`; escalated reruns succeeded.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

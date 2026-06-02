@@ -1,0 +1,50 @@
+{
+  "gate": "post-run",
+  "atomic_item_id": "HOOK-MVP-001-A2",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md",
+  "allowed_scope": [
+    "runtime-hooks/**",
+    "tests/fixtures/**",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "agent-playbooks/spec-driven-change-verification-workflow-playbook.md"
+  ],
+  "acceptance_criteria": [
+    "document validator usage",
+    "provide representative gate fixtures"
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/README.md",
+    "tests/fixtures/gate_contract_pre_edit_sample.json",
+    "tests/fixtures/gate_contract_post_run_sample.json"
+  ],
+  "validation_plan": [
+    "python runtime-hooks\\scripts\\validate_gate_contract.py tests\\fixtures\\gate_contract_post_run_sample.json --json"
+  ],
+  "changed_files": [
+    "runtime-hooks/README.md",
+    "tests/fixtures/gate_contract_pre_edit_sample.json",
+    "tests/fixtures/gate_contract_post_run_sample.json",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_actions": [
+    "python runtime-hooks\\scripts\\validate_gate_contract.py tests\\fixtures\\gate_contract_pre_run_sample.json --json",
+    "python runtime-hooks\\scripts\\validate_gate_contract.py tests\\fixtures\\gate_contract_pre_edit_sample.json --json",
+    "python runtime-hooks\\scripts\\validate_gate_contract.py tests\\fixtures\\gate_contract_post_run_sample.json --json"
+  ],
+  "acceptance_results": {
+    "document validator usage": "pass",
+    "provide representative gate fixtures": "pass"
+  },
+  "remaining_risks": [
+    "none known"
+  ],
+  "follow_up_items": [
+    "A future slice may define A3 runtime integration boundaries without implementing full interception."
+  ],
+  "commit_checkpoint": {
+    "status": "skipped",
+    "skip_reason": "sample fixture only"
+  }
+}
