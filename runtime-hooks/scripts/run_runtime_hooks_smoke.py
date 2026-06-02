@@ -59,6 +59,7 @@ def run_smoke(
     version_info=None,
     contract_paths=None,
     pre_edit_handoff_note_out=None,
+    require_pre_edit_guard=False,
     attempted_command=None,
 ):
     repo_root = Path(repo_root)
@@ -156,6 +157,10 @@ def run_smoke(
         if pre_edit_guard_result["status"] != "pass":
             for reason in pre_edit_guard_result["blocking_reasons"]:
                 blocking_reasons.append(pre_edit_contracts[0] + ": pre-edit guard: " + reason)
+    elif require_pre_edit_guard:
+        blocking_reasons.append(
+            "pre-edit guard required but no pre-edit contract was selected"
+        )
 
     status = "blocked" if blocking_reasons else "pass"
     return {
@@ -215,6 +220,11 @@ def main(argv=None):
         "--pre-edit-handoff-note-out",
         help="Write the blocked mounted pre-edit guard handoff note JSON to this path.",
     )
+    parser.add_argument(
+        "--require-pre-edit-guard",
+        action="store_true",
+        help="Block if the selected contract set does not include a pre-edit contract.",
+    )
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
@@ -228,12 +238,14 @@ def main(argv=None):
             if args.pre_edit_handoff_note_out
             else ""
         )
+        + (" --require-pre-edit-guard" if args.require_pre_edit_guard else "")
         + (" --json" if args.json else "")
     )
     result = run_smoke(
         Path(args.repo_root),
         contract_paths=args.contracts,
         pre_edit_handoff_note_out=args.pre_edit_handoff_note_out,
+        require_pre_edit_guard=args.require_pre_edit_guard,
         attempted_command=attempted_command,
     )
     if args.json:

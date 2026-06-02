@@ -67,6 +67,34 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("pre-run", result["gate_results"][0]["gate"])
         self.assertIsNone(result["pre_edit_guard"])
 
+    def test_blocks_when_pre_edit_guard_is_required_but_not_selected(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["tests/fixtures/gate_contract_pre_run_sample.json"],
+            require_pre_edit_guard=True,
+        )
+
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual("fix-contracts", result["next_allowed_action"])
+        self.assertIsNone(result["pre_edit_guard"])
+        self.assertIn(
+            "pre-edit guard required but no pre-edit contract was selected",
+            result["blocking_reasons"],
+        )
+
+    def test_accepts_required_pre_edit_guard_when_selected(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["tests/fixtures/gate_contract_pre_edit_sample.json"],
+            require_pre_edit_guard=True,
+        )
+
+        self.assertEqual("pass", result["status"])
+        self.assertEqual("pass", result["pre_edit_guard"]["status"])
+        self.assertTrue(result["pre_edit_guard"]["allowed_to_edit"])
+
     def test_accepts_active_item_contract_example(self) -> None:
         result = self.script.run_smoke(REPO_ROOT, (3, 10, 11), [ACTIVE_ITEM_CONTRACT])
 
@@ -265,3 +293,25 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("HOOK-MVP-001-A22", handoff_note["atomic_item_id"])
         self.assertIn("run_runtime_hooks_smoke.py", handoff_note["attempted_command"])
         self.assertIn("--pre-edit-handoff-note-out", handoff_note["attempted_command"])
+
+    def test_cli_blocks_when_required_pre_edit_guard_is_missing(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(
+                [
+                    "--repo-root",
+                    str(REPO_ROOT),
+                    "--contract",
+                    "tests/fixtures/gate_contract_pre_run_sample.json",
+                    "--require-pre-edit-guard",
+                    "--json",
+                ]
+            )
+
+        self.assertEqual(1, code)
+        result = json.loads(stdout.getvalue())
+        self.assertEqual("blocked", result["status"])
+        self.assertIn(
+            "pre-edit guard required but no pre-edit contract was selected",
+            result["blocking_reasons"],
+        )

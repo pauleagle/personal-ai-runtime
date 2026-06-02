@@ -2303,6 +2303,69 @@ Direct result:
 
 ---
 
+## 15.33 Atomic Slice: `HOOK-MVP-001-A33`
+
+```text
+HOOK-MVP-001-A33: require mounted pre-edit guard in smoke
+```
+
+Scope:
+
+- Add an explicit full-smoke option for workflows that require the mounted `pre-edit` guard to run.
+- Block when the selected contract set does not include a `pre-edit` contract and the requirement is enabled.
+- Keep default full-smoke behavior flexible when the requirement is not enabled.
+- Preserve the MVP boundary: no wrapper, daemon, tool-call interception, state mutation, or automatic scope expansion.
+
+Acceptance criteria:
+
+- `run_runtime_hooks_smoke.py` accepts `--require-pre-edit-guard`.
+- Smoke with `--require-pre-edit-guard` blocks when no `pre-edit` contract is selected.
+- Smoke with `--require-pre-edit-guard` passes when a passing `pre-edit` contract is selected.
+- CLI output includes the missing-guard blocking reason.
+- README documents when to use the requirement option.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `--require-pre-edit-guard` to `runtime-hooks/scripts/run_runtime_hooks_smoke.py`.
+- Added blocking behavior when no `pre-edit` contract is selected while the requirement is enabled.
+- Kept default full smoke behavior unchanged when the requirement is not enabled.
+- Added focused tests for missing required guard, selected passing guard, and CLI blocking output.
+- Updated README guidance for when to use the requirement option.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json --require-pre-edit-guard --json`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_edit_sample.json --require-pre-edit-guard --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused runtime hook smoke tests reported 18 tests OK.
+- Full test suite reported 97 tests OK.
+- Missing required `pre-edit` guard CLI returned exit code 1, `status: blocked`, and blocking reason `pre-edit guard required but no pre-edit contract was selected`.
+- Selected passing `pre-edit` guard CLI returned `status: pass`, `pre_edit_guard.status: pass`, and `allowed_to_edit: true`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

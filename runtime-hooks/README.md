@@ -421,3 +421,13 @@ python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract
 
 The smoke helper passes this path through to the mounted `pre-edit` guard. The
 artifact is written only when that guard blocks.
+
+For mounted workflows that require the `pre-edit` guard to run, add:
+
+```powershell
+python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json --require-pre-edit-guard --json
+```
+
+That command blocks because no `pre-edit` contract is selected. Use this option
+when a manual or orchestrator-step workflow must prove the mounted guard was
+actually selected instead of merely running unrelated contracts.
