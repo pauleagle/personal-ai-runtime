@@ -950,6 +950,85 @@ Direct result:
 
 ---
 
+## 15.11 Atomic Slice: `HOOK-MVP-001-A11`
+
+```text
+HOOK-MVP-001-A11: MVP current status and deferred next options
+```
+
+Scope:
+
+- Summarize the current HOOK-MVP-001 implementation status after A1 through A10.
+- Separate completed MVP helper capabilities from deferred runtime governance work.
+- Keep this slice documentation-only and suitable as a low-traffic handoff point.
+
+Current MVP status:
+
+- Gate contract spec exists for `pre-run`, `pre-edit`, and `post-run`.
+- Deterministic gate contract validator exists at `runtime-hooks/scripts/validate_gate_contract.py`.
+- Runtime hook environment check exists at `runtime-hooks/scripts/check_runtime_hooks_environment.py`.
+- Full MVP smoke helper exists at `runtime-hooks/scripts/run_runtime_hooks_smoke.py`.
+- Representative fixtures exist for all three gate types.
+- Runtime hook README documents Python baseline, fresh clone checklist, smoke checks, troubleshooting, result interpretation, and MVP usage boundaries.
+- Focused runtime hook tests and full test suite have passed across the A1-A8 implementation/test slices.
+- A9-A11 are documentation-only closeout / handoff slices.
+
+What this MVP can currently do:
+
+- Validate explicit local JSON gate contracts.
+- Validate proposed `pre-edit` changed files against simple allowed / forbidden scope entries.
+- Validate `post-run` commit checkpoint shape including explicit skip / blocked reasons.
+- Check whether a fresh clone has the required hook MVP files and Python 3.10+.
+- Run one command to validate the runtime hook environment and sample or explicit gate contracts.
+
+What remains deferred:
+
+- Real tool-call or edit-call interception.
+- Agent wrapper, daemon, runtime server, or Codex CLI integration.
+- Policy DSL, rule inheritance, rule priority, or glob-rich scope language.
+- Durable orchestrator-state persistence for gate results.
+- Automatic installation, dependency management, or CI.
+- Any automatic human-governance decision, approval, scope expansion, commit, revert, or completion claim.
+
+Candidate next slices:
+
+- `HOOK-MVP-001-A12`: add a concise contract schema reference section to `runtime-hooks/README.md`.
+- `HOOK-MVP-001-A13`: add a small generated example for an active atomic item contract artifact.
+- `HOOK-MVP-001-A14`: design, but do not implement, the first possible integration boundary with orchestrator state.
+- `RT-FU-001`: continue collecting exact `windows sandbox: spawn setup refresh` observations separately from HOOK-MVP feature work.
+
+Acceptance criteria:
+
+- Backlog contains a clear current status summary.
+- Backlog separates completed MVP helper capabilities from deferred work.
+- Backlog lists safe next slices without starting them.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No README changes.
+- No new tests.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added the current MVP status, deferred work, and candidate next slices to this backlog.
+
+Validation actions:
+
+- Ran `git diff --check`.
+
+Direct result:
+
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
