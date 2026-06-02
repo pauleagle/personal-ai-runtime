@@ -42,6 +42,7 @@ def summarize_pre_edit_guard_result(result):
         "status": result.get("status"),
         "allowed_to_edit": result.get("allowed_to_edit"),
         "contract_path": result.get("contract_path"),
+        "handoff_note_path": result.get("handoff_note_path"),
         "blocking_reasons": result.get("blocking_reasons", []),
         "next_allowed_action": result.get("next_allowed_action"),
     }
@@ -53,7 +54,13 @@ def normalize_contract_paths(contract_paths):
     return list(SAMPLE_CONTRACTS)
 
 
-def run_smoke(repo_root, version_info=None, contract_paths=None):
+def run_smoke(
+    repo_root,
+    version_info=None,
+    contract_paths=None,
+    pre_edit_handoff_note_out=None,
+    attempted_command=None,
+):
     repo_root = Path(repo_root)
     blocking_reasons = []
     gate_results = []
@@ -139,7 +146,12 @@ def run_smoke(repo_root, version_info=None, contract_paths=None):
         if gate_result["gate"] == "pre-edit"
     ]
     if pre_edit_contracts:
-        guard_result = pre_edit_guard.enforce_pre_edit_gate(repo_root, pre_edit_contracts[0])
+        guard_result = pre_edit_guard.enforce_pre_edit_gate(
+            repo_root,
+            pre_edit_contracts[0],
+            attempted_command=attempted_command,
+            handoff_note_out=pre_edit_handoff_note_out,
+        )
         pre_edit_guard_result = summarize_pre_edit_guard_result(guard_result)
         if pre_edit_guard_result["status"] != "pass":
             for reason in pre_edit_guard_result["blocking_reasons"]:
@@ -199,10 +211,31 @@ def main(argv=None):
         dest="contracts",
         help="Repo-relative gate contract path to validate. May be provided multiple times. Defaults to sample fixtures.",
     )
+    parser.add_argument(
+        "--pre-edit-handoff-note-out",
+        help="Write the blocked mounted pre-edit guard handoff note JSON to this path.",
+    )
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
-    result = run_smoke(Path(args.repo_root), contract_paths=args.contracts)
+    attempted_command = (
+        "python runtime-hooks\\scripts\\run_runtime_hooks_smoke.py"
+        + " --repo-root "
+        + args.repo_root
+        + "".join(" --contract " + contract for contract in (args.contracts or []))
+        + (
+            " --pre-edit-handoff-note-out " + args.pre_edit_handoff_note_out
+            if args.pre_edit_handoff_note_out
+            else ""
+        )
+        + (" --json" if args.json else "")
+    )
+    result = run_smoke(
+        Path(args.repo_root),
+        contract_paths=args.contracts,
+        pre_edit_handoff_note_out=args.pre_edit_handoff_note_out,
+        attempted_command=attempted_command,
+    )
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     else:

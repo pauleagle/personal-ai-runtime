@@ -2237,6 +2237,72 @@ Direct result:
 
 ---
 
+## 15.32 Atomic Slice: `HOOK-MVP-001-A32`
+
+```text
+HOOK-MVP-001-A32: full smoke handoff artifact passthrough
+```
+
+Scope:
+
+- Allow the full runtime hook smoke helper to pass a blocked handoff note output path to the mounted `pre-edit` guard.
+- Include `pre_edit_guard.handoff_note_path` in smoke output.
+- Write the handoff artifact only when the mounted `pre-edit` guard blocks.
+- Keep this as smoke-to-guard passthrough only: no wrapper, daemon, tool-call interception, state mutation, or automatic scope expansion.
+
+Acceptance criteria:
+
+- `run_runtime_hooks_smoke.py` accepts `--pre-edit-handoff-note-out`.
+- Blocked explicit `pre-edit` smoke writes the handoff artifact through the mounted guard.
+- Passing `pre-edit` smoke does not write a handoff artifact.
+- Smoke output includes `pre_edit_guard.handoff_note_path`.
+- README documents the smoke handoff artifact command and boundary.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- Blocked smoke CLI writes the handoff artifact and returns non-zero.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `--pre-edit-handoff-note-out` to `runtime-hooks/scripts/run_runtime_hooks_smoke.py`.
+- Passed the handoff output path through to the mounted `pre-edit` guard.
+- Added `pre_edit_guard.handoff_note_path` to smoke output.
+- Preserved no-write behavior when the selected `pre-edit` guard passes.
+- Recorded the full smoke command in blocked handoff artifacts created through the smoke helper.
+- Added focused tests for blocked smoke artifact output, passing no-write behavior, and CLI artifact output.
+- Updated README guidance for full smoke handoff artifact output.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --pre-edit-handoff-note-out C:\tmp\hook-mvp-a32-smoke-handoff.json --json`.
+- Ran `Get-Content -Raw C:\tmp\hook-mvp-a32-smoke-handoff.json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused runtime hook smoke tests reported 15 tests OK.
+- Full test suite reported 94 tests OK.
+- Blocked full smoke CLI returned exit code 1, `status: blocked`, and `pre_edit_guard.handoff_note_path: C:\tmp\hook-mvp-a32-smoke-handoff.json`.
+- The handoff artifact contained `atomic_item_id: HOOK-MVP-001-A22`, `gate_status: blocked`, concrete scope blocking reasons, and the full smoke attempted command.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

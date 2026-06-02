@@ -412,3 +412,12 @@ directories.
 The full smoke helper includes this guard whenever the selected contract set
 contains a `pre-edit` contract. If no `pre-edit` contract is selected, the guard
 result is omitted instead of forcing an unrelated check.
+
+Full smoke can also write the mounted guard's blocked handoff note:
+
+```powershell
+python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --pre-edit-handoff-note-out runtime-hooks\handoffs\smoke-blocked-pre-edit.json --json
+```
+
+The smoke helper passes this path through to the mounted `pre-edit` guard. The
+artifact is written only when that guard blocks.

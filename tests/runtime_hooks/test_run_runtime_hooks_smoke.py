@@ -210,3 +210,58 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
                 for reason in result["blocking_reasons"]
             )
         )
+
+    def test_writes_pre_edit_guard_handoff_note_from_smoke(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            handoff_path = Path(temp_dir) / "smoke-handoff.json"
+            result = self.script.run_smoke(
+                REPO_ROOT,
+                (3, 10, 11),
+                ["runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json"],
+                pre_edit_handoff_note_out=handoff_path,
+            )
+            handoff_note = json.loads(handoff_path.read_text(encoding="utf-8"))
+
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual(str(handoff_path), result["pre_edit_guard"]["handoff_note_path"])
+        self.assertEqual("HOOK-MVP-001-A22", handoff_note["atomic_item_id"])
+        self.assertEqual("blocked", handoff_note["gate_status"])
+
+    def test_passing_smoke_does_not_write_pre_edit_handoff_note(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            handoff_path = Path(temp_dir) / "smoke-handoff.json"
+            result = self.script.run_smoke(
+                REPO_ROOT,
+                (3, 10, 11),
+                ["tests/fixtures/gate_contract_pre_edit_sample.json"],
+                pre_edit_handoff_note_out=handoff_path,
+            )
+
+            self.assertEqual("pass", result["status"])
+            self.assertIsNone(result["pre_edit_guard"]["handoff_note_path"])
+            self.assertFalse(handoff_path.exists())
+
+    def test_cli_writes_pre_edit_guard_handoff_note_from_smoke(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            handoff_path = Path(temp_dir) / "smoke-handoff.json"
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                code = self.script.main(
+                    [
+                        "--repo-root",
+                        str(REPO_ROOT),
+                        "--contract",
+                        "runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json",
+                        "--pre-edit-handoff-note-out",
+                        str(handoff_path),
+                        "--json",
+                    ]
+                )
+            handoff_note = json.loads(handoff_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(1, code)
+        result = json.loads(stdout.getvalue())
+        self.assertEqual(str(handoff_path), result["pre_edit_guard"]["handoff_note_path"])
+        self.assertEqual("HOOK-MVP-001-A22", handoff_note["atomic_item_id"])
+        self.assertIn("run_runtime_hooks_smoke.py", handoff_note["attempted_command"])
+        self.assertIn("--pre-edit-handoff-note-out", handoff_note["attempted_command"])
