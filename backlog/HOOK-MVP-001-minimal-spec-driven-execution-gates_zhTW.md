@@ -1291,6 +1291,65 @@ Direct result:
 
 ---
 
+## 15.17 Atomic Slice: `HOOK-MVP-001-A17`
+
+```text
+HOOK-MVP-001-A17: active pre-edit contract example
+```
+
+Scope:
+
+- Add a durable `pre-edit` contract example for one active atomic item.
+- Show proposed changed files that remain inside allowed scope and outside forbidden scope.
+- Document how to validate the active `pre-edit` example.
+- Add focused validator coverage for the durable example.
+- Keep this slice example-only: no helper behavior change, no contract generation, no interception.
+
+Acceptance criteria:
+
+- `runtime-hooks/examples/hook_mvp_001_a17_pre_edit_contract.json` exists.
+- The example maps `HOOK-MVP-001-A17` to spec reference, allowed scope, forbidden scope, proposed changed files, acceptance criteria, expected artifacts, and validation plan.
+- The example's proposed changed files validate against the declared allowed and forbidden scope.
+- `runtime-hooks/README.md` points to the active `pre-edit` example and its validator command.
+- Focused validator tests pass.
+- Full test suite passes.
+- The example validates with `validate_gate_contract.py --json`.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No contract discovery or generation.
+- No automatic active-item selection.
+- No state persistence helper.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/examples/hook_mvp_001_a17_pre_edit_contract.json`.
+- Added focused validator coverage for the active `pre-edit` example.
+- Added README guidance for validating the active `pre-edit` example.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_validate_gate_contract`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\validate_gate_contract.py runtime-hooks\examples\hook_mvp_001_a17_pre_edit_contract.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused validator tests reported OK.
+- Full test suite reported OK.
+- Active `pre-edit` example returned `status: pass`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

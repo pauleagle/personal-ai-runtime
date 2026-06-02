@@ -17,6 +17,12 @@ ACTIVE_ITEM_EXAMPLE = (
     / "examples"
     / "hook_mvp_001_a13_pre_run_contract.json"
 )
+ACTIVE_ITEM_PRE_EDIT_EXAMPLE = (
+    REPO_ROOT
+    / "runtime-hooks"
+    / "examples"
+    / "hook_mvp_001_a17_pre_edit_contract.json"
+)
 
 
 def load_script_module():
@@ -88,6 +94,21 @@ class ValidateGateContractTest(unittest.TestCase):
         self.assertEqual("pre-run", result["gate"])
         self.assertEqual("pass", result["status"])
         self.assertEqual([], result["blocking_reasons"])
+
+    def test_accepts_active_pre_edit_example(self) -> None:
+        contract = json.loads(ACTIVE_ITEM_PRE_EDIT_EXAMPLE.read_text(encoding="utf-8"))
+
+        self.assertEqual("HOOK-MVP-001-A17", contract["atomic_item_id"])
+        self.assertIn("proposed_changed_files", contract)
+
+        code, result, stderr = self.run_script(ACTIVE_ITEM_PRE_EDIT_EXAMPLE)
+
+        self.assertEqual(0, code)
+        self.assertEqual("", stderr)
+        self.assertEqual("pre-edit", result["gate"])
+        self.assertEqual("pass", result["status"])
+        self.assertEqual([], result["blocking_reasons"])
+        self.assertEqual("edit", result["next_allowed_action"])
 
     def test_blocks_missing_required_fields(self) -> None:
         contract = self.base_contract()

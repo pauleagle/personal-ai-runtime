@@ -160,6 +160,7 @@ Use these as smoke checks and as examples when creating a new explicit gate arti
 A small active-item example lives at:
 
 - `runtime-hooks/examples/hook_mvp_001_a13_pre_run_contract.json`
+- `runtime-hooks/examples/hook_mvp_001_a17_pre_edit_contract.json`
 
 It shows how to map one atomic item to:
 
@@ -175,6 +176,12 @@ Validate it directly before starting the corresponding edit:
 
 ```powershell
 python runtime-hooks\scripts\validate_gate_contract.py runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --json
+```
+
+Validate the `pre-edit` example before making its proposed changes:
+
+```powershell
+python runtime-hooks\scripts\validate_gate_contract.py runtime-hooks\examples\hook_mvp_001_a17_pre_edit_contract.json --json
 ```
 
 Or include it in the full smoke helper's explicit contract path:
