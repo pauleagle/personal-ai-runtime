@@ -255,6 +255,25 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("HOOK-MVP-001-A22", handoff_note["atomic_item_id"])
         self.assertEqual("blocked", handoff_note["gate_status"])
 
+    def test_blocks_when_handoff_output_requested_without_pre_edit_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            handoff_path = Path(temp_dir) / "smoke-handoff.json"
+            result = self.script.run_smoke(
+                REPO_ROOT,
+                (3, 10, 11),
+                ["tests/fixtures/gate_contract_pre_run_sample.json"],
+                pre_edit_handoff_note_out=handoff_path,
+            )
+
+            self.assertEqual("blocked", result["status"])
+            self.assertEqual("fix-contracts", result["next_allowed_action"])
+            self.assertIsNone(result["pre_edit_guard"])
+            self.assertFalse(handoff_path.exists())
+            self.assertIn(
+                "pre-edit handoff output requested but no pre-edit contract was selected",
+                result["blocking_reasons"],
+            )
+
     def test_passing_smoke_does_not_write_pre_edit_handoff_note(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             handoff_path = Path(temp_dir) / "smoke-handoff.json"
@@ -313,5 +332,32 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("blocked", result["status"])
         self.assertIn(
             "pre-edit guard required but no pre-edit contract was selected",
+            result["blocking_reasons"],
+        )
+
+    def test_cli_blocks_when_handoff_output_requested_without_pre_edit_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            handoff_path = Path(temp_dir) / "smoke-handoff.json"
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                code = self.script.main(
+                    [
+                        "--repo-root",
+                        str(REPO_ROOT),
+                        "--contract",
+                        "tests/fixtures/gate_contract_pre_run_sample.json",
+                        "--pre-edit-handoff-note-out",
+                        str(handoff_path),
+                        "--json",
+                    ]
+                )
+
+            self.assertFalse(handoff_path.exists())
+
+        self.assertEqual(1, code)
+        result = json.loads(stdout.getvalue())
+        self.assertEqual("blocked", result["status"])
+        self.assertIn(
+            "pre-edit handoff output requested but no pre-edit contract was selected",
             result["blocking_reasons"],
         )

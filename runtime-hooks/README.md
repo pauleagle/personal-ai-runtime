@@ -421,6 +421,8 @@ python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract
 
 The smoke helper passes this path through to the mounted `pre-edit` guard. The
 artifact is written only when that guard blocks.
+If this option is provided without selecting any `pre-edit` contract, smoke
+blocks instead of silently skipping the artifact.
 
 For mounted workflows that require the `pre-edit` guard to run, add:
 

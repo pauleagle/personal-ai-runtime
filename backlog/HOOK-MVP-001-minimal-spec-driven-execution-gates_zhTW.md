@@ -2366,6 +2366,68 @@ Direct result:
 
 ---
 
+## 15.34 Atomic Slice: `HOOK-MVP-001-A34`
+
+```text
+HOOK-MVP-001-A34: require pre-edit contract for smoke handoff output
+```
+
+Scope:
+
+- Block full smoke when `--pre-edit-handoff-note-out` is provided but no `pre-edit` contract is selected.
+- Prevent manual/orchestrator workflows from thinking a handoff artifact was available when the mounted guard never ran.
+- Keep passing and blocked `pre-edit` handoff behavior from A32 unchanged.
+- Preserve the MVP boundary: no wrapper, daemon, tool-call interception, state mutation, or automatic scope expansion.
+
+Acceptance criteria:
+
+- Smoke with `--pre-edit-handoff-note-out` and only non-`pre-edit` contracts returns blocked.
+- No handoff artifact is written when the required `pre-edit` contract is missing.
+- CLI output includes the missing pre-edit handoff output blocking reason.
+- Existing blocked `pre-edit` handoff output behavior still works.
+- README documents the no-silent-skip behavior.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added blocking behavior when `--pre-edit-handoff-note-out` is provided but no selected contract has `gate: pre-edit`.
+- Kept existing blocked `pre-edit` handoff artifact behavior unchanged.
+- Added focused tests for function and CLI missing-`pre-edit` handoff output behavior.
+- Updated README guidance so handoff output cannot be silently skipped when the guard was not selected.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json --pre-edit-handoff-note-out C:\tmp\hook-mvp-a34-missing-handoff.json --json`.
+- Ran `Test-Path C:\tmp\hook-mvp-a34-missing-handoff.json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused runtime hook smoke tests reported 20 tests OK.
+- Full test suite reported 99 tests OK.
+- Missing `pre-edit` handoff output CLI returned exit code 1, `status: blocked`, and blocking reason `pre-edit handoff output requested but no pre-edit contract was selected`.
+- No handoff artifact was written for the missing-guard case.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

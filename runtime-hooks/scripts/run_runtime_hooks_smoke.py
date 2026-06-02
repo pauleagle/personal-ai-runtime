@@ -161,6 +161,10 @@ def run_smoke(
         blocking_reasons.append(
             "pre-edit guard required but no pre-edit contract was selected"
         )
+    elif pre_edit_handoff_note_out:
+        blocking_reasons.append(
+            "pre-edit handoff output requested but no pre-edit contract was selected"
+        )
 
     status = "blocked" if blocking_reasons else "pass"
     return {
