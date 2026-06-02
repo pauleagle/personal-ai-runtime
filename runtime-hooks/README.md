@@ -155,6 +155,28 @@ Representative sample contracts live in `tests/fixtures/`:
 
 Use these as smoke checks and as examples when creating a new explicit gate artifact for an atomic item.
 
+## Active Atomic Item Example
+
+A small active-item example lives at:
+
+- `runtime-hooks/examples/hook_mvp_001_a13_pre_run_contract.json`
+
+It shows how to map one atomic item to:
+
+- `atomic_item_id`
+- `spec_ref`
+- `allowed_scope`
+- `forbidden_scope`
+- `acceptance_criteria`
+- `expected_artifacts`
+- `validation_plan`
+
+Validate it directly before starting the corresponding edit:
+
+```powershell
+python runtime-hooks\scripts\validate_gate_contract.py runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --json
+```
+
 ## MVP Boundaries
 
 - No runtime interception.

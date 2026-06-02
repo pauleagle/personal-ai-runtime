@@ -11,6 +11,12 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT_PATH = REPO_ROOT / "runtime-hooks" / "scripts" / "validate_gate_contract.py"
+ACTIVE_ITEM_EXAMPLE = (
+    REPO_ROOT
+    / "runtime-hooks"
+    / "examples"
+    / "hook_mvp_001_a13_pre_run_contract.json"
+)
 
 
 def load_script_module():
@@ -69,6 +75,19 @@ class ValidateGateContractTest(unittest.TestCase):
         self.assertEqual("pass", result["status"])
         self.assertEqual([], result["blocking_reasons"])
         self.assertEqual("edit", result["next_allowed_action"])
+
+    def test_accepts_active_atomic_item_example(self) -> None:
+        contract = json.loads(ACTIVE_ITEM_EXAMPLE.read_text(encoding="utf-8"))
+
+        self.assertEqual("HOOK-MVP-001-A13", contract["atomic_item_id"])
+
+        code, result, stderr = self.run_script(ACTIVE_ITEM_EXAMPLE)
+
+        self.assertEqual(0, code)
+        self.assertEqual("", stderr)
+        self.assertEqual("pre-run", result["gate"])
+        self.assertEqual("pass", result["status"])
+        self.assertEqual([], result["blocking_reasons"])
 
     def test_blocks_missing_required_fields(self) -> None:
         contract = self.base_contract()

@@ -1,0 +1,33 @@
+{
+  "gate": "pre-run",
+  "atomic_item_id": "HOOK-MVP-001-A13",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md#15.13",
+  "allowed_scope": [
+    "runtime-hooks/README.md",
+    "runtime-hooks/examples/**",
+    "tests/runtime_hooks/**",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "agent-playbooks/spec-driven-change-verification-workflow-playbook.md",
+    "agent-skills/**",
+    "runtime-hooks/scripts/**"
+  ],
+  "acceptance_criteria": [
+    "An active atomic item pre-run contract example exists as a durable JSON artifact.",
+    "The example maps one active item to spec reference, allowed scope, forbidden scope, expected artifacts, and validation plan.",
+    "The runtime hooks README explains how to validate the active atomic item example.",
+    "Focused runtime hook validation tests pass."
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/examples/hook_mvp_001_a13_pre_run_contract.json",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/test_validate_gate_contract.py",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_plan": [
+    "python -m unittest tests.runtime_hooks.test_validate_gate_contract",
+    "python runtime-hooks\\scripts\\validate_gate_contract.py runtime-hooks\\examples\\hook_mvp_001_a13_pre_run_contract.json --json",
+    "git diff --check"
+  ]
+}

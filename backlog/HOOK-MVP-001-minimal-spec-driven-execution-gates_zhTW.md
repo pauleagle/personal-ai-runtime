@@ -1074,6 +1074,60 @@ Direct result:
 
 ---
 
+## 15.13 Atomic Slice: `HOOK-MVP-001-A13`
+
+```text
+HOOK-MVP-001-A13: active atomic item contract example
+```
+
+Scope:
+
+- Add a small durable pre-run contract example for one active atomic item.
+- Document how to validate that example before starting the corresponding edit.
+- Add a focused test proving the example remains valid.
+- Keep this slice limited to example artifact, README guidance, tests, and backlog state.
+
+Acceptance criteria:
+
+- `runtime-hooks/examples/hook_mvp_001_a13_pre_run_contract.json` exists.
+- The example maps `HOOK-MVP-001-A13` to spec reference, allowed scope, forbidden scope, acceptance criteria, expected artifacts, and validation plan.
+- `runtime-hooks/README.md` points to the active atomic item example and its validator command.
+- Focused validator tests pass.
+- The example validates with `validate_gate_contract.py --json`.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No runtime interception.
+- No policy DSL.
+- No automatic contract generation.
+- No orchestrator-state persistence.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/examples/hook_mvp_001_a13_pre_run_contract.json`.
+- Added `Active Atomic Item Example` guidance to `runtime-hooks/README.md`.
+- Added a focused test that validates the durable active-item example.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_validate_gate_contract`.
+- Ran `python runtime-hooks\scripts\validate_gate_contract.py runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused validator tests reported OK.
+- Active atomic item example returned `status: pass`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
