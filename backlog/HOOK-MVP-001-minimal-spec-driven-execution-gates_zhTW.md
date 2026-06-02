@@ -1654,6 +1654,56 @@ Direct result:
 
 ---
 
+## 15.23 Atomic Slice: `HOOK-MVP-001-A23`
+
+```text
+HOOK-MVP-001-A23: contract type selection guidance
+```
+
+Scope:
+
+- Add README guidance for choosing between sample fixtures, active examples, and future project-specific contracts.
+- Clarify that sample fixtures are stable smoke inputs and should not be edited to fit project items.
+- Keep this slice documentation-only.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` describes when to use sample fixtures.
+- `runtime-hooks/README.md` describes when to use active examples.
+- `runtime-hooks/README.md` describes when to create project-specific contracts.
+- README warns not to mutate sample fixtures merely to fit an active project item.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No new fixtures.
+- No contract discovery or generation.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Choosing Contract Types` guidance to `runtime-hooks/README.md`.
+- Documented the distinction between stable sample fixtures, active examples, and project-specific contracts.
+
+Validation actions:
+
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Full test suite reported OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

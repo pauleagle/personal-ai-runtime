@@ -155,6 +155,24 @@ Representative sample contracts live in `tests/fixtures/`:
 
 Use these as smoke checks and as examples when creating a new explicit gate artifact for an atomic item.
 
+## Choosing Contract Types
+
+Use sample fixtures, active examples, and project-specific contracts for
+different jobs:
+
+- Sample fixtures in `tests/fixtures/`: use these to confirm the helper works
+  after a fresh clone or environment change. They are stable smoke inputs, not
+  the current item's governance record.
+- Active examples in `runtime-hooks/examples/`: use these to understand the
+  expected shape of `pre-run`, `pre-edit`, `post-run`, and blocked gate
+  contracts for a real atomic item.
+- Project-specific contracts: create these when an actual workflow item needs
+  its own scope, acceptance criteria, proposed files, validation plan, and
+  checkpoint evidence.
+
+Do not edit the sample fixtures merely to fit a project item. Keep samples
+stable and create a new project-specific contract instead.
+
 ## Active Atomic Item Example
 
 A small active-item example lives at:
