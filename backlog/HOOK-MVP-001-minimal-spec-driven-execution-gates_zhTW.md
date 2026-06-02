@@ -2615,6 +2615,59 @@ Direct result:
 
 ---
 
+## 15.38 Atomic Slice: `HOOK-MVP-001-A38`
+
+```text
+HOOK-MVP-001-A38: contracts directory usage guidance
+```
+
+Scope:
+
+- Add directory-level guidance for project-specific runtime hook contracts.
+- Clarify the difference between `runtime-hooks/contracts/`, sample fixtures, examples, and generated handoff outputs.
+- Document the mounted guard and full smoke commands for the first project-specific target.
+- Keep this slice documentation-only: no helper behavior changes, generator, wrapper, daemon, tool-call interception, or state mutation.
+
+Acceptance criteria:
+
+- `runtime-hooks/contracts/README.md` exists.
+- The contracts README explains when to use project-specific contracts.
+- The contracts README includes mounted guard and full smoke validation commands.
+- The root runtime hooks README points to the contracts README.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No contract generation helper.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/README.md`.
+- Documented when to use project-specific contracts.
+- Documented the mounted guard and full smoke validation commands for the first project-specific target.
+- Updated root `runtime-hooks/README.md` to point to the contracts directory guidance.
+
+Validation actions:
+
+- Ran `git diff --check`.
+
+Direct result:
+
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

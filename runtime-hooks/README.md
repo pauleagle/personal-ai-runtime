@@ -180,7 +180,8 @@ stable and create a new project-specific contract instead.
 
 Project-specific contracts live in `runtime-hooks/contracts/`. These are
 durable workflow targets for concrete atomic items, unlike sample fixtures and
-examples.
+examples. See `runtime-hooks/contracts/README.md` for naming, validation
+commands, and boundaries.
 
 First project-specific target:
 
