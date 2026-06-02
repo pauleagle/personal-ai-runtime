@@ -1128,6 +1128,58 @@ Direct result:
 
 ---
 
+## 15.14 Atomic Slice: `HOOK-MVP-001-A14`
+
+```text
+HOOK-MVP-001-A14: orchestrator state integration boundary
+```
+
+Scope:
+
+- Design the first possible boundary between runtime hook gate results and durable orchestrator state.
+- Document what an orchestrator may copy from gate validation output into a separate state patch.
+- Document what remains outside the runtime hook MVP.
+- Keep this slice design-only: no state persistence, no validator behavior change, no interception.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` describes the orchestrator state integration boundary.
+- The boundary identifies minimal fields an orchestrator could persist from a gate result.
+- The boundary states that blocked gates must preserve concrete blocking reasons in orchestrator state.
+- The boundary states that workflow cursor advancement, human decisions, scope expansion, and commit checkpoints remain orchestrator responsibilities.
+- Existing orchestrator state sample validation still passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No orchestrator state schema implementation.
+- No state mutation or persistence helper.
+- No automatic active-item discovery.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Orchestrator State Integration Boundary` guidance to `runtime-hooks/README.md`.
+- Documented candidate persisted fields: `atomic_item_id`, `gate`, `gate_status`, `next_allowed_action`, `blocking_reasons`, `validation_artifact`, and `checkpoint_status`.
+- Documented that blocked gate results should remain blocked in orchestrator state until fixed or decided by a human.
+
+Validation actions:
+
+- Ran `python agent-skills\orchestrator-state-machine\scripts\validate_orchestrator_state.py tests\fixtures\orchestrator_state_sample.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Orchestrator state sample validation returned `valid: true`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

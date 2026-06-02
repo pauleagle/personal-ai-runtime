@@ -177,6 +177,33 @@ Validate it directly before starting the corresponding edit:
 python runtime-hooks\scripts\validate_gate_contract.py runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --json
 ```
 
+## Orchestrator State Integration Boundary
+
+The current MVP can feed an orchestrator state machine, but it does not write
+state by itself.
+
+An orchestrator may read a gate validation result and record a separate state
+patch with:
+
+- `atomic_item_id`: the item checked by the gate contract.
+- `gate`: `pre-run`, `pre-edit`, or `post-run`.
+- `gate_status`: `pass` or `blocked`.
+- `next_allowed_action`: copied from the gate result.
+- `blocking_reasons`: copied when the gate is blocked.
+- `validation_artifact`: the path to the gate contract or captured gate result.
+- `checkpoint_status`: commit or validation checkpoint state, when applicable.
+
+Boundary rules:
+
+- A passing gate result may allow the orchestrator to move a queued item into
+  the next workflow step, but it does not complete that step by itself.
+- A blocked gate result must keep or move the item into a blocked queue with the
+  concrete blocking reasons.
+- Human decisions, scope expansion, commit checkpoints, and workflow cursor
+  advancement remain orchestrator responsibilities.
+- This MVP does not persist gate results, mutate orchestrator JSON, discover
+  active items, or intercept tool calls.
+
 ## MVP Boundaries
 
 - No runtime interception.
