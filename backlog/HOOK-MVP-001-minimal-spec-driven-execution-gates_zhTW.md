@@ -1029,6 +1029,51 @@ Direct result:
 
 ---
 
+## 15.12 Atomic Slice: `HOOK-MVP-001-A12`
+
+```text
+HOOK-MVP-001-A12: README contract schema reference
+```
+
+Scope:
+
+- Add a concise gate contract schema reference to `runtime-hooks/README.md`.
+- Cover common required fields and gate-specific fields.
+- Document the intentionally simple scope matching semantics.
+- Keep this slice documentation-only.
+
+Acceptance criteria:
+
+- README lists the common required gate contract fields.
+- README lists the additional `pre-edit` field.
+- README lists the additional `post-run` fields and `commit_checkpoint` expectations.
+- README states that scope matching is simple and not a policy DSL.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Gate Contract Schema Reference` to `runtime-hooks/README.md`.
+
+Validation actions:
+
+- Ran `git diff --check`.
+
+Direct result:
+
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

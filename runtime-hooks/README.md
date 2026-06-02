@@ -41,6 +41,36 @@ python --version
 
 On Linux/macOS, use `python3 --version` if `python` does not point to Python 3.
 
+## Gate Contract Schema Reference
+
+All gate contracts are JSON objects.
+
+Common required fields:
+
+- `gate`: `pre-run`, `pre-edit`, or `post-run`.
+- `atomic_item_id`: the active atomic item identifier.
+- `spec_ref`: backlog, spec, issue, or durable artifact reference.
+- `allowed_scope`: list of allowed repo-relative paths or scope entries.
+- `forbidden_scope`: list of forbidden repo-relative paths or scope entries.
+- `acceptance_criteria`: non-empty list of completion criteria.
+- `expected_artifacts`: list of expected artifacts, or an explicit statement that none are expected.
+- `validation_plan`: list of planned validation actions or explicit skip reason.
+
+Additional `pre-edit` field:
+
+- `proposed_changed_files`: list of files the edit intends to change.
+
+Additional `post-run` fields:
+
+- `changed_files`: list of files actually changed.
+- `validation_actions`: validations that were run.
+- `acceptance_results`: acceptance criteria mapped to pass, blocked, or explanatory results.
+- `remaining_risks`: list of known risks, or `none known`.
+- `follow_up_items`: list of follow-ups, or `none`.
+- `commit_checkpoint`: object with `status` set to `committed`, `skipped`, or `blocked`. `committed` requires `commit`; `skipped` or `blocked` requires `skip_reason` or `blocked_reason`.
+
+Scope matching is intentionally simple in this MVP: exact paths, path prefixes, and entries ending in `/**` are supported. This is not a policy DSL.
+
 ## Fresh Clone Checklist
 
 After cloning this repo on another machine:
