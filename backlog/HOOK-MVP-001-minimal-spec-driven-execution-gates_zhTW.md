@@ -649,6 +649,64 @@ Direct result:
 
 ---
 
+## 15.5 Atomic Slice: `HOOK-MVP-001-A5`
+
+```text
+HOOK-MVP-001-A5: one-command runtime hook MVP smoke
+```
+
+Scope:
+
+- Add a single smoke helper that runs the environment check and all representative sample gate contracts.
+- Keep the smoke helper dependency-free.
+- Ensure the smoke helper blocks on environment failure before loading the gate validator.
+- Document the full MVP smoke command in `runtime-hooks/README.md`.
+
+Acceptance criteria:
+
+- The smoke helper returns `pass` when the environment check passes and all sample gate contracts pass.
+- The smoke helper returns `blocked` when the environment check is blocked.
+- The smoke helper returns structured JSON with `status`, `environment`, `gate_results`, `blocking_reasons`, and `next_allowed_action`.
+- The environment helper includes the smoke helper itself in required file checks.
+- Focused runtime hook tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No dependency manager, virtual environment setup, packaging metadata, CI, or automatic installation.
+- No runtime interception.
+- No policy DSL.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/scripts/run_runtime_hooks_smoke.py`.
+- Added `tests/runtime_hooks/test_run_runtime_hooks_smoke.py`.
+- Added the full MVP smoke command to `runtime-hooks/README.md`.
+- Updated `check_runtime_hooks_environment.py` required file checks to include the smoke helper.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python -m unittest tests.runtime_hooks.test_check_runtime_hooks_environment`.
+- Ran `python -m unittest tests.runtime_hooks.test_validate_gate_contract`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Full MVP smoke returned `status: pass`.
+- Focused runtime hook tests reported OK.
+- Full test suite reported 67 tests OK.
+- The sandboxed full MVP smoke check hit the known `windows sandbox: spawn setup refresh`; escalated rerun succeeded.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

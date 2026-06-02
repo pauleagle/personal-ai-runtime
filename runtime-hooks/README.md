@@ -28,6 +28,12 @@ Run the environment smoke check:
 python runtime-hooks\scripts\check_runtime_hooks_environment.py --repo-root . --json
 ```
 
+Run the full MVP smoke check:
+
+```powershell
+python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --json
+```
+
 Run:
 
 ```powershell
