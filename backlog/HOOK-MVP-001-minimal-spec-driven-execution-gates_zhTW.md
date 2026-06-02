@@ -1842,6 +1842,67 @@ Direct result:
 
 ---
 
+## 15.26 Atomic Slice: `HOOK-MVP-001-A26`
+
+```text
+HOOK-MVP-001-A26: mounting readiness checklist
+```
+
+Scope:
+
+- Add a checklist for deciding whether a hook mounting path is ready.
+- Keep the checklist focused on pre-implementation readiness.
+- Keep this slice documentation-only.
+
+Readiness checklist:
+
+- A project-specific gate contract exists for the active item.
+- The mount layer is named and intentionally limited.
+- The first mounted gate is selected, preferably `pre-edit`.
+- Enforcement mode is selected: advisory, soft block, or hard block.
+- Blocked output destination is selected.
+- Human decision boundary is written down for scope expansion and blocked gates.
+- The exact command to rerun after a fix is recorded.
+- The mount can be disabled without changing validator helpers.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` includes a mounting readiness checklist.
+- README says to keep using manual explicit contract validation if readiness is incomplete.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No durable state persistence helper.
+- No broad tool-call interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Mounting Readiness Checklist` guidance to `runtime-hooks/README.md`.
+- Added A26 readiness checklist to this backlog.
+
+Validation actions:
+
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Full test suite reported OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

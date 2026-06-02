@@ -351,3 +351,19 @@ Recommended next mounting path:
 
 Do not mount this MVP as if it already intercepts every tool call. It currently
 validates explicit artifacts only.
+
+## Mounting Readiness Checklist
+
+Before enabling any mounted workflow path, confirm:
+
+- A project-specific gate contract exists for the active item.
+- The mount layer is named and intentionally limited.
+- The first mounted gate is selected, preferably `pre-edit`.
+- Enforcement mode is selected: advisory, soft block, or hard block.
+- Blocked output destination is selected: console JSON, handoff note,
+  orchestrator-state patch proposal, or persisted artifact.
+- Human decision boundary is written down for scope expansion and blocked gates.
+- The exact command to rerun after a fix is recorded.
+- The mount can be disabled without changing the validator helpers.
+
+If any item is missing, keep using manual explicit contract validation.
