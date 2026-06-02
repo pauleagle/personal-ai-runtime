@@ -1976,6 +1976,78 @@ Direct result:
 
 ---
 
+## 15.28 Atomic Slice: `HOOK-MVP-001-A28`
+
+```text
+HOOK-MVP-001-A28: first mounted pre-edit guard
+```
+
+Scope:
+
+- Add the first mounted MVP hook as a manual/orchestrator-step `pre-edit` guard.
+- Use `pre-edit` as the first mounted hook because it can block scoped file edits before they happen.
+- Enforce hard-block semantics from an explicit `pre-edit` gate contract.
+- Emit `allowed_to_edit`, `next_allowed_action`, blocking reasons, and a blocked handoff note.
+- Keep this slice narrow: no broad wrapper, daemon, Codex CLI integration, durable state writes, or tool-call interception.
+
+Acceptance criteria:
+
+- `runtime-hooks/scripts/enforce_pre_edit_gate.py` exists.
+- The guard returns pass for a valid explicit `pre-edit` contract.
+- The guard blocks non-`pre-edit` contracts.
+- The guard blocks failed `pre-edit` contracts and emits a handoff note.
+- The environment smoke check includes the mounted guard helper as a required file.
+- `runtime-hooks/README.md` documents the first mounted hook command and boundaries.
+- Focused runtime hook tests pass.
+- Full test suite passes.
+- The guard CLI returns `allowed_to_edit: true` for the active passing `pre-edit` example.
+- The guard CLI returns non-zero and `allowed_to_edit: false` for the blocked `pre-edit` example.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Selected first hook:
+
+- `pre-edit`, mounted as a manual/orchestrator-step hard-block guard.
+
+Implemented:
+
+- Added `runtime-hooks/scripts/enforce_pre_edit_gate.py`.
+- Added focused tests under `tests/runtime_hooks/test_enforce_pre_edit_gate.py`.
+- Updated environment smoke required files to include the mounted guard helper.
+- Added README guidance for the first mounted hook command, pass/blocked behavior, handoff note output, and boundaries.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_enforce_pre_edit_gate`.
+- Ran `python -m unittest tests.runtime_hooks.test_check_runtime_hooks_environment`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hook_mvp_001_a17_pre_edit_contract.json --repo-root . --json`.
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --repo-root . --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused mounted guard tests reported 5 tests OK.
+- Focused environment tests reported 6 tests OK.
+- Full test suite reported 86 tests OK.
+- Passing active `pre-edit` guard CLI returned `status: pass`, `allowed_to_edit: true`, and `next_allowed_action: edit`.
+- Blocked active `pre-edit` guard CLI returned exit code 1, `status: blocked`, `allowed_to_edit: false`, `next_allowed_action: handoff`, and a handoff note.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

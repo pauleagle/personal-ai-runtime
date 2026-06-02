@@ -55,6 +55,10 @@ class CheckRuntimeHooksEnvironmentTest(unittest.TestCase):
             "required file missing: runtime-hooks/scripts/validate_gate_contract.py",
             result["blocking_reasons"],
         )
+        self.assertIn(
+            "required file missing: runtime-hooks/scripts/enforce_pre_edit_gate.py",
+            result["blocking_reasons"],
+        )
 
     def test_cli_json_output(self) -> None:
         stdout = io.StringIO()

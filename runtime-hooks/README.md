@@ -367,3 +367,27 @@ Before enabling any mounted workflow path, confirm:
 - The mount can be disabled without changing the validator helpers.
 
 If any item is missing, keep using manual explicit contract validation.
+
+## First Mounted Hook
+
+The first mounted MVP hook is the hard-block `pre-edit` guard:
+
+```powershell
+python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hook_mvp_001_a17_pre_edit_contract.json --repo-root . --json
+```
+
+Use it as a manual or orchestrator-step guard before editing files for an
+atomic item. It only accepts explicit `pre-edit` contracts. A passing result
+sets `allowed_to_edit: true` and `next_allowed_action: edit`. A blocked result
+sets `allowed_to_edit: false`, exits non-zero, and includes a `handoff_note`
+with the blocked gate fields needed for a safe stop or orchestrator handoff.
+
+Blocked example:
+
+```powershell
+python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --repo-root . --json
+```
+
+This mounted hook still does not intercept tool calls, mutate orchestrator
+state, expand scope, or make human-governance decisions. It is the first
+concrete attachment point for the explicit artifact validator.
