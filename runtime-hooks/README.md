@@ -197,6 +197,12 @@ Or include it in the full smoke helper's explicit contract path:
 python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --json
 ```
 
+Run the active `pre-run`, `pre-edit`, and `post-run` examples together:
+
+```powershell
+python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --contract runtime-hooks\examples\hook_mvp_001_a17_pre_edit_contract.json --contract runtime-hooks\examples\hook_mvp_001_a18_post_run_contract.json --json
+```
+
 ## Orchestrator State Integration Boundary
 
 The current MVP can feed an orchestrator state machine, but it does not write

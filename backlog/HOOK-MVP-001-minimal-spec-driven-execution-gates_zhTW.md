@@ -1409,6 +1409,61 @@ Direct result:
 
 ---
 
+## 15.19 Atomic Slice: `HOOK-MVP-001-A19`
+
+```text
+HOOK-MVP-001-A19: active examples combined smoke coverage
+```
+
+Scope:
+
+- Prove the full runtime hook smoke helper can validate the active `pre-run`, `pre-edit`, and `post-run` examples together through explicit repeated `--contract`.
+- Document the combined active example smoke command.
+- Keep this slice to smoke coverage and docs; do not change helper behavior.
+
+Acceptance criteria:
+
+- `tests/runtime_hooks/test_run_runtime_hooks_smoke.py` covers the active `pre-run`, `pre-edit`, and `post-run` examples together.
+- The combined smoke result preserves contract order and reports all three gate types.
+- `runtime-hooks/README.md` documents the combined active example smoke command.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- The combined active example smoke CLI returns `status: pass`.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No contract discovery.
+- No automatic active-item selection.
+- No state persistence helper.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added focused smoke coverage for the active `pre-run`, `pre-edit`, and `post-run` examples together.
+- Added README guidance for running all active examples through repeated `run_runtime_hooks_smoke.py --contract`.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --contract runtime-hooks\examples\hook_mvp_001_a17_pre_edit_contract.json --contract runtime-hooks\examples\hook_mvp_001_a18_post_run_contract.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused runtime hook smoke tests reported OK.
+- Full test suite reported OK.
+- Combined active example smoke returned `status: pass`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
