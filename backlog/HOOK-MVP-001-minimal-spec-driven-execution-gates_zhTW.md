@@ -1594,6 +1594,66 @@ Direct result:
 
 ---
 
+## 15.22 Atomic Slice: `HOOK-MVP-001-A22`
+
+```text
+HOOK-MVP-001-A22: blocked active pre-edit example
+```
+
+Scope:
+
+- Add a durable blocked `pre-edit` contract example for one active atomic item.
+- Demonstrate proposed changed file reporting when a path is outside `allowed_scope`.
+- Add focused validator coverage for the blocked example.
+- Document how to interpret the blocked example.
+- Keep this slice example-only: no helper behavior change, no contract generation, no interception.
+
+Acceptance criteria:
+
+- `runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json` exists.
+- The example returns `status: blocked`.
+- The example includes concrete `blocking_reasons` entries for scope violations.
+- The example returns `next_allowed_action: handoff`.
+- `runtime-hooks/README.md` points to the blocked example and explains expected interpretation.
+- Focused validator tests pass.
+- Full test suite passes.
+- The blocked example CLI returns non-zero structured JSON.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No contract discovery or generation.
+- No automatic active-item selection.
+- No state persistence helper.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json`.
+- Added focused validator coverage for the blocked active `pre-edit` example.
+- Added README guidance for interpreting the blocked example.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_validate_gate_contract`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\validate_gate_contract.py runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused validator tests reported OK.
+- Full test suite reported OK.
+- Blocked active `pre-edit` example returned `status: blocked`, `next_allowed_action: handoff`, and concrete allowed / forbidden scope reasons.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

@@ -29,6 +29,12 @@ ACTIVE_ITEM_POST_RUN_EXAMPLE = (
     / "examples"
     / "hook_mvp_001_a18_post_run_contract.json"
 )
+BLOCKED_ACTIVE_PRE_EDIT_EXAMPLE = (
+    REPO_ROOT
+    / "runtime-hooks"
+    / "examples"
+    / "hook_mvp_001_a22_blocked_pre_edit_contract.json"
+)
 
 
 def load_script_module():
@@ -130,6 +136,23 @@ class ValidateGateContractTest(unittest.TestCase):
         self.assertEqual("pass", result["status"])
         self.assertEqual([], result["blocking_reasons"])
         self.assertEqual("complete", result["next_allowed_action"])
+
+    def test_blocks_active_pre_edit_example_scope_violation(self) -> None:
+        contract = json.loads(BLOCKED_ACTIVE_PRE_EDIT_EXAMPLE.read_text(encoding="utf-8"))
+
+        self.assertEqual("HOOK-MVP-001-A22", contract["atomic_item_id"])
+
+        code, result, stderr = self.run_script(BLOCKED_ACTIVE_PRE_EDIT_EXAMPLE)
+
+        self.assertEqual(1, code)
+        self.assertEqual("", stderr)
+        self.assertEqual("pre-edit", result["gate"])
+        self.assertEqual("blocked", result["status"])
+        self.assertIn(
+            "proposed file is outside allowed_scope: agent-skills/example/SKILL.md",
+            result["blocking_reasons"],
+        )
+        self.assertEqual("handoff", result["next_allowed_action"])
 
     def test_blocks_missing_required_fields(self) -> None:
         contract = self.base_contract()

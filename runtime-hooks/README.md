@@ -210,6 +210,15 @@ Current active example coverage:
 - `post-run`: changed files, validation actions, acceptance results, risks, follow-ups, and commit checkpoint shape.
 - Combined smoke: all three active examples validated through repeated explicit `--contract`.
 
+Blocked example:
+
+- `runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json`
+
+That fixture intentionally proposes a file outside `allowed_scope`. It should
+return `status: blocked`, include concrete `blocking_reasons` entries, and set
+`next_allowed_action` to `handoff`. When the same path also matches
+`forbidden_scope`, both violations are reported.
+
 ## Orchestrator State Integration Boundary
 
 The current MVP can feed an orchestrator state machine, but it does not write

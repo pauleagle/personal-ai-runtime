@@ -1,0 +1,36 @@
+{
+  "gate": "pre-edit",
+  "atomic_item_id": "HOOK-MVP-001-A22",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md#15.22",
+  "allowed_scope": [
+    "runtime-hooks/README.md",
+    "runtime-hooks/examples/**",
+    "tests/runtime_hooks/**",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "agent-playbooks/spec-driven-change-verification-workflow-playbook.md",
+    "agent-skills/**",
+    "runtime-hooks/scripts/**"
+  ],
+  "acceptance_criteria": [
+    "A blocked active pre-edit contract example exists as a durable JSON artifact.",
+    "The example demonstrates an outside-allowed-scope proposed change.",
+    "The runtime hooks README explains how to interpret the blocked example.",
+    "Focused runtime hook validation tests cover the blocked example."
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/test_validate_gate_contract.py",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_plan": [
+    "python -m unittest tests.runtime_hooks.test_validate_gate_contract",
+    "python runtime-hooks\\scripts\\validate_gate_contract.py runtime-hooks\\examples\\hook_mvp_001_a22_blocked_pre_edit_contract.json --json",
+    "git diff --check"
+  ],
+  "proposed_changed_files": [
+    "agent-skills/example/SKILL.md"
+  ]
+}
