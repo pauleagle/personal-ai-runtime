@@ -1350,6 +1350,65 @@ Direct result:
 
 ---
 
+## 15.18 Atomic Slice: `HOOK-MVP-001-A18`
+
+```text
+HOOK-MVP-001-A18: active post-run contract example
+```
+
+Scope:
+
+- Add a durable `post-run` contract example for one active atomic item.
+- Show changed files, validation actions, acceptance results, remaining risks, follow-up items, and commit checkpoint state.
+- Document how to validate the active `post-run` example.
+- Add focused validator coverage for the durable example.
+- Keep this slice example-only: no helper behavior change, no contract generation, no interception.
+
+Acceptance criteria:
+
+- `runtime-hooks/examples/hook_mvp_001_a18_post_run_contract.json` exists.
+- The example maps `HOOK-MVP-001-A18` to spec reference, allowed scope, forbidden scope, changed files, validation actions, acceptance results, remaining risks, follow-up items, and commit checkpoint state.
+- The example validates the `post-run` commit checkpoint shape with an explicit skip reason.
+- `runtime-hooks/README.md` points to the active `post-run` example and its validator command.
+- Focused validator tests pass.
+- Full test suite passes.
+- The example validates with `validate_gate_contract.py --json`.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No contract discovery or generation.
+- No automatic active-item selection.
+- No state persistence helper.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/examples/hook_mvp_001_a18_post_run_contract.json`.
+- Added focused validator coverage for the active `post-run` example.
+- Added README guidance for validating the active `post-run` example.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_validate_gate_contract`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\validate_gate_contract.py runtime-hooks\examples\hook_mvp_001_a18_post_run_contract.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused validator tests reported OK.
+- Full test suite reported OK.
+- Active `post-run` example returned `status: pass`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
