@@ -595,6 +595,60 @@ Direct result:
 
 ---
 
+## 15.4 Atomic Slice: `HOOK-MVP-001-A4`
+
+```text
+HOOK-MVP-001-A4: runtime hook environment smoke check
+```
+
+Scope:
+
+- Add a minimal environment check helper for validating a fresh clone on another machine.
+- Check the Python minimum version and required runtime hook MVP files.
+- Keep the helper dependency-free and compatible with older Python syntax where practical, so an outdated interpreter can return a clear blocked result.
+- Document the environment smoke command in `runtime-hooks/README.md`.
+
+Acceptance criteria:
+
+- The helper reports `pass` when Python meets the baseline and required hook files exist.
+- The helper reports `blocked` when Python is older than 3.10.
+- The helper reports `blocked` when required hook MVP files are missing.
+- The helper emits structured JSON with `status`, `blocking_reasons`, `checked_items`, and `next_allowed_action`.
+- Focused runtime hook tests pass.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No dependency manager, virtual environment setup, packaging metadata, or CI.
+- No runtime interception.
+- No automatic installation or machine configuration.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/scripts/check_runtime_hooks_environment.py`.
+- Added `tests/runtime_hooks/test_check_runtime_hooks_environment.py`.
+- Added the environment smoke command to `runtime-hooks/README.md`.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_check_runtime_hooks_environment`.
+- Ran `python -m unittest tests.runtime_hooks.test_validate_gate_contract`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\check_runtime_hooks_environment.py --repo-root . --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Environment smoke returned `status: pass`.
+- Focused runtime hook tests reported OK.
+- Full test suite reported 63 tests OK.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

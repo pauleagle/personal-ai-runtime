@@ -22,6 +22,12 @@ python --version
 
 On Linux/macOS, use `python3 --version` if `python` does not point to Python 3.
 
+Run the environment smoke check:
+
+```powershell
+python runtime-hooks\scripts\check_runtime_hooks_environment.py --repo-root . --json
+```
+
 Run:
 
 ```powershell
