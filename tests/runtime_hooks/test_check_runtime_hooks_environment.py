@@ -65,3 +65,25 @@ class CheckRuntimeHooksEnvironmentTest(unittest.TestCase):
         result = json.loads(stdout.getvalue())
         self.assertEqual("pass", result["status"])
         self.assertEqual("run-validator-smoke", result["next_allowed_action"])
+
+    def test_cli_markdown_output(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(["--repo-root", str(REPO_ROOT)])
+
+        self.assertEqual(0, code)
+        output = stdout.getvalue()
+        self.assertIn("Runtime hooks environment", output)
+        self.assertIn("Status: pass", output)
+        self.assertIn("Next allowed action: run-validator-smoke", output)
+
+    def test_cli_returns_nonzero_for_missing_required_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                code = self.script.main(["--repo-root", temp_dir, "--json"])
+
+        self.assertEqual(1, code)
+        result = json.loads(stdout.getvalue())
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual("fix-environment", result["next_allowed_action"])

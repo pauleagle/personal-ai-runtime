@@ -815,6 +815,56 @@ Direct result:
 
 ---
 
+## 15.8 Atomic Slice: `HOOK-MVP-001-A8`
+
+```text
+HOOK-MVP-001-A8: smoke troubleshooting guidance and environment CLI assertions
+```
+
+Scope:
+
+- Add troubleshooting guidance for blocked runtime hook smoke checks.
+- Add focused tests for environment helper CLI markdown output and non-zero blocked exit behavior.
+- Keep helper behavior unchanged.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` explains how to inspect `blocking_reasons`, `checked_items`, and `next_allowed_action`.
+- README lists common first fixes for Python version, missing files, and blocked gate contracts.
+- Environment helper CLI markdown output includes status and next allowed action.
+- Environment helper CLI returns non-zero structured JSON when required files are missing.
+- Focused environment helper tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No dependency manager, packaging metadata, CI, or install automation.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Troubleshooting Blocked Smoke Checks` guidance to `runtime-hooks/README.md`.
+- Added environment helper CLI markdown and blocked exit tests.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_check_runtime_hooks_environment`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused environment helper tests reported 6 tests OK.
+- Full test suite reported 74 tests OK.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

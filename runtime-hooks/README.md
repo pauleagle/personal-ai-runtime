@@ -33,6 +33,20 @@ After cloning this repo on another machine:
 
 Smoke commands return exit code `0` on `pass` and non-zero on `blocked`.
 
+## Troubleshooting Blocked Smoke Checks
+
+When a smoke command returns `blocked`, inspect:
+
+- `blocking_reasons`: concrete missing version, file, or contract fields.
+- `checked_items`: each deterministic check and whether it passed.
+- `next_allowed_action`: the next safe action, such as `fix-environment` or `fix-contracts`.
+
+Common first fixes:
+
+- If `python-version` is blocked, install or select Python 3.10 or newer.
+- If a `file:` check is blocked, confirm the repo clone is complete and run the command from the repo root with `--repo-root .`.
+- If a gate contract is blocked, fix the JSON artifact before continuing implementation.
+
 Run the environment smoke check:
 
 ```powershell
