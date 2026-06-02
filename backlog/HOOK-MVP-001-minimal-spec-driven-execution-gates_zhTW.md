@@ -1237,6 +1237,60 @@ Direct result:
 
 ---
 
+## 15.16 Atomic Slice: `HOOK-MVP-001-A16`
+
+```text
+HOOK-MVP-001-A16: active item explicit smoke coverage
+```
+
+Scope:
+
+- Prove the full runtime hook smoke helper can validate the active atomic item contract example via explicit `--contract`.
+- Document the explicit full-smoke command for the active item example.
+- Keep this slice to smoke coverage and docs; do not change helper behavior.
+
+Acceptance criteria:
+
+- `tests/runtime_hooks/test_run_runtime_hooks_smoke.py` covers `runtime-hooks/examples/hook_mvp_001_a13_pre_run_contract.json` through explicit contract smoke.
+- `runtime-hooks/README.md` documents the full smoke helper command for the active item example.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- The explicit active item smoke CLI returns `status: pass`.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No contract discovery.
+- No automatic active-item selection.
+- No state persistence helper.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added focused smoke coverage for the A13 active item contract example.
+- Added README guidance for running the active item example through `run_runtime_hooks_smoke.py --contract`.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused runtime hook smoke tests reported OK.
+- Full test suite reported OK.
+- Explicit active item smoke returned `status: pass`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

@@ -11,6 +11,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT_PATH = REPO_ROOT / "runtime-hooks" / "scripts" / "run_runtime_hooks_smoke.py"
+ACTIVE_ITEM_CONTRACT = "runtime-hooks/examples/hook_mvp_001_a13_pre_run_contract.json"
 
 
 def load_script_module():
@@ -56,6 +57,15 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual(["tests/fixtures/gate_contract_pre_run_sample.json"], result["contract_paths"])
         self.assertEqual(1, len(result["gate_results"]))
         self.assertEqual("pre-run", result["gate_results"][0]["gate"])
+
+    def test_accepts_active_item_contract_example(self) -> None:
+        result = self.script.run_smoke(REPO_ROOT, (3, 10, 11), [ACTIVE_ITEM_CONTRACT])
+
+        self.assertEqual("pass", result["status"])
+        self.assertEqual([ACTIVE_ITEM_CONTRACT], result["contract_paths"])
+        self.assertEqual(1, len(result["gate_results"]))
+        self.assertEqual("pre-run", result["gate_results"][0]["gate"])
+        self.assertEqual("ready", result["next_allowed_action"])
 
     def test_blocks_explicit_invalid_contract(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

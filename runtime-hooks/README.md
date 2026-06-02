@@ -177,6 +177,12 @@ Validate it directly before starting the corresponding edit:
 python runtime-hooks\scripts\validate_gate_contract.py runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --json
 ```
 
+Or include it in the full smoke helper's explicit contract path:
+
+```powershell
+python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\examples\hook_mvp_001_a13_pre_run_contract.json --json
+```
+
 ## Orchestrator State Integration Boundary
 
 The current MVP can feed an orchestrator state machine, but it does not write
