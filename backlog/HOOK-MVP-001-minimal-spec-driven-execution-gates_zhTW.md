@@ -1464,6 +1464,85 @@ Direct result:
 
 ---
 
+## 15.20 Atomic Slice: `HOOK-MVP-001-A20`
+
+```text
+HOOK-MVP-001-A20: active example coverage closeout
+```
+
+Scope:
+
+- Summarize the current active example coverage after A13 through A19.
+- Update safe candidate next slices so future continuation does not restart completed example work.
+- Keep this slice documentation-only and suitable as a commit checkpoint.
+
+Current active example coverage:
+
+- `pre-run`: `runtime-hooks/examples/hook_mvp_001_a13_pre_run_contract.json`.
+- `pre-edit`: `runtime-hooks/examples/hook_mvp_001_a17_pre_edit_contract.json`.
+- `post-run`: `runtime-hooks/examples/hook_mvp_001_a18_post_run_contract.json`.
+- Combined active smoke: repeated `--contract` validation covers all three examples in order.
+
+What this closes:
+
+- Active examples now cover the three MVP gate types.
+- Focused validator tests keep all three durable examples valid.
+- Focused smoke tests keep the combined active example workflow valid.
+- README contains copyable commands for single-example and combined-example validation.
+
+What remains deferred:
+
+- Runtime interception of tool calls or edit calls.
+- Automatic active-item discovery.
+- Contract generation or repair.
+- Durable orchestrator-state mutation or persistence helpers.
+- Policy DSL, complex glob semantics, rule priority, or inheritance.
+- Any automatic human-governance decision, scope expansion, commit, revert, or completion claim.
+
+Candidate next slices:
+
+- `HOOK-MVP-001-A21`: design a minimal handoff note format for blocked gate results without writing state.
+- `HOOK-MVP-001-A22`: add a blocked active `pre-edit` example to demonstrate scope violation reporting.
+- `HOOK-MVP-001-A23`: add README guidance for choosing between sample fixtures, active examples, and future project-specific contracts.
+- `RT-FU-001`: continue collecting exact `windows sandbox: spawn setup refresh` observations separately from HOOK-MVP feature work.
+
+Acceptance criteria:
+
+- Backlog summarizes active example coverage after A13 through A19.
+- Backlog separates closed coverage from deferred runtime governance work.
+- Backlog lists safe next slices without starting them.
+- `runtime-hooks/README.md` summarizes active example coverage.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No new fixtures.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added current active example coverage summary to `runtime-hooks/README.md`.
+- Added A20 closeout, deferred work, and candidate next slices to this backlog.
+
+Validation actions:
+
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Full test suite reported OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
