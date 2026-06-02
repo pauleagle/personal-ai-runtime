@@ -907,6 +907,49 @@ Direct result:
 
 ---
 
+## 15.10 Atomic Slice: `HOOK-MVP-001-A10`
+
+```text
+HOOK-MVP-001-A10: MVP usage and non-usage boundaries
+```
+
+Scope:
+
+- Add README guidance for when to use the runtime hook MVP helpers.
+- Add README guidance for when not to use them.
+- Keep this slice documentation-only.
+
+Acceptance criteria:
+
+- README states that helpers are for deterministic checks of explicit gate contract artifacts.
+- README lists fresh clone and active atomic item validation as valid uses.
+- README states that helpers are not tool-call interception, runtime wrappers, daemons, policy DSLs, or human-approval substitutes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `When To Use This MVP` and `When Not To Use This MVP` sections to `runtime-hooks/README.md`.
+
+Validation actions:
+
+- Ran `git diff --check`.
+
+Direct result:
+
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

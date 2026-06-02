@@ -6,6 +6,25 @@ The current MVP is a deterministic gate contract validator. It validates local J
 
 It does not intercept Codex tool calls, run a daemon, wrap the agent runtime, or make human-governance decisions automatically.
 
+## When To Use This MVP
+
+Use these helpers when you need a deterministic check for an explicit gate contract artifact, such as:
+
+- verifying a `pre-run`, `pre-edit`, or `post-run` JSON contract before continuing an atomic item;
+- checking that a fresh clone has the minimum Python version and required runtime hook files;
+- running sample contracts to confirm the MVP helpers work on a new machine;
+- validating one or more explicit gate contracts for the active atomic item.
+
+## When Not To Use This MVP
+
+Do not treat these helpers as:
+
+- tool-call interception;
+- an agent wrapper, daemon, or runtime server;
+- a policy DSL or complete authorization system;
+- automatic approval for expanded scope;
+- a substitute for human decisions when a gate is blocked.
+
 ## Gate Contract Validator
 
 Python baseline:
