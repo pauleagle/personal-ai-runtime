@@ -22,6 +22,17 @@ python --version
 
 On Linux/macOS, use `python3 --version` if `python` does not point to Python 3.
 
+## Fresh Clone Checklist
+
+After cloning this repo on another machine:
+
+1. Confirm `python --version` reports Python 3.10 or newer.
+2. Run the environment smoke check.
+3. Run the full MVP smoke check.
+4. Run explicit gate contracts for the active atomic item when they exist.
+
+Smoke commands return exit code `0` on `pass` and non-zero on `blocked`.
+
 Run the environment smoke check:
 
 ```powershell

@@ -764,6 +764,57 @@ Direct result:
 
 ---
 
+## 15.7 Atomic Slice: `HOOK-MVP-001-A7`
+
+```text
+HOOK-MVP-001-A7: fresh clone checklist and smoke output assertions
+```
+
+Scope:
+
+- Add a concise fresh clone checklist for runtime hook MVP validation.
+- Document smoke command exit code semantics.
+- Add focused tests for CLI markdown output and invalid-contract non-zero exit behavior.
+- Keep helper behavior unchanged.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` includes a fresh clone checklist.
+- README documents that smoke commands return `0` on `pass` and non-zero on `blocked`.
+- CLI markdown output includes status and next allowed action.
+- CLI invalid contract smoke returns non-zero and structured blocked JSON.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No dependency manager, packaging metadata, CI, or install automation.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Fresh Clone Checklist` guidance to `runtime-hooks/README.md`.
+- Added CLI markdown output and invalid-contract exit code tests to `tests/runtime_hooks/test_run_runtime_hooks_smoke.py`.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused runtime hook smoke tests reported 9 tests OK.
+- Full test suite reported 72 tests OK.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

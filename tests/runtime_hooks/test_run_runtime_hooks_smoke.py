@@ -106,6 +106,17 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("pass", result["status"])
         self.assertEqual("ready", result["next_allowed_action"])
 
+    def test_cli_markdown_output(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(["--repo-root", str(REPO_ROOT)])
+
+        self.assertEqual(0, code)
+        output = stdout.getvalue()
+        self.assertIn("Runtime hooks smoke", output)
+        self.assertIn("Status: pass", output)
+        self.assertIn("Next allowed action: ready", output)
+
     def test_cli_accepts_explicit_contract(self) -> None:
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):
@@ -123,3 +134,24 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         result = json.loads(stdout.getvalue())
         self.assertEqual(["tests/fixtures/gate_contract_pre_run_sample.json"], result["contract_paths"])
         self.assertEqual(1, len(result["gate_results"]))
+
+    def test_cli_returns_nonzero_for_invalid_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            invalid_contract = Path(temp_dir) / "invalid_gate.json"
+            invalid_contract.write_text("{}", encoding="utf-8")
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                code = self.script.main(
+                    [
+                        "--repo-root",
+                        str(REPO_ROOT),
+                        "--contract",
+                        str(invalid_contract),
+                        "--json",
+                    ]
+                )
+
+        self.assertEqual(1, code)
+        result = json.loads(stdout.getvalue())
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual("fix-contracts", result["next_allowed_action"])
