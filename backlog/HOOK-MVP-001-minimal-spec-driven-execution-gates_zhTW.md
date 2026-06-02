@@ -548,6 +548,53 @@ Direct smoke result:
 
 ---
 
+## 15.3 Atomic Slice: `HOOK-MVP-001-A3`
+
+```text
+HOOK-MVP-001-A3: document Python baseline for portable hook usage
+```
+
+Scope:
+
+- Document the runtime hook Python version baseline for cloning this repo onto another machine.
+- Keep the baseline as a minimum supported version rather than an exact pin.
+- Do not add dependency management, virtual environment setup, packaging metadata, or CI.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` states the required Python version.
+- The documentation distinguishes required minimum version from current local validated baseline.
+- The documentation states whether third-party packages are needed.
+- Focused validator tests still pass.
+- `git diff --check` passes.
+
+Decision:
+
+- Required baseline: Python 3.10 or newer.
+- Current local validated baseline: Python 3.10.11.
+- No `.python-version` is added for A3 because the hook MVP only needs a minimum version, and an exact pin could over-constrain company-machine setup.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added Python baseline guidance to `runtime-hooks/README.md`.
+
+Validation actions:
+
+- Ran `python --version`.
+- Ran `python -m unittest tests.runtime_hooks.test_validate_gate_contract`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Local Python reported `Python 3.10.11`.
+- Focused tests reported 6 tests OK.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

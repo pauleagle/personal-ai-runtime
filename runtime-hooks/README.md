@@ -8,6 +8,20 @@ It does not intercept Codex tool calls, run a daemon, wrap the agent runtime, or
 
 ## Gate Contract Validator
 
+Python baseline:
+
+- Required: Python 3.10 or newer.
+- Current local validated baseline: Python 3.10.11.
+- No third-party Python packages are required for the current MVP validator.
+
+Check the version after cloning this repo on a new machine:
+
+```powershell
+python --version
+```
+
+On Linux/macOS, use `python3 --version` if `python` does not point to Python 3.
+
 Run:
 
 ```powershell
