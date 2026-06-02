@@ -2178,6 +2178,65 @@ Direct result:
 
 ---
 
+## 15.31 Atomic Slice: `HOOK-MVP-001-A31`
+
+```text
+HOOK-MVP-001-A31: repo-root-relative handoff artifact paths
+```
+
+Scope:
+
+- Resolve relative `--handoff-note-out` paths from `--repo-root`.
+- Preserve absolute handoff output paths.
+- Keep passing guard results from writing handoff artifacts.
+- Keep this as mounted guard path hygiene only: no wrapper, daemon, tool-call interception, or state mutation.
+
+Acceptance criteria:
+
+- Relative handoff output paths are written under `--repo-root`.
+- Absolute handoff output paths still work.
+- Focused mounted guard tests pass.
+- Full test suite passes.
+- README documents repo-root-relative handoff output behavior.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `resolve_handoff_note_path()` to resolve relative handoff output paths from `--repo-root`.
+- Preserved absolute handoff output path behavior.
+- Added focused test coverage for repo-root-relative handoff artifact output.
+- Updated README guidance for deterministic handoff output path behavior.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_enforce_pre_edit_gate`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --repo-root . --handoff-note-out C:\tmp\hook-mvp-a31-absolute-handoff.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused mounted guard tests reported 9 tests OK.
+- Full test suite reported 91 tests OK.
+- Absolute handoff CLI returned exit code 1, `status: blocked`, and `handoff_note_path: C:\tmp\hook-mvp-a31-absolute-handoff.json`.
+- Relative handoff output test wrote under the provided repo root.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

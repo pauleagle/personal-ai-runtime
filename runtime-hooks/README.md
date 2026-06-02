@@ -405,6 +405,9 @@ concrete attachment point for the explicit artifact validator.
 
 `--handoff-note-out` writes only when the guard blocks. Passing guard results do
 not create a handoff artifact, because there is no blocked state to hand off.
+Relative handoff output paths are resolved from `--repo-root`, which keeps
+manual and orchestrator-step runs deterministic across different shell working
+directories.
 
 The full smoke helper includes this guard whenever the selected contract set
 contains a `pre-edit` contract. If no `pre-edit` contract is selected, the guard

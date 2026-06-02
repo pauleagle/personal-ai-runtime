@@ -76,6 +76,33 @@ class EnforcePreEditGateTest(unittest.TestCase):
         self.assertEqual("blocked", handoff_note["gate_status"])
         self.assertEqual("handoff", handoff_note["next_allowed_action"])
 
+    def test_writes_relative_handoff_note_artifact_under_repo_root(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo_root = Path(temp_dir)
+            (repo_root / "runtime-hooks" / "scripts").mkdir(parents=True)
+            (repo_root / "runtime-hooks" / "examples").mkdir(parents=True)
+            validator_source = REPO_ROOT / "runtime-hooks" / "scripts" / "validate_gate_contract.py"
+            contract_source = REPO_ROOT / BLOCKED_PRE_EDIT_CONTRACT
+            (repo_root / "runtime-hooks" / "scripts" / "validate_gate_contract.py").write_text(
+                validator_source.read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            (repo_root / BLOCKED_PRE_EDIT_CONTRACT).write_text(
+                contract_source.read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+
+            result = self.script.enforce_pre_edit_gate(
+                repo_root,
+                BLOCKED_PRE_EDIT_CONTRACT,
+                handoff_note_out="runtime-hooks/handoffs/blocked.json",
+            )
+            expected_path = repo_root / "runtime-hooks" / "handoffs" / "blocked.json"
+
+            self.assertEqual("blocked", result["status"])
+            self.assertEqual(str(expected_path), result["handoff_note_path"])
+            self.assertTrue(expected_path.is_file())
+
     def test_does_not_write_handoff_note_artifact_when_passing(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             handoff_path = Path(temp_dir) / "handoff.json"

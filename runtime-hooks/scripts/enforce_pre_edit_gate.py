@@ -29,6 +29,13 @@ def resolve_contract_path(repo_root: Path, contract_path: str | Path) -> Path:
     return repo_root / path
 
 
+def resolve_handoff_note_path(repo_root: Path, handoff_note_out: str | Path) -> Path:
+    path = Path(handoff_note_out)
+    if path.is_absolute():
+        return path
+    return repo_root / path
+
+
 def load_contract_metadata(contract_path: Path) -> dict[str, Any]:
     try:
         data = json.loads(contract_path.read_text(encoding="utf-8"))
@@ -110,7 +117,7 @@ def enforce_pre_edit_gate(
             resolved_contract_path,
         )
         if handoff_note_out is not None:
-            handoff_note_path = Path(handoff_note_out)
+            handoff_note_path = resolve_handoff_note_path(repo_root, handoff_note_out)
             handoff_note_path.parent.mkdir(parents=True, exist_ok=True)
             handoff_note_path.write_text(
                 json.dumps(handoff_note, ensure_ascii=False, indent=2) + "\n",
