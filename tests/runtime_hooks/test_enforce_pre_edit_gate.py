@@ -4,6 +4,7 @@ import contextlib
 import importlib.util
 import io
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -54,6 +55,39 @@ class EnforcePreEditGateTest(unittest.TestCase):
             "proposed file is outside allowed_scope: agent-skills/example/SKILL.md",
             result["blocking_reasons"],
         )
+        self.assertIsNone(result["handoff_note_path"])
+
+    def test_writes_handoff_note_artifact_when_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            handoff_path = Path(temp_dir) / "handoff" / "blocked-pre-edit.json"
+            result = self.script.enforce_pre_edit_gate(
+                REPO_ROOT,
+                BLOCKED_PRE_EDIT_CONTRACT,
+                handoff_note_out=handoff_path,
+            )
+
+            self.assertEqual("blocked", result["status"])
+            self.assertEqual(str(handoff_path), result["handoff_note_path"])
+            self.assertTrue(handoff_path.is_file())
+            handoff_note = json.loads(handoff_path.read_text(encoding="utf-8"))
+
+        self.assertEqual("HOOK-MVP-001-A22", handoff_note["atomic_item_id"])
+        self.assertEqual("pre-edit", handoff_note["gate"])
+        self.assertEqual("blocked", handoff_note["gate_status"])
+        self.assertEqual("handoff", handoff_note["next_allowed_action"])
+
+    def test_does_not_write_handoff_note_artifact_when_passing(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            handoff_path = Path(temp_dir) / "handoff.json"
+            result = self.script.enforce_pre_edit_gate(
+                REPO_ROOT,
+                PASSING_PRE_EDIT_CONTRACT,
+                handoff_note_out=handoff_path,
+            )
+
+            self.assertEqual("pass", result["status"])
+            self.assertIsNone(result["handoff_note_path"])
+            self.assertFalse(handoff_path.exists())
 
     def test_blocks_non_pre_edit_contract(self) -> None:
         result = self.script.enforce_pre_edit_gate(REPO_ROOT, PRE_RUN_CONTRACT)
@@ -100,3 +134,25 @@ class EnforcePreEditGateTest(unittest.TestCase):
         self.assertEqual("blocked", result["status"])
         self.assertFalse(result["allowed_to_edit"])
         self.assertIsNotNone(result["handoff_note"])
+
+    def test_cli_writes_handoff_note_artifact_for_blocked_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            handoff_path = Path(temp_dir) / "handoff.json"
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                code = self.script.main(
+                    [
+                        BLOCKED_PRE_EDIT_CONTRACT,
+                        "--repo-root",
+                        str(REPO_ROOT),
+                        "--handoff-note-out",
+                        str(handoff_path),
+                        "--json",
+                    ]
+                )
+            handoff_note = json.loads(handoff_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(1, code)
+        result = json.loads(stdout.getvalue())
+        self.assertEqual(str(handoff_path), result["handoff_note_path"])
+        self.assertEqual("HOOK-MVP-001-A22", handoff_note["atomic_item_id"])

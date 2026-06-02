@@ -393,9 +393,18 @@ Blocked example:
 python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --repo-root . --json
 ```
 
+Write a blocked handoff note artifact:
+
+```powershell
+python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --repo-root . --handoff-note-out runtime-hooks\handoffs\blocked-pre-edit.json --json
+```
+
 This mounted hook still does not intercept tool calls, mutate orchestrator
 state, expand scope, or make human-governance decisions. It is the first
 concrete attachment point for the explicit artifact validator.
+
+`--handoff-note-out` writes only when the guard blocks. Passing guard results do
+not create a handoff artifact, because there is no blocked state to hand off.
 
 The full smoke helper includes this guard whenever the selected contract set
 contains a `pre-edit` contract. If no `pre-edit` contract is selected, the guard

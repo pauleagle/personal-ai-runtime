@@ -62,6 +62,7 @@ def enforce_pre_edit_gate(
     repo_root: str | Path,
     contract_path: str | Path,
     attempted_command: str | None = None,
+    handoff_note_out: str | Path | None = None,
 ) -> dict[str, Any]:
     repo_root = Path(repo_root)
     resolved_contract_path = resolve_contract_path(repo_root, contract_path)
@@ -99,6 +100,7 @@ def enforce_pre_edit_gate(
         )
 
     handoff_note = None
+    handoff_note_path = None
     if status == "blocked":
         handoff_note = build_handoff_note(
             contract,
@@ -107,6 +109,13 @@ def enforce_pre_edit_gate(
             attempted_command,
             resolved_contract_path,
         )
+        if handoff_note_out is not None:
+            handoff_note_path = Path(handoff_note_out)
+            handoff_note_path.parent.mkdir(parents=True, exist_ok=True)
+            handoff_note_path.write_text(
+                json.dumps(handoff_note, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
 
     return {
         "hook": "pre-edit",
@@ -120,6 +129,7 @@ def enforce_pre_edit_gate(
         "checked_items": checked_items,
         "next_allowed_action": next_allowed_action,
         "handoff_note": handoff_note,
+        "handoff_note_path": str(handoff_note_path) if handoff_note_path else None,
         "notes": [
             "This guard validates explicit pre-edit contracts only; it does not intercept tool calls."
         ],
@@ -147,6 +157,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("gate_contract")
     parser.add_argument("--repo-root", default=".")
+    parser.add_argument(
+        "--handoff-note-out",
+        help="Write the blocked handoff note JSON to this path when the guard blocks.",
+    )
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
@@ -155,12 +169,14 @@ def main(argv: list[str] | None = None) -> int:
         + args.gate_contract
         + " --repo-root "
         + args.repo_root
+        + (" --handoff-note-out " + args.handoff_note_out if args.handoff_note_out else "")
         + (" --json" if args.json else "")
     )
     result = enforce_pre_edit_gate(
         Path(args.repo_root),
         args.gate_contract,
         attempted_command=attempted_command,
+        handoff_note_out=args.handoff_note_out,
     )
 
     if args.json:

@@ -2112,6 +2112,72 @@ Direct result:
 
 ---
 
+## 15.30 Atomic Slice: `HOOK-MVP-001-A30`
+
+```text
+HOOK-MVP-001-A30: blocked pre-edit handoff artifact output
+```
+
+Scope:
+
+- Add optional handoff note artifact output to the mounted `pre-edit` guard.
+- Write the handoff note only when the guard blocks.
+- Keep the handoff artifact separate from durable orchestrator state.
+- Keep this as manual/orchestrator-step support only: no wrapper, daemon, tool-call interception, or state mutation.
+
+Acceptance criteria:
+
+- `enforce_pre_edit_gate.py` accepts `--handoff-note-out`.
+- A blocked guard writes a JSON handoff note artifact to the requested path.
+- A passing guard does not write a handoff note artifact.
+- The result includes `handoff_note_path` only when an artifact is written.
+- README documents the handoff artifact command and boundary.
+- Focused mounted guard tests pass.
+- Full test suite passes.
+- Blocked guard CLI writes the handoff artifact and returns non-zero.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `--handoff-note-out` to `runtime-hooks/scripts/enforce_pre_edit_gate.py`.
+- Added `handoff_note_path` to guard output.
+- Wrote blocked handoff notes as UTF-8 JSON artifacts when requested.
+- Kept passing guard results from writing handoff artifacts.
+- Added focused tests for blocked artifact writing, passing no-write behavior, and CLI artifact output.
+- Updated README guidance for blocked handoff artifact output.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_enforce_pre_edit_gate`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --repo-root . --handoff-note-out C:\tmp\hook-mvp-a30-blocked-handoff.json --json`.
+- Ran `Test-Path C:\tmp\hook-mvp-a30-blocked-handoff.json`.
+- Ran `Get-Content -Raw C:\tmp\hook-mvp-a30-blocked-handoff.json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused mounted guard tests reported 8 tests OK.
+- Full test suite reported 90 tests OK.
+- Blocked guard CLI returned exit code 1, `status: blocked`, and `handoff_note_path: C:\tmp\hook-mvp-a30-blocked-handoff.json`.
+- The handoff artifact existed and contained `atomic_item_id: HOOK-MVP-001-A22`, `gate: pre-edit`, `gate_status: blocked`, and concrete scope blocking reasons.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
