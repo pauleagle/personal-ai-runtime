@@ -321,3 +321,33 @@ The current MVP is ready to pause as a deterministic validation layer:
 Before moving beyond this MVP, make a separate decision on whether the next
 phase is contract generation, orchestrator-state persistence, or real runtime
 interception.
+
+## Mounting Decision Spec
+
+Before mounting these helpers into any runtime path, decide the mounting model
+explicitly:
+
+- Mount layer: manual command, PowerShell wrapper, Codex CLI wrapper,
+  orchestrator step, or future daemon.
+- First gate to mount: `pre-edit` is the safest first hard-block candidate;
+  `post-run` is useful as a completion gate; `pre-run` is useful for planning
+  discipline.
+- Enforcement mode: advisory check, soft block with handoff, or hard block.
+- Blocked output: console JSON, handoff note, orchestrator-state patch proposal,
+  or persisted gate result artifact.
+- Human decision boundary: blocked gates require missing information, scope
+  changes, or human decision before continuing.
+
+Recommended next mounting path:
+
+1. Start with an orchestrator step or manual command that runs explicit
+   project-specific contracts.
+2. Use `pre-edit` as the first hard-block gate because it can prevent scoped
+   file edits before they happen.
+3. Emit blocked results as handoff notes first; defer durable state writes until
+   the state patch schema is decided.
+4. Keep Codex CLI wrapper, daemon, and broad tool-call interception as separate
+   specs.
+
+Do not mount this MVP as if it already intercepts every tool call. It currently
+validates explicit artifacts only.

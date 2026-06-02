@@ -1772,6 +1772,76 @@ Direct result:
 
 ---
 
+## 15.25 Atomic Slice: `HOOK-MVP-001-A25`
+
+```text
+HOOK-MVP-001-A25: runtime hook mounting decision spec
+```
+
+Scope:
+
+- Add a mounting decision spec before any runtime hook attachment work.
+- Decide the candidate mounting layers and enforcement modes.
+- Recommend a conservative first mounting path.
+- Keep this slice documentation-only: no wrapper, daemon, CLI integration, state persistence, or interception.
+
+Mounting decision points:
+
+- Mount layer: manual command, PowerShell wrapper, Codex CLI wrapper, orchestrator step, or future daemon.
+- First gate to mount: `pre-edit` for hard-block candidate, `post-run` for completion gate, `pre-run` for planning discipline.
+- Enforcement mode: advisory check, soft block with handoff, or hard block.
+- Blocked output: console JSON, handoff note, orchestrator-state patch proposal, or persisted gate result artifact.
+- Human decision boundary: blocked gates require missing information, scope changes, or human decision before continuing.
+
+Recommended first mounting path:
+
+- Start with an orchestrator step or manual command using explicit project-specific contracts.
+- Mount `pre-edit` first as a hard-block gate because it can prevent scoped file edits before they happen.
+- Emit blocked results as handoff notes first.
+- Defer durable state writes until a state patch schema is separately decided.
+- Treat Codex CLI wrapper, daemon, and broad tool-call interception as separate specs.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` documents the mounting decision spec.
+- README states the candidate mount layers.
+- README states recommended first gate and enforcement mode.
+- README states blocked output options and human decision boundary.
+- README preserves the boundary that this MVP validates explicit artifacts only.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No durable state persistence helper.
+- No broad tool-call interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Mounting Decision Spec` guidance to `runtime-hooks/README.md`.
+- Added A25 mounting decision spec and recommended first mounting path to this backlog.
+
+Validation actions:
+
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Full test suite reported OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
