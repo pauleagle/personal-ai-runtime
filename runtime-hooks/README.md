@@ -245,6 +245,30 @@ That fixture shows a blocked `pre-edit` gate result represented in the
 orchestrator state's `blocked` queue. It is an example of the boundary contract,
 not a required schema for every project.
 
+## Blocked Gate Handoff Note
+
+When a gate returns `blocked` and the next safe action is `handoff`, write a
+short handoff note before stopping or returning control to the orchestrator.
+
+Minimal fields:
+
+- `atomic_item_id`: the item blocked by the gate.
+- `gate`: `pre-run`, `pre-edit`, or `post-run`.
+- `gate_status`: usually `blocked`.
+- `blocking_reasons`: copied from the gate result without rewriting meaning.
+- `next_allowed_action`: copied from the gate result.
+- `attempted_command`: the validator or smoke command that produced the result.
+- `scope_decision_needed`: whether human or orchestrator scope adjustment is needed.
+- `resume_from`: the exact artifact or command to rerun after the fix.
+
+Boundary rules:
+
+- A handoff note is not a gate override.
+- Do not mark the item complete from the handoff note alone.
+- Do not expand scope inside the note; record the decision needed instead.
+- If the workflow has a durable orchestrator state artifact, the handoff note may
+  be used as input to a later state patch, but this MVP does not write that patch.
+
 ## MVP Boundaries
 
 - No runtime interception.

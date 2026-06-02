@@ -1543,6 +1543,57 @@ Direct result:
 
 ---
 
+## 15.21 Atomic Slice: `HOOK-MVP-001-A21`
+
+```text
+HOOK-MVP-001-A21: blocked gate handoff note format
+```
+
+Scope:
+
+- Design a minimal handoff note format for blocked gate results.
+- Document when to use the note and what fields it should carry.
+- Clarify that a handoff note cannot override a blocked gate, mark completion, or expand scope.
+- Keep this slice documentation-only: no state writing, no helper behavior change, no interception.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` documents a blocked gate handoff note format.
+- The format includes `atomic_item_id`, `gate`, `gate_status`, `blocking_reasons`, `next_allowed_action`, `attempted_command`, `scope_decision_needed`, and `resume_from`.
+- README states that the handoff note is not a gate override.
+- README states that durable orchestrator state patching remains outside this MVP.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No new fixtures.
+- No durable state mutation or persistence helper.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Blocked Gate Handoff Note` guidance to `runtime-hooks/README.md`.
+- Documented minimal handoff fields and boundary rules.
+
+Validation actions:
+
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Full test suite reported OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
