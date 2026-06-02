@@ -303,3 +303,21 @@ Boundary rules:
 - No automatic scope expansion.
 - No automatic commit, revert, or approval decision.
 - Gate failure can only be resolved by completing missing information, changing scope, or receiving a human decision.
+
+## Closeout Status
+
+The current MVP is ready to pause as a deterministic validation layer:
+
+- Gate contracts are defined for `pre-run`, `pre-edit`, and `post-run`.
+- The validator checks required fields, simple scope boundaries, blocked reasons,
+  and post-run commit checkpoint shape.
+- Environment and full smoke helpers support fresh-clone checks and repeated
+  explicit contracts.
+- Active passing examples cover all three gate types.
+- A blocked active `pre-edit` example demonstrates scope violation reporting.
+- Orchestrator integration remains a documented boundary, not implemented
+  persistence.
+
+Before moving beyond this MVP, make a separate decision on whether the next
+phase is contract generation, orchestrator-state persistence, or real runtime
+interception.

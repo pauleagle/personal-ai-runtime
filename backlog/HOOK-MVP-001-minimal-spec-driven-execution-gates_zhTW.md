@@ -1704,6 +1704,74 @@ Direct result:
 
 ---
 
+## 15.24 Atomic Slice: `HOOK-MVP-001-A24`
+
+```text
+HOOK-MVP-001-A24: runtime hook MVP closeout status
+```
+
+Scope:
+
+- Add a concise MVP closeout status to README and backlog.
+- Mark the current MVP as ready to pause as a deterministic validation layer.
+- Separate the next phase decisions from the completed MVP work.
+- Keep this slice documentation-only.
+
+Current MVP closeout status:
+
+- Gate contracts are defined for `pre-run`, `pre-edit`, and `post-run`.
+- Deterministic validator checks required fields, simple scope boundaries, blocked reasons, and post-run commit checkpoint shape.
+- Environment and full smoke helpers support fresh-clone checks and repeated explicit contracts.
+- Active passing examples cover all three gate types.
+- Blocked active `pre-edit` example demonstrates scope violation reporting.
+- Blocked gate handoff note format exists.
+- Orchestrator integration remains documented boundary only; no persistence helper is implemented.
+
+Next decision gate:
+
+- Option A: pause HOOK-MVP-001 here and switch to RT-FU-001 observations or another backlog item.
+- Option B: design contract generation, without implementing runtime interception.
+- Option C: design orchestrator-state persistence, without implementing tool-call interception.
+- Option D: begin a separate spec for real runtime interception / wrapper / daemon.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` includes MVP closeout status.
+- Backlog includes current MVP closeout status.
+- Backlog separates next phase decisions from completed MVP work.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No new fixtures.
+- No contract generation.
+- No orchestrator-state persistence helper.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Closeout Status` guidance to `runtime-hooks/README.md`.
+- Added A24 closeout status and next decision gate to this backlog.
+
+Validation actions:
+
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Full test suite reported OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
