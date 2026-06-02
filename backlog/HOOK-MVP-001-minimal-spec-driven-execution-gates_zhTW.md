@@ -2481,6 +2481,81 @@ Direct result:
 
 ---
 
+## 15.36 Atomic Slice: `HOOK-MVP-001-A36`
+
+```text
+HOOK-MVP-001-A36: first mounted hook closeout
+```
+
+Scope:
+
+- Close out the first mounted hook phase after A28 through A35.
+- Summarize the mounted gate, mount layer, enforcement mode, pass/blocked behavior, smoke requirement option, handoff artifact output, and ignored local output directory.
+- Separate completed mounted guard work from deferred next-phase work.
+- Keep this slice documentation-only: no helper behavior changes, wrapper, daemon, tool-call interception, or state mutation.
+
+Current mounted hook state:
+
+- Mounted gate: `pre-edit`.
+- Mount layer: manual or orchestrator step.
+- Enforcement mode: hard block.
+- Passing result: `allowed_to_edit: true`.
+- Blocked result: `allowed_to_edit: false`, `next_allowed_action: handoff`, and optional ignored handoff artifact output.
+- Full smoke can require the mounted guard with `--require-pre-edit-guard`.
+- Generated handoff artifacts under `runtime-hooks/handoffs/` are ignored by Git.
+
+Deferred next-phase work:
+
+- Project-specific contract generation.
+- Durable orchestrator-state mutation.
+- Real wrapper, daemon, or broad tool-call interception.
+- Automatic scope expansion, approval, commit, revert, or completion decisions.
+
+Safe next options:
+
+- Pause HOOK-MVP-001 here after the first mounted hook phase.
+- Design project-specific contract generation.
+- Design orchestrator-state persistence.
+- Start a separate spec for real runtime interception / wrapper / daemon.
+
+Acceptance criteria:
+
+- README includes first mounted hook closeout status.
+- Backlog summarizes completed mounted hook state after A28 through A35.
+- Backlog separates safe next options from completed work.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added first mounted hook closeout status to `runtime-hooks/README.md`.
+- Added A36 closeout summary, current mounted hook state, deferred next-phase work, and safe next options to this backlog.
+- Preserved the boundary that the mounted guard is not full runtime interception.
+
+Validation actions:
+
+- Ran `git diff --check`.
+
+Direct result:
+
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

@@ -436,3 +436,27 @@ python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract
 That command blocks because no `pre-edit` contract is selected. Use this option
 when a manual or orchestrator-step workflow must prove the mounted guard was
 actually selected instead of merely running unrelated contracts.
+
+## Mounted Hook Closeout
+
+The first mounted hook phase is ready to pause:
+
+- Mounted gate: `pre-edit`.
+- Mount layer: manual or orchestrator step.
+- Enforcement mode: hard block.
+- Passing result: `allowed_to_edit: true`.
+- Blocked result: `allowed_to_edit: false`, `next_allowed_action: handoff`, and
+  optional ignored handoff artifact output under `runtime-hooks/handoffs/`.
+- Full smoke can require the mounted guard with `--require-pre-edit-guard`.
+
+Still deferred:
+
+- Contract generation for project-specific items.
+- Durable orchestrator-state mutation.
+- A real wrapper, daemon, or broad tool-call interception layer.
+- Automatic scope expansion, approval, commit, revert, or completion decisions.
+
+Safe next options are to pause here, design project-specific contract
+generation, design orchestrator-state persistence, or start a separate spec for
+real runtime interception. Do not treat this mounted guard as full runtime
+interception.
