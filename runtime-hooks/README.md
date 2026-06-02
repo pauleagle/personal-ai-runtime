@@ -104,6 +104,8 @@ For a passing full MVP smoke result:
 - `next_allowed_action` should be `ready`.
 - `environment.status` should be `pass`.
 - Every item in `gate_results` should have `status: pass`.
+- When a `pre-edit` contract is selected, `pre_edit_guard.status` should be `pass`
+  and `pre_edit_guard.allowed_to_edit` should be `true`.
 
 For a blocked result:
 
@@ -123,6 +125,9 @@ Run the full MVP smoke check:
 ```powershell
 python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --json
 ```
+
+The default full smoke also runs the mounted `pre-edit` guard against the sample
+`pre-edit` contract, so fresh-clone checks cover the first mounted hook.
 
 Run one or more explicit gate contracts:
 
@@ -391,3 +396,7 @@ python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hoo
 This mounted hook still does not intercept tool calls, mutate orchestrator
 state, expand scope, or make human-governance decisions. It is the first
 concrete attachment point for the explicit artifact validator.
+
+The full smoke helper includes this guard whenever the selected contract set
+contains a `pre-edit` contract. If no `pre-edit` contract is selected, the guard
+result is omitted instead of forcing an unrelated check.

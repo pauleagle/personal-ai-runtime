@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 ENVIRONMENT_HELPER = "runtime-hooks/scripts/check_runtime_hooks_environment.py"
+PRE_EDIT_GUARD_HELPER = "runtime-hooks/scripts/enforce_pre_edit_gate.py"
 VALIDATOR_HELPER = "runtime-hooks/scripts/validate_gate_contract.py"
 SAMPLE_CONTRACTS = [
     "tests/fixtures/gate_contract_pre_run_sample.json",
@@ -35,6 +36,17 @@ def summarize_gate_result(result):
     }
 
 
+def summarize_pre_edit_guard_result(result):
+    return {
+        "hook": result.get("hook"),
+        "status": result.get("status"),
+        "allowed_to_edit": result.get("allowed_to_edit"),
+        "contract_path": result.get("contract_path"),
+        "blocking_reasons": result.get("blocking_reasons", []),
+        "next_allowed_action": result.get("next_allowed_action"),
+    }
+
+
 def normalize_contract_paths(contract_paths):
     if contract_paths:
         return [str(path) for path in contract_paths]
@@ -45,6 +57,7 @@ def run_smoke(repo_root, version_info=None, contract_paths=None):
     repo_root = Path(repo_root)
     blocking_reasons = []
     gate_results = []
+    pre_edit_guard_result = None
     selected_contracts = normalize_contract_paths(contract_paths)
 
     try:
@@ -60,6 +73,7 @@ def run_smoke(repo_root, version_info=None, contract_paths=None):
             "environment": None,
             "contract_paths": selected_contracts,
             "gate_results": gate_results,
+            "pre_edit_guard": pre_edit_guard_result,
             "blocking_reasons": [reason],
             "next_allowed_action": "fix-environment",
             "notes": [],
@@ -73,6 +87,7 @@ def run_smoke(repo_root, version_info=None, contract_paths=None):
             "environment": environment_result,
             "contract_paths": selected_contracts,
             "gate_results": gate_results,
+            "pre_edit_guard": pre_edit_guard_result,
             "blocking_reasons": environment_result["blocking_reasons"],
             "next_allowed_action": "fix-environment",
             "notes": ["validator smoke skipped because environment check is blocked"],
@@ -88,6 +103,23 @@ def run_smoke(repo_root, version_info=None, contract_paths=None):
             "environment": environment_result,
             "contract_paths": selected_contracts,
             "gate_results": gate_results,
+            "pre_edit_guard": pre_edit_guard_result,
+            "blocking_reasons": [reason],
+            "next_allowed_action": "fix-environment",
+            "notes": [],
+        }
+
+    try:
+        pre_edit_guard = load_module("enforce_pre_edit_gate", repo_root / PRE_EDIT_GUARD_HELPER)
+    except Exception as exc:
+        reason = "unable to load pre-edit guard helper: " + str(exc)
+        return {
+            "status": "blocked",
+            "repo_root": str(repo_root.resolve()),
+            "environment": environment_result,
+            "contract_paths": selected_contracts,
+            "gate_results": gate_results,
+            "pre_edit_guard": pre_edit_guard_result,
             "blocking_reasons": [reason],
             "next_allowed_action": "fix-environment",
             "notes": [],
@@ -101,6 +133,18 @@ def run_smoke(repo_root, version_info=None, contract_paths=None):
             for reason in gate_summary["blocking_reasons"]:
                 blocking_reasons.append(relative_path + ": " + reason)
 
+    pre_edit_contracts = [
+        selected_contracts[index]
+        for index, gate_result in enumerate(gate_results)
+        if gate_result["gate"] == "pre-edit"
+    ]
+    if pre_edit_contracts:
+        guard_result = pre_edit_guard.enforce_pre_edit_gate(repo_root, pre_edit_contracts[0])
+        pre_edit_guard_result = summarize_pre_edit_guard_result(guard_result)
+        if pre_edit_guard_result["status"] != "pass":
+            for reason in pre_edit_guard_result["blocking_reasons"]:
+                blocking_reasons.append(pre_edit_contracts[0] + ": pre-edit guard: " + reason)
+
     status = "blocked" if blocking_reasons else "pass"
     return {
         "status": status,
@@ -108,6 +152,7 @@ def run_smoke(repo_root, version_info=None, contract_paths=None):
         "environment": environment_result,
         "contract_paths": selected_contracts,
         "gate_results": gate_results,
+        "pre_edit_guard": pre_edit_guard_result,
         "blocking_reasons": blocking_reasons,
         "next_allowed_action": "fix-contracts" if status == "blocked" else "ready",
         "notes": ["no third-party Python packages are required for the current MVP"],
@@ -126,6 +171,13 @@ def emit_markdown(result):
             print("- " + str(gate_result["gate"]) + ": " + gate_result["status"])
     else:
         print("- (none)")
+    print()
+    print("### Pre-Edit Guard")
+    print()
+    if result["pre_edit_guard"]:
+        print("- " + str(result["pre_edit_guard"]["hook"]) + ": " + result["pre_edit_guard"]["status"])
+    else:
+        print("- (not selected)")
     print()
     print("### Blocking Reasons")
     print()

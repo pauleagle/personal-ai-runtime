@@ -50,6 +50,9 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         )
         self.assertEqual(3, len(result["gate_results"]))
         self.assertTrue(all(item["status"] == "pass" for item in result["gate_results"]))
+        self.assertEqual("pre-edit", result["pre_edit_guard"]["hook"])
+        self.assertEqual("pass", result["pre_edit_guard"]["status"])
+        self.assertTrue(result["pre_edit_guard"]["allowed_to_edit"])
 
     def test_accepts_explicit_contract_list(self) -> None:
         result = self.script.run_smoke(
@@ -62,6 +65,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual(["tests/fixtures/gate_contract_pre_run_sample.json"], result["contract_paths"])
         self.assertEqual(1, len(result["gate_results"]))
         self.assertEqual("pre-run", result["gate_results"][0]["gate"])
+        self.assertIsNone(result["pre_edit_guard"])
 
     def test_accepts_active_item_contract_example(self) -> None:
         result = self.script.run_smoke(REPO_ROOT, (3, 10, 11), [ACTIVE_ITEM_CONTRACT])
@@ -80,6 +84,8 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual(["pre-run", "pre-edit", "post-run"], [item["gate"] for item in result["gate_results"]])
         self.assertTrue(all(item["status"] == "pass" for item in result["gate_results"]))
         self.assertEqual("ready", result["next_allowed_action"])
+        self.assertEqual("pass", result["pre_edit_guard"]["status"])
+        self.assertTrue(result["pre_edit_guard"]["allowed_to_edit"])
 
     def test_blocks_explicit_invalid_contract(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -90,6 +96,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("blocked", result["status"])
         self.assertEqual("fix-contracts", result["next_allowed_action"])
         self.assertEqual(1, len(result["gate_results"]))
+        self.assertIsNone(result["pre_edit_guard"])
         self.assertTrue(
             any(
                 "missing required field: atomic_item_id" in reason
@@ -104,6 +111,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("blocked", result["status"])
         self.assertEqual("fix-environment", result["next_allowed_action"])
         self.assertEqual([], result["gate_results"])
+        self.assertIsNone(result["pre_edit_guard"])
         self.assertIn(
             "unable to load environment helper",
             result["blocking_reasons"][0],
@@ -115,6 +123,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("blocked", result["status"])
         self.assertEqual("fix-environment", result["next_allowed_action"])
         self.assertEqual([], result["gate_results"])
+        self.assertIsNone(result["pre_edit_guard"])
         self.assertIn(
             "Python 3.10 or newer is required; found 3.9.13",
             result["blocking_reasons"],
@@ -129,6 +138,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         result = json.loads(stdout.getvalue())
         self.assertEqual("pass", result["status"])
         self.assertEqual("ready", result["next_allowed_action"])
+        self.assertEqual("pass", result["pre_edit_guard"]["status"])
 
     def test_cli_markdown_output(self) -> None:
         stdout = io.StringIO()
@@ -140,6 +150,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("Runtime hooks smoke", output)
         self.assertIn("Status: pass", output)
         self.assertIn("Next allowed action: ready", output)
+        self.assertIn("### Pre-Edit Guard", output)
 
     def test_cli_accepts_explicit_contract(self) -> None:
         stdout = io.StringIO()
@@ -158,6 +169,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         result = json.loads(stdout.getvalue())
         self.assertEqual(["tests/fixtures/gate_contract_pre_run_sample.json"], result["contract_paths"])
         self.assertEqual(1, len(result["gate_results"]))
+        self.assertIsNone(result["pre_edit_guard"])
 
     def test_cli_returns_nonzero_for_invalid_contract(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -179,3 +191,22 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         result = json.loads(stdout.getvalue())
         self.assertEqual("blocked", result["status"])
         self.assertEqual("fix-contracts", result["next_allowed_action"])
+        self.assertIsNone(result["pre_edit_guard"])
+
+    def test_blocks_when_explicit_pre_edit_guard_blocks(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json"],
+        )
+
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual("fix-contracts", result["next_allowed_action"])
+        self.assertEqual("blocked", result["pre_edit_guard"]["status"])
+        self.assertFalse(result["pre_edit_guard"]["allowed_to_edit"])
+        self.assertTrue(
+            any(
+                "pre-edit guard: proposed file is outside allowed_scope" in reason
+                for reason in result["blocking_reasons"]
+            )
+        )

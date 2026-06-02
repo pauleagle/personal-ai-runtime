@@ -2048,6 +2048,70 @@ Direct result:
 
 ---
 
+## 15.29 Atomic Slice: `HOOK-MVP-001-A29`
+
+```text
+HOOK-MVP-001-A29: full smoke coverage for mounted pre-edit guard
+```
+
+Scope:
+
+- Update the full runtime hook smoke helper so it exercises the first mounted `pre-edit` guard.
+- Run the guard when the selected contract set contains a `pre-edit` contract.
+- Keep explicit contract smoke flexible: if no `pre-edit` contract is selected, skip the guard instead of blocking.
+- Preserve the MVP boundary: no wrapper, daemon, tool-call interception, state mutation, or automatic scope expansion.
+
+Acceptance criteria:
+
+- `run_runtime_hooks_smoke.py` reports a `pre_edit_guard` result when a `pre-edit` contract is selected.
+- Default full smoke runs the mounted guard against the sample `pre-edit` contract.
+- Explicit smoke with only a `pre-run` contract omits the guard result.
+- Explicit smoke with a blocked `pre-edit` contract returns blocked and includes guard blocking reasons.
+- README explains that full smoke covers the first mounted hook.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- Full smoke CLI returns `status: pass` and `pre_edit_guard.status: pass`.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Updated `runtime-hooks/scripts/run_runtime_hooks_smoke.py` to load and run the mounted `pre-edit` guard when a selected contract set includes a `pre-edit` contract.
+- Added `pre_edit_guard` to smoke output.
+- Kept explicit contract smoke flexible by omitting `pre_edit_guard` when no `pre-edit` contract is selected.
+- Added focused smoke tests for default guard coverage, explicit skip behavior, and blocked guard behavior.
+- Updated README guidance for interpreting `pre_edit_guard` and full smoke coverage.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --json`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused runtime hook smoke tests reported 12 tests OK.
+- Full test suite reported 87 tests OK.
+- Default full smoke returned `status: pass`, `next_allowed_action: ready`, `pre_edit_guard.status: pass`, and `pre_edit_guard.allowed_to_edit: true`.
+- Blocked explicit `pre-edit` smoke returned exit code 1, `status: blocked`, `pre_edit_guard.status: blocked`, and `pre_edit_guard.allowed_to_edit: false`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
