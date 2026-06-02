@@ -1903,6 +1903,79 @@ Direct result:
 
 ---
 
+## 15.27 Atomic Slice: `HOOK-MVP-001-A27`
+
+```text
+HOOK-MVP-001-A27: low-traffic handoff checkpoint
+```
+
+Scope:
+
+- Record a low-traffic handoff checkpoint after A13 through A26.
+- Preserve the current completed state, verification status, and safe resume options.
+- Keep this slice documentation-only and suitable as a stop point.
+
+Current completed state:
+
+- Runtime hook MVP remains a deterministic validation layer, not interception.
+- Active examples cover `pre-run`, `pre-edit`, and `post-run`.
+- A blocked active `pre-edit` example demonstrates scope violation reporting.
+- Full smoke supports repeated explicit `--contract` paths.
+- Blocked gate handoff note format is documented.
+- Mounting decision spec is documented.
+- Mounting readiness checklist is documented.
+
+Recent checkpoint commits:
+
+- `e1019d5 test(runtime-hooks): add blocked pre-edit example`
+- `81abf08 docs(runtime-hooks): explain contract type choices`
+- `57afe6c docs(runtime-hooks): add mvp closeout status`
+- `580cd99 docs(runtime-hooks): define mounting decision spec`
+- `1f5dd9f docs(runtime-hooks): add mounting readiness checklist`
+
+Safe resume options:
+
+- Pause HOOK-MVP-001 here and switch to RT-FU-001 observations.
+- Create a separate spec for project-specific contract generation.
+- Create a separate spec for orchestrator-state persistence.
+- Create a separate spec for a real runtime wrapper / daemon / interception layer.
+- If continuing mounting work, start with an explicit project-specific `pre-edit` contract and manual/orchestrator-step validation.
+
+Do not resume by directly implementing a broad hook wrapper. The next phase needs a fresh decision gate and a project-specific contract target.
+
+Acceptance criteria:
+
+- Backlog records current completed state after A13 through A26.
+- Backlog records safe resume options.
+- Backlog warns against directly implementing a broad hook wrapper.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No new fixtures.
+- No README changes.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added this low-traffic handoff checkpoint to the backlog.
+
+Validation actions:
+
+- Ran `git diff --check`.
+
+Direct result:
+
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
