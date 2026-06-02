@@ -865,6 +865,48 @@ Direct result:
 
 ---
 
+## 15.9 Atomic Slice: `HOOK-MVP-001-A9`
+
+```text
+HOOK-MVP-001-A9: smoke result interpretation guidance
+```
+
+Scope:
+
+- Add concise README guidance for interpreting passing and blocked smoke results.
+- Keep this slice documentation-only.
+
+Acceptance criteria:
+
+- README states the expected key fields for a passing full MVP smoke result.
+- README states that blocked smoke results must stop implementation.
+- README instructs rerunning the same smoke command after fixing blocking reasons.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `Interpreting Smoke Results` guidance to `runtime-hooks/README.md`.
+
+Validation actions:
+
+- Ran `git diff --check`.
+
+Direct result:
+
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

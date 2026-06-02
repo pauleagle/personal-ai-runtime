@@ -47,6 +47,22 @@ Common first fixes:
 - If a `file:` check is blocked, confirm the repo clone is complete and run the command from the repo root with `--repo-root .`.
 - If a gate contract is blocked, fix the JSON artifact before continuing implementation.
 
+## Interpreting Smoke Results
+
+For a passing full MVP smoke result:
+
+- `status` should be `pass`.
+- `next_allowed_action` should be `ready`.
+- `environment.status` should be `pass`.
+- Every item in `gate_results` should have `status: pass`.
+
+For a blocked result:
+
+- Do not continue implementation.
+- Use `next_allowed_action` to decide whether to fix the environment or the gate contract.
+- Fix every item listed in `blocking_reasons`.
+- Rerun the same smoke command after the fix.
+
 Run the environment smoke check:
 
 ```powershell
