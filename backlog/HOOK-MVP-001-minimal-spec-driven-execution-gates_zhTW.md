@@ -2428,6 +2428,59 @@ Direct result:
 
 ---
 
+## 15.35 Atomic Slice: `HOOK-MVP-001-A35`
+
+```text
+HOOK-MVP-001-A35: handoff artifact directory hygiene
+```
+
+Scope:
+
+- Add a conventional local output directory for generated blocked handoff artifacts.
+- Ignore generated files under `runtime-hooks/handoffs/` while keeping the directory trackable.
+- Document that handoff artifacts are local runtime outputs, not durable source state.
+- Keep this slice repo hygiene only: no helper behavior changes, wrapper, daemon, tool-call interception, or state mutation.
+
+Acceptance criteria:
+
+- `runtime-hooks/handoffs/.gitignore` exists.
+- Generated files under `runtime-hooks/handoffs/` are ignored by Git.
+- README documents the generated artifact directory boundary.
+- `git diff --check` passes.
+- `git check-ignore` confirms a representative handoff JSON path is ignored.
+
+Non-goals:
+
+- No helper behavior changes.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/handoffs/.gitignore`.
+- Kept generated handoff artifacts ignored while preserving the directory as a conventional local output target.
+- Updated README guidance to clarify that generated handoff artifacts are local runtime outputs, not durable source state.
+
+Validation actions:
+
+- Ran `git diff --check`.
+- Ran `git check-ignore -v runtime-hooks\handoffs\blocked-pre-edit.json`.
+
+Direct result:
+
+- `git diff --check` passed.
+- `git check-ignore` reported `runtime-hooks/handoffs/.gitignore:2:*` for the representative blocked handoff JSON path.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

@@ -423,6 +423,9 @@ The smoke helper passes this path through to the mounted `pre-edit` guard. The
 artifact is written only when that guard blocks.
 If this option is provided without selecting any `pre-edit` contract, smoke
 blocks instead of silently skipping the artifact.
+Generated handoff artifacts under `runtime-hooks/handoffs/` are ignored by Git;
+the directory exists as a conventional local output target, not as durable
+source state.
 
 For mounted workflows that require the `pre-edit` guard to run, add:
 
