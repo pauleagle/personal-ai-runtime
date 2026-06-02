@@ -2556,6 +2556,65 @@ Direct result:
 
 ---
 
+## 15.37 Atomic Slice: `HOOK-MVP-001-A37`
+
+```text
+HOOK-MVP-001-A37: first project-specific pre-edit contract target
+```
+
+Scope:
+
+- Add the first project-specific `pre-edit` contract target for a concrete atomic item.
+- Keep project-specific contracts separate from examples and sample fixtures.
+- Validate the target through the mounted `pre-edit` guard and full smoke with `--require-pre-edit-guard`.
+- Keep this slice target-only: no contract generator, wrapper, daemon, tool-call interception, or state mutation.
+
+Acceptance criteria:
+
+- `runtime-hooks/contracts/hook_mvp_001_a37_pre_edit_contract.json` exists.
+- The contract declares `gate: pre-edit` and `atomic_item_id: HOOK-MVP-001-A37`.
+- The contract proposes only the A37 contract, README, and backlog files.
+- The mounted `pre-edit` guard returns `status: pass` and `allowed_to_edit: true`.
+- Full smoke with `--require-pre-edit-guard` returns `status: pass`.
+- README distinguishes project-specific contracts from examples and fixtures.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No contract generation helper.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic scope expansion or human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a37_pre_edit_contract.json`.
+- Added README guidance distinguishing project-specific contracts from examples and fixtures.
+- Added the first project-specific full-smoke command using `--require-pre-edit-guard`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a37_pre_edit_contract.json --repo-root . --json`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a37_pre_edit_contract.json --require-pre-edit-guard --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and `next_allowed_action: edit`.
+- Full smoke returned `status: pass`, `next_allowed_action: ready`, `pre_edit_guard.status: pass`, and `pre_edit_guard.allowed_to_edit: true`.
+- Full test suite reported 99 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

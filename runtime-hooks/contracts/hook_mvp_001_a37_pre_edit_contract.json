@@ -1,0 +1,38 @@
+{
+  "gate": "pre-edit",
+  "atomic_item_id": "HOOK-MVP-001-A37",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md#15.37",
+  "allowed_scope": [
+    "runtime-hooks/contracts/**",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "runtime-hooks/scripts/**",
+    "tests/**",
+    "agent-skills/**",
+    "agent-playbooks/**"
+  ],
+  "acceptance_criteria": [
+    "A project-specific pre-edit contract target exists for HOOK-MVP-001-A37.",
+    "The contract declares proposed changed files for the A37 documentation and contract target slice.",
+    "The mounted pre-edit guard accepts the project-specific contract.",
+    "Full smoke can require the mounted pre-edit guard against the project-specific contract.",
+    "README distinguishes project-specific contracts from examples and fixtures."
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/contracts/hook_mvp_001_a37_pre_edit_contract.json",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_plan": [
+    "python runtime-hooks\\scripts\\enforce_pre_edit_gate.py runtime-hooks\\contracts\\hook_mvp_001_a37_pre_edit_contract.json --repo-root . --json",
+    "python runtime-hooks\\scripts\\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\\contracts\\hook_mvp_001_a37_pre_edit_contract.json --require-pre-edit-guard --json",
+    "git diff --check"
+  ],
+  "proposed_changed_files": [
+    "runtime-hooks/contracts/hook_mvp_001_a37_pre_edit_contract.json",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ]
+}

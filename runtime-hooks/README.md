@@ -178,6 +178,16 @@ different jobs:
 Do not edit the sample fixtures merely to fit a project item. Keep samples
 stable and create a new project-specific contract instead.
 
+Project-specific contracts live in `runtime-hooks/contracts/`. These are
+durable workflow targets for concrete atomic items, unlike sample fixtures and
+examples.
+
+First project-specific target:
+
+```powershell
+python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a37_pre_edit_contract.json --require-pre-edit-guard --json
+```
+
 ## Active Atomic Item Example
 
 A small active-item example lives at:
