@@ -1,0 +1,21 @@
+{
+  "workflow_step": "Step 4 - Pre-Edit Gate",
+  "implementation_status": "blocked",
+  "ready": [],
+  "running": [],
+  "blocked": [
+    {
+      "atomic_item_id": "HOOK-MVP-001-A15",
+      "gate": "pre-edit",
+      "gate_status": "blocked",
+      "next_allowed_action": "handoff",
+      "blocking_reasons": [
+        "proposed file is outside allowed_scope: agent-skills/example/SKILL.md"
+      ],
+      "validation_artifact": "runtime-hooks/examples/hook_mvp_001_a13_pre_run_contract.json",
+      "checkpoint_status": "not-started"
+    }
+  ],
+  "completed": [],
+  "deferred": []
+}

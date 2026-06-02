@@ -17,6 +17,9 @@ SCRIPT_PATH = (
     / "scripts"
     / "validate_orchestrator_state.py"
 )
+GATE_RESULT_STATE_SAMPLE = (
+    REPO_ROOT / "tests" / "fixtures" / "orchestrator_state_gate_result_sample.json"
+)
 
 
 def load_script_module():
@@ -68,6 +71,19 @@ class ValidateOrchestratorStateTest(unittest.TestCase):
         self.assertEqual(0, code)
         self.assertEqual("", stderr)
         self.assertTrue(result["valid"])
+
+    def test_accepts_gate_result_state_sample(self) -> None:
+        code, result, stderr = self.run_script(GATE_RESULT_STATE_SAMPLE)
+
+        self.assertEqual(0, code)
+        self.assertEqual("", stderr)
+        self.assertTrue(result["valid"])
+
+        blocked_item = result["state"]["blocked"][0]
+        self.assertEqual("HOOK-MVP-001-A15", blocked_item["atomic_item_id"])
+        self.assertEqual("pre-edit", blocked_item["gate"])
+        self.assertEqual("blocked", blocked_item["gate_status"])
+        self.assertTrue(blocked_item["blocking_reasons"])
 
     def test_rejects_missing_required_fields(self) -> None:
         state_file = self.workspace / "state.json"

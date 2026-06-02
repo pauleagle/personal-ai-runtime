@@ -204,6 +204,14 @@ Boundary rules:
 - This MVP does not persist gate results, mutate orchestrator JSON, discover
   active items, or intercept tool calls.
 
+Example state artifact:
+
+- `tests/fixtures/orchestrator_state_gate_result_sample.json`
+
+That fixture shows a blocked `pre-edit` gate result represented in the
+orchestrator state's `blocked` queue. It is an example of the boundary contract,
+not a required schema for every project.
+
 ## MVP Boundaries
 
 - No runtime interception.

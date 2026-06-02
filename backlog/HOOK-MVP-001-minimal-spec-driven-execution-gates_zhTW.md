@@ -1180,6 +1180,63 @@ Direct result:
 
 ---
 
+## 15.15 Atomic Slice: `HOOK-MVP-001-A15`
+
+```text
+HOOK-MVP-001-A15: orchestrator state gate result example
+```
+
+Scope:
+
+- Add a durable orchestrator state fixture showing how a blocked gate result can appear in the `blocked` queue.
+- Add a focused test proving the fixture is accepted by the existing orchestrator state validator.
+- Point README readers to the example state artifact.
+- Keep this slice example-only: no state persistence helper, no schema enforcement change, no interception.
+
+Acceptance criteria:
+
+- `tests/fixtures/orchestrator_state_gate_result_sample.json` exists.
+- The fixture includes a blocked queue item with `atomic_item_id`, `gate`, `gate_status`, `next_allowed_action`, `blocking_reasons`, `validation_artifact`, and `checkpoint_status`.
+- The existing orchestrator state validator accepts the fixture.
+- `runtime-hooks/README.md` points to the fixture as an example boundary contract.
+- Focused orchestrator state tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No durable state mutation or persistence helper.
+- No stricter orchestrator state schema.
+- No automatic active-item discovery.
+- No runtime interception.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `tests/fixtures/orchestrator_state_gate_result_sample.json`.
+- Added a focused orchestrator state validator test for the gate-result fixture.
+- Added README guidance that the fixture is an example boundary contract.
+
+Validation actions:
+
+- Ran `python -m unittest tests.agent_skills.test_validate_orchestrator_state`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python agent-skills\orchestrator-state-machine\scripts\validate_orchestrator_state.py tests\fixtures\orchestrator_state_gate_result_sample.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Focused orchestrator state tests reported OK.
+- Full test suite reported OK.
+- Gate-result state fixture validation returned `valid: true`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
