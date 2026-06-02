@@ -34,6 +34,12 @@ Run the full MVP smoke check:
 python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --json
 ```
 
+Run one or more explicit gate contracts:
+
+```powershell
+python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json --json
+```
+
 Run:
 
 ```powershell

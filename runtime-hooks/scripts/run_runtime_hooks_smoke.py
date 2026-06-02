@@ -35,10 +35,17 @@ def summarize_gate_result(result):
     }
 
 
-def run_smoke(repo_root, version_info=None):
+def normalize_contract_paths(contract_paths):
+    if contract_paths:
+        return [str(path) for path in contract_paths]
+    return list(SAMPLE_CONTRACTS)
+
+
+def run_smoke(repo_root, version_info=None, contract_paths=None):
     repo_root = Path(repo_root)
     blocking_reasons = []
     gate_results = []
+    selected_contracts = normalize_contract_paths(contract_paths)
 
     try:
         environment = load_module(
@@ -51,6 +58,7 @@ def run_smoke(repo_root, version_info=None):
             "status": "blocked",
             "repo_root": str(repo_root.resolve()),
             "environment": None,
+            "contract_paths": selected_contracts,
             "gate_results": gate_results,
             "blocking_reasons": [reason],
             "next_allowed_action": "fix-environment",
@@ -63,6 +71,7 @@ def run_smoke(repo_root, version_info=None):
             "status": "blocked",
             "repo_root": str(repo_root.resolve()),
             "environment": environment_result,
+            "contract_paths": selected_contracts,
             "gate_results": gate_results,
             "blocking_reasons": environment_result["blocking_reasons"],
             "next_allowed_action": "fix-environment",
@@ -77,13 +86,14 @@ def run_smoke(repo_root, version_info=None):
             "status": "blocked",
             "repo_root": str(repo_root.resolve()),
             "environment": environment_result,
+            "contract_paths": selected_contracts,
             "gate_results": gate_results,
             "blocking_reasons": [reason],
             "next_allowed_action": "fix-environment",
             "notes": [],
         }
 
-    for relative_path in SAMPLE_CONTRACTS:
+    for relative_path in selected_contracts:
         gate_result = validator.validate_contract(repo_root / relative_path)
         gate_summary = summarize_gate_result(gate_result)
         gate_results.append(gate_summary)
@@ -96,6 +106,7 @@ def run_smoke(repo_root, version_info=None):
         "status": status,
         "repo_root": str(repo_root.resolve()),
         "environment": environment_result,
+        "contract_paths": selected_contracts,
         "gate_results": gate_results,
         "blocking_reasons": blocking_reasons,
         "next_allowed_action": "fix-contracts" if status == "blocked" else "ready",
@@ -130,10 +141,16 @@ def main(argv=None):
         description="Run environment and sample contract smoke checks for runtime hook MVP."
     )
     parser.add_argument("--repo-root", default=".")
+    parser.add_argument(
+        "--contract",
+        action="append",
+        dest="contracts",
+        help="Repo-relative gate contract path to validate. May be provided multiple times. Defaults to sample fixtures.",
+    )
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
-    result = run_smoke(Path(args.repo_root))
+    result = run_smoke(Path(args.repo_root), contract_paths=args.contracts)
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     else:

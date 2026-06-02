@@ -707,6 +707,63 @@ Direct result:
 
 ---
 
+## 15.6 Atomic Slice: `HOOK-MVP-001-A6`
+
+```text
+HOOK-MVP-001-A6: explicit contract support for runtime hook MVP smoke
+```
+
+Scope:
+
+- Allow the full MVP smoke helper to validate explicit gate contract paths.
+- Preserve the existing default behavior of validating the representative sample fixtures when no explicit contract is provided.
+- Include selected contract paths in structured JSON output.
+- Document the explicit contract command in `runtime-hooks/README.md`.
+
+Acceptance criteria:
+
+- `run_runtime_hooks_smoke.py` accepts repeated `--contract` arguments.
+- No `--contract` still validates the three representative sample fixtures.
+- Explicit valid contracts return `pass`.
+- Explicit invalid contracts return `blocked` and aggregate blocking reasons.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No contract discovery or glob expansion.
+- No policy DSL.
+- No runtime interception.
+- No automatic creation or repair of contract artifacts.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added repeated `--contract` support to `run_runtime_hooks_smoke.py`.
+- Added `contract_paths` to smoke helper JSON output.
+- Added focused tests for default samples, explicit valid contracts, explicit invalid contracts, and CLI explicit contract usage.
+- Added explicit contract command guidance to `runtime-hooks/README.md`.
+
+Validation actions:
+
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Explicit contract smoke returned `status: pass`.
+- Focused runtime hook smoke tests reported OK.
+- Full test suite reported 70 tests OK.
+- The sandboxed explicit contract smoke check hit the known `windows sandbox: spawn setup refresh`; escalated rerun succeeded.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
