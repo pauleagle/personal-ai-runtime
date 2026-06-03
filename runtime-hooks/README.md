@@ -183,6 +183,11 @@ durable workflow targets for concrete atomic items, unlike sample fixtures and
 examples. See `runtime-hooks/contracts/README.md` for naming, validation
 commands, and boundaries.
 
+Contract generation is not implemented. The current design boundary is to draft
+a project-specific contract from an accepted atomic item, validate that explicit
+artifact with the mounted `pre-edit` guard, and stop for missing scope or human
+decisions when the guard blocks.
+
 First project-specific target:
 
 ```powershell
@@ -462,7 +467,7 @@ The first mounted hook phase is ready to pause:
 
 Still deferred:
 
-- Contract generation for project-specific items.
+- Automatic contract generation for project-specific items.
 - Durable orchestrator-state mutation.
 - A real wrapper, daemon, or broad tool-call interception layer.
 - Automatic scope expansion, approval, commit, revert, or completion decisions.

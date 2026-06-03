@@ -2668,6 +2668,75 @@ Direct result:
 
 ---
 
+## 15.39 Atomic Slice: `HOOK-MVP-001-A39`
+
+```text
+HOOK-MVP-001-A39: project-specific contract generation design boundary
+```
+
+Scope:
+
+- Describe project-specific contract generation as a manual design boundary, not
+  an implemented generator.
+- Identify the source fields required before drafting a project-specific gate
+  contract.
+- Require the mounted `pre-edit` guard before editing scoped files from a new
+  project-specific contract.
+- Keep this slice documentation-only: no helper behavior changes, automatic
+  generator, wrapper, daemon, tool-call interception, or state mutation.
+
+Acceptance criteria:
+
+- `runtime-hooks/contracts/README.md` explains the contract generation design
+  boundary.
+- The contracts README lists the source fields needed before drafting a
+  project-specific contract.
+- The root runtime hooks README states that contract generation is not
+  implemented.
+- `runtime-hooks/contracts/hook_mvp_001_a39_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Full smoke with `--require-pre-edit-guard` passes for the A39 contract.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No durable orchestrator-state mutation.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a39_pre_edit_contract.json`.
+- Added contract generation design-boundary guidance to
+  `runtime-hooks/contracts/README.md`.
+- Clarified in `runtime-hooks/README.md` that contract generation is not
+  implemented.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a39_pre_edit_contract.json --repo-root . --json`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a39_pre_edit_contract.json --require-pre-edit-guard --json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Full smoke returned `status: pass`, `next_allowed_action: ready`,
+  `pre_edit_guard.status: pass`, and `pre_edit_guard.allowed_to_edit: true`.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

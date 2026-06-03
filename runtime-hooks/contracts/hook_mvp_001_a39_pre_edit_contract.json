@@ -1,0 +1,41 @@
+{
+  "gate": "pre-edit",
+  "atomic_item_id": "HOOK-MVP-001-A39",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md#15.39",
+  "allowed_scope": [
+    "runtime-hooks/contracts/**",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "runtime-hooks/scripts/**",
+    "tests/**",
+    "agent-skills/**",
+    "agent-playbooks/**",
+    "modules/**"
+  ],
+  "acceptance_criteria": [
+    "Project-specific contract generation is described as a manual design boundary, not an implemented generator.",
+    "The guidance identifies the source fields required before drafting a project-specific contract.",
+    "The guidance requires running the mounted pre-edit guard before editing scoped files.",
+    "The guidance preserves deferred status for automatic generation, orchestrator-state mutation, wrappers, daemons, and broad runtime interception.",
+    "The mounted pre-edit guard accepts this A39 project-specific contract."
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/contracts/hook_mvp_001_a39_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_plan": [
+    "python runtime-hooks\\scripts\\enforce_pre_edit_gate.py runtime-hooks\\contracts\\hook_mvp_001_a39_pre_edit_contract.json --repo-root . --json",
+    "python runtime-hooks\\scripts\\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\\contracts\\hook_mvp_001_a39_pre_edit_contract.json --require-pre-edit-guard --json",
+    "git diff --check"
+  ],
+  "proposed_changed_files": [
+    "runtime-hooks/contracts/hook_mvp_001_a39_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ]
+}
