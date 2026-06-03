@@ -2813,6 +2813,88 @@ Direct result:
 
 ---
 
+## 15.41 Atomic Slice: `HOOK-MVP-001-A41`
+
+```text
+HOOK-MVP-001-A41: blocked gate-result state patch proposal example
+```
+
+Scope:
+
+- Add a blocked state patch proposal example for a blocked `pre-edit` gate.
+- Preserve concrete blocking reasons from the blocked gate result in both the
+  top-level proposal and proposed blocked queue entry.
+- Keep workflow advancement disabled for the blocked proposal.
+- Point README readers to both passing and blocked patch proposal examples.
+- Keep this slice example/documentation-only: no helper behavior changes,
+  automatic state mutation, wrapper, daemon, tool-call interception, or scope
+  expansion.
+
+Acceptance criteria:
+
+- `runtime-hooks/examples/hook_mvp_001_a41_blocked_gate_result_state_patch_proposal.json`
+  exists.
+- The blocked proposal has `gate_status: blocked` and
+  `next_allowed_action: handoff`.
+- The blocked proposal has `workflow_step.advance_allowed: false`.
+- The blocked proposal includes a `queue_patch` with `to: blocked`.
+- The blocked proposal preserves concrete blocking reasons.
+- `runtime-hooks/README.md` points to both passing and blocked patch proposal
+  examples and states neither applies the patch.
+- `runtime-hooks/contracts/README.md` lists the A41 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a41_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Full smoke with `--require-pre-edit-guard` passes for the A41 contract.
+- The blocked patch proposal JSON parses successfully.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a41_pre_edit_contract.json`.
+- Added
+  `runtime-hooks/examples/hook_mvp_001_a41_blocked_gate_result_state_patch_proposal.json`.
+- Updated `runtime-hooks/README.md` to point to both passing and blocked patch
+  proposal examples.
+- Added the A41 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a41_pre_edit_contract.json --repo-root . --json`.
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\examples\hook_mvp_001_a22_blocked_pre_edit_contract.json --repo-root . --json`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a41_pre_edit_contract.json --require-pre-edit-guard --json`.
+- Ran `python -m json.tool runtime-hooks\examples\hook_mvp_001_a41_blocked_gate_result_state_patch_proposal.json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- A22 blocked guard returned `status: blocked`, `allowed_to_edit: false`,
+  `next_allowed_action: handoff`, and the expected allowed-scope and
+  forbidden-scope blocking reasons.
+- Full smoke returned `status: pass`, `next_allowed_action: ready`,
+  `pre_edit_guard.status: pass`, and `pre_edit_guard.allowed_to_edit: true`.
+- Blocked patch proposal JSON parsed successfully.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

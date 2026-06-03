@@ -1,0 +1,54 @@
+{
+  "artifact_type": "runtime-hook-gate-result-state-patch-proposal",
+  "schema_version": 1,
+  "patch_intent": "record-gate-result",
+  "source": {
+    "gate_contract": "runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json",
+    "gate_result_artifact": "captured blocked runtime hook guard output",
+    "attempted_command": "python runtime-hooks\\scripts\\enforce_pre_edit_gate.py runtime-hooks\\examples\\hook_mvp_001_a22_blocked_pre_edit_contract.json --repo-root . --json"
+  },
+  "atomic_item_id": "HOOK-MVP-001-A22",
+  "gate": "pre-edit",
+  "gate_status": "blocked",
+  "next_allowed_action": "handoff",
+  "workflow_step": {
+    "from": "Step 4 - Pre-Edit Gate",
+    "proposed_to": "Step 4 - Pre-Edit Gate",
+    "advance_allowed": false,
+    "advance_decision_owner": "orchestrator"
+  },
+  "queue_patch": {
+    "operation": "move",
+    "from": "ready",
+    "to": "blocked",
+    "blocked_queue_entry": {
+      "atomic_item_id": "HOOK-MVP-001-A22",
+      "gate": "pre-edit",
+      "gate_status": "blocked",
+      "next_allowed_action": "handoff",
+      "blocking_reasons": [
+        "proposed file is outside allowed_scope: agent-skills/example/SKILL.md",
+        "proposed file is inside forbidden_scope: agent-skills/example/SKILL.md"
+      ],
+      "validation_artifact": "runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json",
+      "checkpoint_status": "blocked-before-edit"
+    }
+  },
+  "blocking_reasons": [
+    "proposed file is outside allowed_scope: agent-skills/example/SKILL.md",
+    "proposed file is inside forbidden_scope: agent-skills/example/SKILL.md"
+  ],
+  "validation_artifact": "runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json",
+  "checkpoint_status": "blocked-before-edit",
+  "human_decision_required": true,
+  "scope_decision_required": true,
+  "commit_checkpoint": {
+    "status": "not-applicable",
+    "reason": "blocked pre-edit gate stopped before implementation and cannot create an atomic completion checkpoint"
+  },
+  "boundaries": [
+    "This artifact is a patch proposal only; it does not mutate durable orchestrator state.",
+    "The blocked gate result must not be advanced to edit without fixing scope or recording a human decision.",
+    "The orchestrator owns workflow_step advancement, blocked queue mutation, and any scope-expansion decision."
+  ]
+}

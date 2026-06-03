@@ -321,9 +321,15 @@ Boundary rules:
   blocking reasons preserved.
 - Commit checkpoints remain `post-run` or orchestrator responsibilities.
 
-Example patch proposal artifact:
+Example patch proposal artifacts:
 
 - `runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json`
+- `runtime-hooks/examples/hook_mvp_001_a41_blocked_gate_result_state_patch_proposal.json`
+
+The A40 example shows a passing `pre-edit` gate proposal. The A41 example shows
+a blocked `pre-edit` gate proposal that keeps workflow advancement disabled,
+preserves the original blocking reasons, and proposes a blocked queue entry.
+Neither example applies the patch.
 
 ## Blocked Gate Handoff Note
 

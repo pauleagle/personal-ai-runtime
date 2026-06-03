@@ -16,6 +16,8 @@ Current targets:
   project-specific contract generation design boundary.
 - `hook_mvp_001_a40_pre_edit_contract.json`: documentation and example slice
   for the gate-result state patch proposal boundary.
+- `hook_mvp_001_a41_pre_edit_contract.json`: blocked gate-result state patch
+  proposal example slice.
 
 ## Designing Contract Generation
 
