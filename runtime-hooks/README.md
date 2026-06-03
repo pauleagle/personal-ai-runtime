@@ -148,6 +148,8 @@ Markdown output includes each proposal path, atomic item ID, source gate
 contract, and validation artifact for human traceability.
 Markdown gate results also include each validated contract path and gate-level
 next allowed action.
+Markdown mounted pre-edit guard output includes `allowed_to_edit`, contract
+path, and guard-level next allowed action.
 
 For workflows that must prove proposal validation ran, add
 `--require-state-patch-proposal`. Smoke blocks if that option is set but no

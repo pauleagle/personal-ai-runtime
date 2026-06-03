@@ -3710,6 +3710,80 @@ Direct result:
 
 ---
 
+## 15.52 Atomic Slice: `HOOK-MVP-001-A52`
+
+```text
+HOOK-MVP-001-A52: markdown pre-edit guard trace output
+```
+
+Scope:
+
+- Extend markdown mounted pre-edit guard output with `allowed_to_edit`.
+- Print mounted guard contract path and next allowed action in markdown output.
+- Preserve optional handoff note path output when present.
+- Keep this as presentation-only smoke output: no JSON semantic expansion, gate
+  behavior change, patch application, durable state mutation, wrapper, daemon,
+  tool-call interception, automatic scope expansion, or automatic
+  human-governance decision.
+
+Acceptance criteria:
+
+- Markdown pre-edit guard output reports `allowed_to_edit`.
+- Markdown pre-edit guard output reports mounted guard contract path.
+- Markdown pre-edit guard output reports mounted guard next allowed action.
+- `runtime-hooks/contracts/README.md` lists the A52 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a52_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a52_pre_edit_contract.json`.
+- Added markdown mounted pre-edit guard trace lines for `allowed_to_edit`,
+  contract path, guard-level next allowed action, and optional handoff note path.
+- Added focused markdown smoke coverage for mounted pre-edit guard trace output.
+- Documented markdown pre-edit guard trace output in `runtime-hooks/README.md`.
+- Added the A52 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a52_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_edit_sample.json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 34 tests OK.
+- Direct markdown smoke returned `status: pass`, `next_allowed_action: ready`,
+  and printed mounted pre-edit guard `allowed_to_edit: true`, contract path, and
+  guard-level `next_allowed_action: edit`.
+- Full test suite reported 120 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

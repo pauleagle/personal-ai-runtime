@@ -405,6 +405,32 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         )
         self.assertIn("next_allowed_action: edit", output)
 
+    def test_cli_markdown_output_includes_pre_edit_guard_trace(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(
+                [
+                    "--repo-root",
+                    str(REPO_ROOT),
+                    "--contract",
+                    "tests/fixtures/gate_contract_pre_edit_sample.json",
+                ]
+            )
+
+        self.assertEqual(0, code)
+        output = stdout.getvalue().replace("\\", "/")
+        self.assertIn("- pre-edit: pass", output)
+        self.assertIn("allowed_to_edit: true", output)
+        self.assertIn(
+            (
+                "contract_path: "
+                + str(REPO_ROOT).replace("\\", "/")
+                + "/tests/fixtures/gate_contract_pre_edit_sample.json"
+            ),
+            output,
+        )
+        self.assertIn("next_allowed_action: edit", output)
+
     def test_cli_markdown_output_includes_state_patch_proposal_trace(self) -> None:
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):

@@ -38,6 +38,8 @@ Current targets:
   source metadata output slice.
 - `hook_mvp_001_a51_pre_edit_contract.json`: markdown gate result contract path
   output slice.
+- `hook_mvp_001_a52_pre_edit_contract.json`: markdown mounted pre-edit guard
+  trace output slice.
 
 ## Designing Contract Generation
 

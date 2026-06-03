@@ -380,7 +380,28 @@ def emit_markdown(result):
     print("### Pre-Edit Guard")
     print()
     if result["pre_edit_guard"]:
-        print("- " + str(result["pre_edit_guard"]["hook"]) + ": " + result["pre_edit_guard"]["status"])
+        print(
+            "- "
+            + str(result["pre_edit_guard"]["hook"])
+            + ": "
+            + result["pre_edit_guard"]["status"]
+        )
+        print(
+            "  allowed_to_edit: "
+            + str(result["pre_edit_guard"].get("allowed_to_edit")).lower()
+        )
+        if result["pre_edit_guard"].get("contract_path"):
+            print("  contract_path: " + result["pre_edit_guard"]["contract_path"])
+        if result["pre_edit_guard"].get("next_allowed_action"):
+            print(
+                "  next_allowed_action: "
+                + result["pre_edit_guard"]["next_allowed_action"]
+            )
+        if result["pre_edit_guard"].get("handoff_note_path"):
+            print(
+                "  handoff_note_path: "
+                + result["pre_edit_guard"]["handoff_note_path"]
+            )
     else:
         print("- (not selected)")
     print()
