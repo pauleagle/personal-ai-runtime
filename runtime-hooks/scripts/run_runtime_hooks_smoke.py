@@ -365,6 +365,22 @@ def emit_markdown(result):
     print("Status: " + result["status"])
     print("Next allowed action: " + result["next_allowed_action"])
     print()
+    print("### Environment")
+    print()
+    if result["environment"]:
+        environment = result["environment"]
+        print("- status: " + environment["status"])
+        if environment.get("repo_root"):
+            print("  repo_root: " + environment["repo_root"])
+        if environment.get("python_version"):
+            print("  python_version: " + environment["python_version"])
+        if environment.get("minimum_python"):
+            print("  minimum_python: " + environment["minimum_python"])
+        if environment.get("next_allowed_action"):
+            print("  next_allowed_action: " + environment["next_allowed_action"])
+    else:
+        print("- (not available)")
+    print()
     print("### Gate Results")
     print()
     if result["gate_results"]:

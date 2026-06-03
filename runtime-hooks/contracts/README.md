@@ -40,6 +40,8 @@ Current targets:
   output slice.
 - `hook_mvp_001_a52_pre_edit_contract.json`: markdown mounted pre-edit guard
   trace output slice.
+- `hook_mvp_001_a53_pre_edit_contract.json`: markdown environment trace output
+  slice.
 
 ## Designing Contract Generation
 

@@ -150,6 +150,8 @@ Markdown gate results also include each validated contract path and gate-level
 next allowed action.
 Markdown mounted pre-edit guard output includes `allowed_to_edit`, contract
 path, and guard-level next allowed action.
+Markdown environment output includes environment status, repo root, Python
+version, minimum Python version, and environment-level next allowed action.
 
 For workflows that must prove proposal validation ran, add
 `--require-state-patch-proposal`. Smoke blocks if that option is set but no

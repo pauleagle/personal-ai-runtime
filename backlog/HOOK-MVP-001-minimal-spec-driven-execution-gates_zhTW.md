@@ -3784,6 +3784,82 @@ Direct result:
 
 ---
 
+## 15.53 Atomic Slice: `HOOK-MVP-001-A53`
+
+```text
+HOOK-MVP-001-A53: markdown environment trace output
+```
+
+Scope:
+
+- Add a markdown Environment section to full smoke output.
+- Print environment status, repo root, Python version, minimum Python version,
+  and environment-level next allowed action.
+- Keep this as presentation-only smoke output: no JSON semantic expansion, gate
+  behavior change, patch application, durable state mutation, wrapper, daemon,
+  tool-call interception, automatic scope expansion, or automatic
+  human-governance decision.
+
+Acceptance criteria:
+
+- Markdown smoke output includes an Environment section.
+- Markdown Environment section reports environment status, repo root, Python
+  version, and minimum Python version.
+- Markdown Environment section reports environment next allowed action.
+- `runtime-hooks/contracts/README.md` lists the A53 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a53_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a53_pre_edit_contract.json`.
+- Added a markdown Environment section with environment status, repo root,
+  Python version, minimum Python version, and environment-level next allowed
+  action.
+- Added focused markdown smoke coverage for environment trace output.
+- Documented markdown environment trace output in `runtime-hooks/README.md`.
+- Added the A53 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a53_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 35 tests OK.
+- Direct markdown smoke returned `status: pass`, `next_allowed_action: ready`,
+  and printed environment status, repo root, Python version, minimum Python
+  version, and environment-level `next_allowed_action`.
+- Full test suite reported 121 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
