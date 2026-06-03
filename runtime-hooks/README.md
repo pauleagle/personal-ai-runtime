@@ -158,7 +158,9 @@ still does not apply proposals or mutate orchestrator state. The
 machine-readable result is reported in `consistency_checks`.
 When a proposal matches, the check also reports the matched proposal path,
 atomic item ID, source gate contract, and validation artifact so the
-orchestrator can trace which proposal satisfied the guard.
+orchestrator can trace which proposal satisfied the guard. Markdown output
+prints the same trace fields in the consistency checks section for human
+review.
 
 Run:
 

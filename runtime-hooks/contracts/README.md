@@ -32,6 +32,8 @@ Current targets:
   consistency slice for state patch proposal smoke.
 - `hook_mvp_001_a48_pre_edit_contract.json`: matched proposal trace output
   slice for pre-edit guard/proposal consistency checks.
+- `hook_mvp_001_a49_pre_edit_contract.json`: markdown matched proposal trace
+  output slice for consistency checks.
 
 ## Designing Contract Generation
 

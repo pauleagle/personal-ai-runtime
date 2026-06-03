@@ -380,6 +380,84 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("### State Patch Proposal Results", output)
         self.assertIn("### Consistency Checks", output)
 
+    def test_cli_markdown_output_includes_matching_consistency_trace(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(
+                [
+                    "--repo-root",
+                    str(REPO_ROOT),
+                    "--contract",
+                    "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json",
+                    "--require-pre-edit-guard",
+                    "--require-state-patch-proposal",
+                    "--state-patch-proposal",
+                    MATCHING_STATE_PATCH_PROPOSAL,
+                ]
+            )
+
+        self.assertEqual(0, code)
+        output = stdout.getvalue().replace("\\", "/")
+        self.assertIn("pre-edit-guard-state-patch-proposal: pass", output)
+        self.assertIn(
+            (
+                "expected_contract_path: "
+                "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json"
+            ),
+            output,
+        )
+        self.assertIn(
+            (
+                "matched_proposal_path: "
+                + str(REPO_ROOT).replace("\\", "/")
+                + "/runtime-hooks/examples/hook_mvp_001_a47_gate_result_state_patch_proposal.json"
+            ),
+            output,
+        )
+        self.assertIn("matched_atomic_item_id: HOOK-MVP-001-A47", output)
+        self.assertIn(
+            (
+                "matched_source_gate_contract: "
+                "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json"
+            ),
+            output,
+        )
+        self.assertIn(
+            (
+                "matched_validation_artifact: "
+                "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json"
+            ),
+            output,
+        )
+
+    def test_cli_markdown_output_includes_blocked_consistency_reason(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(
+                [
+                    "--repo-root",
+                    str(REPO_ROOT),
+                    "--contract",
+                    "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json",
+                    "--require-pre-edit-guard",
+                    "--require-state-patch-proposal",
+                    "--state-patch-proposal",
+                    PASSING_STATE_PATCH_PROPOSAL,
+                ]
+            )
+
+        self.assertEqual(1, code)
+        output = stdout.getvalue()
+        self.assertIn("pre-edit-guard-state-patch-proposal: blocked", output)
+        self.assertIn(
+            (
+                "reason: state patch proposal does not match selected pre-edit "
+                "contract and guard status: "
+                "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json"
+            ),
+            output,
+        )
+
     def test_cli_accepts_explicit_contract(self) -> None:
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):

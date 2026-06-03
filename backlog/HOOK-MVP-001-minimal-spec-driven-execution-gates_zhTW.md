@@ -3485,6 +3485,85 @@ Direct result:
 
 ---
 
+## 15.49 Atomic Slice: `HOOK-MVP-001-A49`
+
+```text
+HOOK-MVP-001-A49: markdown consistency trace output
+```
+
+Scope:
+
+- Extend markdown smoke output for consistency checks with expected pre-edit
+  contract paths.
+- Print matched proposal path, atomic item ID, source gate contract, and
+  validation artifact when a consistency check passes.
+- Print consistency mismatch reasons in markdown output when a check blocks.
+- Keep this as presentation-only smoke output: no JSON semantic expansion, patch
+  application, durable state mutation, wrapper, daemon, tool-call interception,
+  automatic scope expansion, or automatic human-governance decision.
+
+Acceptance criteria:
+
+- Markdown smoke output reports expected pre-edit contract paths for consistency
+  checks.
+- Markdown smoke output reports matched proposal trace metadata when a
+  consistency check passes.
+- Markdown smoke output reports mismatch reasons when a consistency check
+  blocks.
+- `runtime-hooks/contracts/README.md` lists the A49 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a49_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a49_pre_edit_contract.json`.
+- Added markdown consistency-check trace lines for expected contract path,
+  matched proposal path, matched atomic item ID, matched source gate contract,
+  matched validation artifact, and blocked reasons.
+- Added focused markdown smoke tests for passing trace output and blocked reason
+  output.
+- Documented markdown consistency trace output in `runtime-hooks/README.md`.
+- Added the A49 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a49_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a47_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a47_gate_result_state_patch_proposal.json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 31 tests OK.
+- A47 matching markdown smoke returned `status: pass`, `next_allowed_action:
+  ready`, and printed expected contract path plus matched proposal trace fields.
+- Full test suite reported 117 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

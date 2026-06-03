@@ -408,6 +408,24 @@ def emit_markdown(result):
     if result["consistency_checks"]:
         for check in result["consistency_checks"]:
             print("- " + check["item"] + ": " + check["status"])
+            if check.get("expected_contract_path"):
+                print("  expected_contract_path: " + check["expected_contract_path"])
+            if check.get("matched_proposal_path"):
+                print("  matched_proposal_path: " + check["matched_proposal_path"])
+            if check.get("matched_atomic_item_id"):
+                print("  matched_atomic_item_id: " + check["matched_atomic_item_id"])
+            if check.get("matched_source_gate_contract"):
+                print(
+                    "  matched_source_gate_contract: "
+                    + check["matched_source_gate_contract"]
+                )
+            if check.get("matched_validation_artifact"):
+                print(
+                    "  matched_validation_artifact: "
+                    + check["matched_validation_artifact"]
+                )
+            if check.get("reason"):
+                print("  reason: " + check["reason"])
     else:
         print("- (none)")
 
