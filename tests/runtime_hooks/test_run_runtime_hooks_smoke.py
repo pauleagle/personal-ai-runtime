@@ -380,6 +380,31 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("### State Patch Proposal Results", output)
         self.assertIn("### Consistency Checks", output)
 
+    def test_cli_markdown_output_includes_gate_result_trace(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(
+                [
+                    "--repo-root",
+                    str(REPO_ROOT),
+                    "--contract",
+                    "tests/fixtures/gate_contract_pre_run_sample.json",
+                ]
+            )
+
+        self.assertEqual(0, code)
+        output = stdout.getvalue().replace("\\", "/")
+        self.assertIn("- pre-run: pass", output)
+        self.assertIn(
+            (
+                "path: "
+                + str(REPO_ROOT).replace("\\", "/")
+                + "/tests/fixtures/gate_contract_pre_run_sample.json"
+            ),
+            output,
+        )
+        self.assertIn("next_allowed_action: edit", output)
+
     def test_cli_markdown_output_includes_state_patch_proposal_trace(self) -> None:
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):

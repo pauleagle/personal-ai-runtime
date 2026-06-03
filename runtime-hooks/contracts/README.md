@@ -36,6 +36,8 @@ Current targets:
   output slice for consistency checks.
 - `hook_mvp_001_a50_pre_edit_contract.json`: markdown state patch proposal
   source metadata output slice.
+- `hook_mvp_001_a51_pre_edit_contract.json`: markdown gate result contract path
+  output slice.
 
 ## Designing Contract Generation
 

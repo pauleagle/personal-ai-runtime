@@ -3638,6 +3638,78 @@ Direct result:
 
 ---
 
+## 15.51 Atomic Slice: `HOOK-MVP-001-A51`
+
+```text
+HOOK-MVP-001-A51: markdown gate result trace output
+```
+
+Scope:
+
+- Extend markdown gate results with validated contract paths.
+- Print each gate result `next_allowed_action` in markdown output.
+- Keep this as presentation-only smoke output: no JSON semantic expansion, gate
+  behavior change, patch application, durable state mutation, wrapper, daemon,
+  tool-call interception, automatic scope expansion, or automatic
+  human-governance decision.
+
+Acceptance criteria:
+
+- Markdown gate results report validated contract paths.
+- Markdown gate results report each gate next allowed action.
+- `runtime-hooks/contracts/README.md` lists the A51 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a51_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a51_pre_edit_contract.json`.
+- Added markdown gate result trace lines for validated contract path and
+  gate-level next allowed action.
+- Added focused markdown smoke coverage for gate result trace output.
+- Documented markdown gate result trace output in `runtime-hooks/README.md`.
+- Added the A51 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a51_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 33 tests OK.
+- Direct markdown smoke returned `status: pass`, `next_allowed_action: ready`,
+  and printed the validated pre-run contract path plus gate-level
+  `next_allowed_action: edit`.
+- Full test suite reported 119 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

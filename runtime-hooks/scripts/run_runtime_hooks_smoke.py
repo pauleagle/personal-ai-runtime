@@ -370,6 +370,10 @@ def emit_markdown(result):
     if result["gate_results"]:
         for gate_result in result["gate_results"]:
             print("- " + str(gate_result["gate"]) + ": " + gate_result["status"])
+            if gate_result.get("path"):
+                print("  path: " + gate_result["path"])
+            if gate_result.get("next_allowed_action"):
+                print("  next_allowed_action: " + gate_result["next_allowed_action"])
     else:
         print("- (none)")
     print()
