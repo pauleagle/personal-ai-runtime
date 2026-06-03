@@ -151,8 +151,10 @@ state patch proposal artifact is selected.
 
 When `--require-pre-edit-guard` and `--require-state-patch-proposal` are both
 set, smoke also requires at least one selected `pre-edit` proposal whose
-`gate_status` matches the mounted guard status. This is a consistency check
-only; smoke still does not apply proposals or mutate orchestrator state. The
+`gate_status` and source gate contract match the mounted guard status and the
+selected pre-edit contract. This prevents a stale proposal for an older contract
+from satisfying a new mounted guard. This is a consistency check only; smoke
+still does not apply proposals or mutate orchestrator state. The
 machine-readable result is reported in `consistency_checks`.
 
 Run:
@@ -345,11 +347,14 @@ Example patch proposal artifacts:
 
 - `runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json`
 - `runtime-hooks/examples/hook_mvp_001_a41_blocked_gate_result_state_patch_proposal.json`
+- `runtime-hooks/examples/hook_mvp_001_a47_gate_result_state_patch_proposal.json`
 
 The A40 example shows a passing `pre-edit` gate proposal. The A41 example shows
 a blocked `pre-edit` gate proposal that keeps workflow advancement disabled,
-preserves the original blocking reasons, and proposes a blocked queue entry.
-Neither example applies the patch.
+preserves the original blocking reasons, and proposes a blocked queue entry. The
+A47 example shows a passing proposal whose source gate contract and validation
+artifact match the selected project-specific pre-edit contract. None of these
+examples apply the patch.
 
 Validate a patch proposal artifact:
 

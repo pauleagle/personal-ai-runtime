@@ -1,0 +1,40 @@
+{
+  "artifact_type": "runtime-hook-gate-result-state-patch-proposal",
+  "schema_version": 1,
+  "patch_intent": "record-gate-result",
+  "source": {
+    "gate_contract": "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json",
+    "gate_result_artifact": "captured runtime hook guard output",
+    "attempted_command": "python runtime-hooks\\scripts\\enforce_pre_edit_gate.py runtime-hooks\\contracts\\hook_mvp_001_a47_pre_edit_contract.json --repo-root . --json"
+  },
+  "atomic_item_id": "HOOK-MVP-001-A47",
+  "gate": "pre-edit",
+  "gate_status": "pass",
+  "next_allowed_action": "edit",
+  "workflow_step": {
+    "from": "Step 4 - Pre-Edit Gate",
+    "proposed_to": "Step 5 - Edit",
+    "advance_allowed": true,
+    "advance_decision_owner": "orchestrator"
+  },
+  "queue_patch": {
+    "operation": "move",
+    "from": "ready",
+    "to": "running",
+    "blocked_queue_entry": null
+  },
+  "blocking_reasons": [],
+  "validation_artifact": "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json",
+  "checkpoint_status": "pre-edit-guard-pass",
+  "human_decision_required": false,
+  "scope_decision_required": false,
+  "commit_checkpoint": {
+    "status": "not-applicable",
+    "reason": "pre-edit gate patch proposal does not represent an atomic item completion checkpoint"
+  },
+  "boundaries": [
+    "This artifact is a patch proposal only; it does not mutate durable orchestrator state.",
+    "The orchestrator owns workflow_step advancement and queue mutation.",
+    "Human decisions, scope expansion, and commit checkpoints remain outside this runtime hook MVP."
+  ]
+}

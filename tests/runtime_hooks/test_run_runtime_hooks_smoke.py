@@ -20,6 +20,9 @@ ACTIVE_ITEM_CONTRACTS = [
 PASSING_STATE_PATCH_PROPOSAL = (
     "runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json"
 )
+MATCHING_STATE_PATCH_PROPOSAL = (
+    "runtime-hooks/examples/hook_mvp_001_a47_gate_result_state_patch_proposal.json"
+)
 BLOCKED_STATE_PATCH_PROPOSAL = (
     "runtime-hooks/examples/hook_mvp_001_a41_blocked_gate_result_state_patch_proposal.json"
 )
@@ -90,6 +93,14 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
             result["state_patch_proposal_paths"],
         )
         self.assertEqual(2, len(result["state_patch_proposal_results"]))
+        self.assertEqual(
+            "runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json",
+            result["state_patch_proposal_results"][0]["source_gate_contract"],
+        )
+        self.assertEqual(
+            "runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json",
+            result["state_patch_proposal_results"][0]["validation_artifact"],
+        )
         self.assertEqual("pass", result["state_patch_proposal_results"][0]["gate_status"])
         self.assertEqual("blocked", result["state_patch_proposal_results"][1]["gate_status"])
         self.assertTrue(
@@ -150,8 +161,8 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         result = self.script.run_smoke(
             REPO_ROOT,
             (3, 10, 11),
-            ["tests/fixtures/gate_contract_pre_edit_sample.json"],
-            [PASSING_STATE_PATCH_PROPOSAL],
+            ["runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json"],
+            [MATCHING_STATE_PATCH_PROPOSAL],
             require_pre_edit_guard=True,
             require_state_patch_proposal=True,
         )
@@ -164,6 +175,31 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
             "pre-edit-guard-state-patch-proposal",
             result["consistency_checks"][0]["item"],
         )
+        self.assertEqual(
+            "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json",
+            result["consistency_checks"][0]["expected_contract_path"],
+        )
+
+    def test_blocks_stale_state_patch_proposal_for_different_contract(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json"],
+            [PASSING_STATE_PATCH_PROPOSAL],
+            require_pre_edit_guard=True,
+            require_state_patch_proposal=True,
+        )
+
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual("fix-contracts", result["next_allowed_action"])
+        self.assertIn(
+            (
+                "state patch proposal does not match selected pre-edit contract "
+                "and guard status: runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json"
+            ),
+            result["blocking_reasons"],
+        )
+        self.assertEqual("blocked", result["consistency_checks"][0]["status"])
 
     def test_blocks_mismatched_required_pre_edit_guard_and_state_patch_proposal(self) -> None:
         result = self.script.run_smoke(
@@ -178,7 +214,10 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("blocked", result["status"])
         self.assertEqual("fix-contracts", result["next_allowed_action"])
         self.assertIn(
-            "state patch proposal gate_status does not match pre-edit guard status: pass",
+            (
+                "state patch proposal does not match selected pre-edit contract "
+                "and guard status: tests/fixtures/gate_contract_pre_edit_sample.json"
+            ),
             result["blocking_reasons"],
         )
         self.assertEqual("blocked", result["consistency_checks"][0]["status"])

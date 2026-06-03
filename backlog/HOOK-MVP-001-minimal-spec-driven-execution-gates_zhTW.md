@@ -3308,6 +3308,103 @@ Direct result:
 
 ---
 
+## 15.47 Atomic Slice: `HOOK-MVP-001-A47`
+
+```text
+HOOK-MVP-001-A47: proposal source contract consistency
+```
+
+Scope:
+
+- Expose state patch proposal source gate contract metadata from the proposal
+  validator.
+- Include proposal source gate contract and validation artifact metadata in full
+  smoke summaries.
+- Strengthen the required pre-edit guard/proposal consistency check so a
+  matching proposal must reference the selected pre-edit contract, not merely
+  match `gate_status`.
+- Add a matching A47 passing proposal example and a stale-proposal blocking
+  test.
+- Keep this as smoke consistency checking only: no patch application, durable
+  state mutation, wrapper, daemon, tool-call interception, automatic scope
+  expansion, or automatic human-governance decision.
+
+Acceptance criteria:
+
+- State patch proposal validation exposes `source_gate_contract`,
+  `validation_artifact`, and `atomic_item_id`.
+- Full smoke summarizes proposal source gate contract metadata.
+- Required pre-edit guard plus state patch proposal smoke passes when both
+  `gate_status` and selected contract source match.
+- Required pre-edit guard plus state patch proposal smoke blocks when a stale
+  passing proposal points at a different pre-edit contract.
+- The blocking reason names the expected selected pre-edit contract.
+- `runtime-hooks/contracts/README.md` lists the A47 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused state patch proposal validator tests pass.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json`.
+- Added
+  `runtime-hooks/examples/hook_mvp_001_a47_gate_result_state_patch_proposal.json`.
+- Added proposal metadata output for `atomic_item_id`,
+  `source_gate_contract`, and `validation_artifact`.
+- Strengthened required pre-edit guard/proposal consistency checking to require
+  a matching selected pre-edit contract source.
+- Added focused tests for matching source-contract consistency and stale
+  proposal blocking.
+- Documented the source-contract consistency check in `runtime-hooks/README.md`.
+- Added the A47 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a47_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_validate_state_patch_proposal`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a47_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a47_gate_result_state_patch_proposal.json --json`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a47_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused state patch proposal validator tests reported 7 tests OK.
+- Focused runtime hook smoke tests reported 29 tests OK.
+- A47 matching smoke returned `status: pass`, `next_allowed_action: ready`, and
+  a passing `consistency_checks` entry with expected contract path
+  `runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json`.
+- Stale A40 proposal smoke returned exit code 1, `status: blocked`, and
+  blocking reason `state patch proposal does not match selected pre-edit
+  contract and guard status:
+  runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json`.
+- Full test suite reported 115 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

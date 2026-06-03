@@ -379,12 +379,18 @@ def validate_proposal(path: Path) -> dict[str, Any]:
         validate_semantics(proposal, checked_items, blocking_reasons)
 
     status = "blocked" if blocking_reasons else "pass"
+    source = proposal.get("source") if proposal else None
     return {
         "status": status,
         "path": str(path),
         "artifact_type": proposal.get("artifact_type") if proposal else None,
+        "atomic_item_id": proposal.get("atomic_item_id") if proposal else None,
+        "source_gate_contract": source.get("gate_contract")
+        if isinstance(source, dict)
+        else None,
         "gate": proposal.get("gate") if proposal else None,
         "gate_status": proposal.get("gate_status") if proposal else None,
+        "validation_artifact": proposal.get("validation_artifact") if proposal else None,
         "blocking_reasons": blocking_reasons,
         "checked_items": checked_items,
         "next_allowed_action": "handoff" if status == "blocked" else "ready",

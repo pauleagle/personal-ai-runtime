@@ -67,8 +67,17 @@ class ValidateStatePatchProposalTest(unittest.TestCase):
         self.assertEqual(0, code)
         self.assertEqual("", stderr)
         self.assertEqual("pass", result["status"])
+        self.assertEqual("HOOK-MVP-001-A40", result["atomic_item_id"])
+        self.assertEqual(
+            "runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json",
+            result["source_gate_contract"],
+        )
         self.assertEqual("pre-edit", result["gate"])
         self.assertEqual("pass", result["gate_status"])
+        self.assertEqual(
+            "runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json",
+            result["validation_artifact"],
+        )
         self.assertEqual("ready", result["next_allowed_action"])
 
     def test_accepts_blocked_patch_proposal_example(self) -> None:

@@ -54,8 +54,11 @@ def summarize_state_patch_proposal_result(result):
         "status": result.get("status"),
         "path": result.get("path"),
         "artifact_type": result.get("artifact_type"),
+        "atomic_item_id": result.get("atomic_item_id"),
+        "source_gate_contract": result.get("source_gate_contract"),
         "gate": result.get("gate"),
         "gate_status": result.get("gate_status"),
+        "validation_artifact": result.get("validation_artifact"),
         "blocking_reasons": result.get("blocking_reasons", []),
         "next_allowed_action": result.get("next_allowed_action"),
     }
@@ -73,7 +76,25 @@ def normalize_state_patch_proposal_paths(state_patch_proposal_paths):
     return []
 
 
-def matching_pre_edit_proposal_exists(pre_edit_guard_result, proposal_results):
+def normalize_artifact_path(path):
+    if not path:
+        return None
+    return str(path).replace("\\", "/").lstrip("./")
+
+
+def proposal_matches_contract(proposal, expected_contract_path):
+    expected = normalize_artifact_path(expected_contract_path)
+    return expected in {
+        normalize_artifact_path(proposal.get("source_gate_contract")),
+        normalize_artifact_path(proposal.get("validation_artifact")),
+    }
+
+
+def matching_pre_edit_proposal_exists(
+    pre_edit_guard_result,
+    proposal_results,
+    expected_contract_path,
+):
     if not pre_edit_guard_result:
         return True
 
@@ -82,24 +103,34 @@ def matching_pre_edit_proposal_exists(pre_edit_guard_result, proposal_results):
         proposal.get("status") == "pass"
         and proposal.get("gate") == "pre-edit"
         and proposal.get("gate_status") == guard_status
+        and proposal_matches_contract(proposal, expected_contract_path)
         for proposal in proposal_results
     )
 
 
-def build_pre_edit_proposal_consistency_check(pre_edit_guard_result, proposal_results):
+def build_pre_edit_proposal_consistency_check(
+    pre_edit_guard_result,
+    proposal_results,
+    expected_contract_path,
+):
     guard_status = pre_edit_guard_result.get("status")
-    passed = matching_pre_edit_proposal_exists(pre_edit_guard_result, proposal_results)
+    passed = matching_pre_edit_proposal_exists(
+        pre_edit_guard_result,
+        proposal_results,
+        expected_contract_path,
+    )
     check = {
         "item": "pre-edit-guard-state-patch-proposal",
         "status": "pass" if passed else "blocked",
         "guard_status": guard_status,
+        "expected_contract_path": normalize_artifact_path(expected_contract_path),
         "matched_gate": "pre-edit",
         "matched_gate_status": guard_status if passed else None,
     }
     if not passed:
         check["reason"] = (
-            "state patch proposal gate_status does not match pre-edit guard status: "
-            + str(guard_status)
+            "state patch proposal does not match selected pre-edit contract and guard status: "
+            + str(normalize_artifact_path(expected_contract_path))
         )
     return check
 
@@ -292,6 +323,7 @@ def run_smoke(
         consistency_check = build_pre_edit_proposal_consistency_check(
             pre_edit_guard_result,
             state_patch_proposal_results,
+            pre_edit_contracts[0],
         )
         consistency_checks.append(consistency_check)
         if consistency_check["status"] != "pass":
