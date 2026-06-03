@@ -3063,6 +3063,90 @@ Direct result:
 
 ---
 
+## 15.44 Atomic Slice: `HOOK-MVP-001-A44`
+
+```text
+HOOK-MVP-001-A44: require state patch proposal in smoke
+```
+
+Scope:
+
+- Add an explicit full-smoke option for workflows that require state patch
+  proposal validation to run.
+- Block when the selected smoke command does not include a state patch proposal
+  artifact and the requirement is enabled.
+- Preserve optional state patch proposal validation when the requirement is not
+  enabled.
+- Keep this as smoke gating only: no patch application, durable state mutation,
+  wrapper, daemon, tool-call interception, or automatic scope expansion.
+
+Acceptance criteria:
+
+- `run_runtime_hooks_smoke.py` accepts `--require-state-patch-proposal`.
+- Smoke with `--require-state-patch-proposal` blocks when no proposal artifact
+  is selected.
+- Smoke with `--require-state-patch-proposal` passes when a valid proposal
+  artifact is selected.
+- CLI output includes the missing-proposal blocking reason.
+- README documents when to use the requirement option.
+- `runtime-hooks/contracts/README.md` lists the A44 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a44_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a44_pre_edit_contract.json`.
+- Added `--require-state-patch-proposal` to
+  `runtime-hooks/scripts/run_runtime_hooks_smoke.py`.
+- Added focused smoke tests for missing and selected required proposal
+  validation.
+- Documented the requirement option in `runtime-hooks/README.md`.
+- Added the A44 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a44_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a44_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a44_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 25 tests OK.
+- Required proposal smoke with a selected A40 proposal returned `status: pass`,
+  `next_allowed_action: ready`, and one passing
+  `state_patch_proposal_results` entry.
+- Required proposal smoke without a selected proposal returned exit code 1,
+  `status: blocked`, and blocking reason `state patch proposal required but no
+  state patch proposal was selected`.
+- Full test suite reported 111 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

@@ -116,6 +116,35 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
             )
         )
 
+    def test_blocks_when_state_patch_proposal_is_required_but_not_selected(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["tests/fixtures/gate_contract_pre_run_sample.json"],
+            require_state_patch_proposal=True,
+        )
+
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual("fix-contracts", result["next_allowed_action"])
+        self.assertEqual([], result["state_patch_proposal_results"])
+        self.assertIn(
+            "state patch proposal required but no state patch proposal was selected",
+            result["blocking_reasons"],
+        )
+
+    def test_accepts_required_state_patch_proposal_when_selected(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["tests/fixtures/gate_contract_pre_run_sample.json"],
+            [PASSING_STATE_PATCH_PROPOSAL],
+            require_state_patch_proposal=True,
+        )
+
+        self.assertEqual("pass", result["status"])
+        self.assertEqual(1, len(result["state_patch_proposal_results"]))
+        self.assertEqual("pass", result["state_patch_proposal_results"][0]["status"])
+
     def test_blocks_when_pre_edit_guard_is_required_but_not_selected(self) -> None:
         result = self.script.run_smoke(
             REPO_ROOT,
@@ -386,6 +415,28 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("blocked", result["status"])
         self.assertIn(
             "pre-edit guard required but no pre-edit contract was selected",
+            result["blocking_reasons"],
+        )
+
+    def test_cli_blocks_when_required_state_patch_proposal_is_missing(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(
+                [
+                    "--repo-root",
+                    str(REPO_ROOT),
+                    "--contract",
+                    "tests/fixtures/gate_contract_pre_run_sample.json",
+                    "--require-state-patch-proposal",
+                    "--json",
+                ]
+            )
+
+        self.assertEqual(1, code)
+        result = json.loads(stdout.getvalue())
+        self.assertEqual("blocked", result["status"])
+        self.assertIn(
+            "state patch proposal required but no state patch proposal was selected",
             result["blocking_reasons"],
         )
 

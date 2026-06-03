@@ -1,0 +1,49 @@
+{
+  "gate": "pre-edit",
+  "atomic_item_id": "HOOK-MVP-001-A44",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md#15.44",
+  "allowed_scope": [
+    "runtime-hooks/contracts/**",
+    "runtime-hooks/scripts/**",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/**",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "agent-skills/**",
+    "agent-playbooks/**",
+    "modules/**"
+  ],
+  "acceptance_criteria": [
+    "The full smoke helper accepts --require-state-patch-proposal.",
+    "Full smoke blocks when proposal validation is required but no proposal artifact is selected.",
+    "Full smoke passes when proposal validation is required and a valid proposal artifact is selected.",
+    "CLI output includes the missing proposal blocking reason.",
+    "README documents when to use the requirement option.",
+    "The mounted pre-edit guard accepts this A44 project-specific contract."
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/contracts/hook_mvp_001_a44_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/scripts/run_runtime_hooks_smoke.py",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/test_run_runtime_hooks_smoke.py",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_plan": [
+    "python runtime-hooks\\scripts\\enforce_pre_edit_gate.py runtime-hooks\\contracts\\hook_mvp_001_a44_pre_edit_contract.json --repo-root . --json",
+    "python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke",
+    "python runtime-hooks\\scripts\\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\\contracts\\hook_mvp_001_a44_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --state-patch-proposal runtime-hooks\\examples\\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json",
+    "python runtime-hooks\\scripts\\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\\contracts\\hook_mvp_001_a44_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --json",
+    "python -m unittest discover -s tests",
+    "git diff --check"
+  ],
+  "proposed_changed_files": [
+    "runtime-hooks/contracts/hook_mvp_001_a44_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/scripts/run_runtime_hooks_smoke.py",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/test_run_runtime_hooks_smoke.py",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ]
+}

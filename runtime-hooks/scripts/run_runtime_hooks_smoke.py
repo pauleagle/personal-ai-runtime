@@ -80,6 +80,7 @@ def run_smoke(
     state_patch_proposal_paths=None,
     pre_edit_handoff_note_out=None,
     require_pre_edit_guard=False,
+    require_state_patch_proposal=False,
     attempted_command=None,
 ):
     repo_root = Path(repo_root)
@@ -198,6 +199,10 @@ def run_smoke(
             if proposal_summary["status"] != "pass":
                 for reason in proposal_summary["blocking_reasons"]:
                     blocking_reasons.append(relative_path + ": " + reason)
+    elif require_state_patch_proposal:
+        blocking_reasons.append(
+            "state patch proposal required but no state patch proposal was selected"
+        )
 
     for relative_path in selected_contracts:
         gate_result = validator.validate_contract(repo_root / relative_path)
@@ -321,6 +326,11 @@ def main(argv=None):
         action="store_true",
         help="Block if the selected contract set does not include a pre-edit contract.",
     )
+    parser.add_argument(
+        "--require-state-patch-proposal",
+        action="store_true",
+        help="Block if no state patch proposal artifact is selected.",
+    )
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
@@ -339,6 +349,11 @@ def main(argv=None):
             else ""
         )
         + (" --require-pre-edit-guard" if args.require_pre_edit_guard else "")
+        + (
+            " --require-state-patch-proposal"
+            if args.require_state_patch_proposal
+            else ""
+        )
         + (" --json" if args.json else "")
     )
     result = run_smoke(
@@ -347,6 +362,7 @@ def main(argv=None):
         state_patch_proposal_paths=args.state_patch_proposals,
         pre_edit_handoff_note_out=args.pre_edit_handoff_note_out,
         require_pre_edit_guard=args.require_pre_edit_guard,
+        require_state_patch_proposal=args.require_state_patch_proposal,
         attempted_command=attempted_command,
     )
     if args.json:
