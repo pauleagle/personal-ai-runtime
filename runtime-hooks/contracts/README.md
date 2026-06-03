@@ -18,6 +18,8 @@ Current targets:
   for the gate-result state patch proposal boundary.
 - `hook_mvp_001_a41_pre_edit_contract.json`: blocked gate-result state patch
   proposal example slice.
+- `hook_mvp_001_a42_pre_edit_contract.json`: deterministic state patch
+  proposal validator slice.
 
 ## Designing Contract Generation
 

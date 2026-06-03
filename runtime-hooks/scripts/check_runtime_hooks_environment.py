@@ -16,6 +16,7 @@ REQUIRED_FILES = [
     "runtime-hooks/scripts/check_runtime_hooks_environment.py",
     "runtime-hooks/scripts/enforce_pre_edit_gate.py",
     "runtime-hooks/scripts/run_runtime_hooks_smoke.py",
+    "runtime-hooks/scripts/validate_state_patch_proposal.py",
     "runtime-hooks/scripts/validate_gate_contract.py",
     "tests/fixtures/gate_contract_pre_run_sample.json",
     "tests/fixtures/gate_contract_pre_edit_sample.json",

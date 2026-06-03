@@ -331,6 +331,16 @@ a blocked `pre-edit` gate proposal that keeps workflow advancement disabled,
 preserves the original blocking reasons, and proposes a blocked queue entry.
 Neither example applies the patch.
 
+Validate a patch proposal artifact:
+
+```powershell
+python runtime-hooks\scripts\validate_state_patch_proposal.py runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json
+```
+
+The validator checks proposal shape and basic pass/blocked semantics only. It
+does not apply patches, mutate durable orchestrator state, expand scope, or make
+human-governance decisions.
+
 ## Blocked Gate Handoff Note
 
 When a gate returns `blocked` and the next safe action is `handoff`, write a

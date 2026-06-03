@@ -2895,6 +2895,91 @@ Direct result:
 
 ---
 
+## 15.42 Atomic Slice: `HOOK-MVP-001-A42`
+
+```text
+HOOK-MVP-001-A42: state patch proposal validator
+```
+
+Scope:
+
+- Add a deterministic validator for runtime hook gate-result state patch
+  proposal artifacts.
+- Validate required fields, source metadata, workflow step shape, queue patch
+  shape, commit checkpoint note, artifact type, patch intent, gate, gate status,
+  and basic pass/blocked semantics.
+- Add focused tests for passing, blocked, malformed, and semantically mismatched
+  proposal artifacts.
+- Add the validator to the fresh-clone environment check.
+- Document how to run the validator.
+
+Acceptance criteria:
+
+- `runtime-hooks/scripts/validate_state_patch_proposal.py` exists.
+- `runtime-hooks/contracts/README.md` lists the A42 project-specific contract.
+- The validator accepts the A40 passing patch proposal example.
+- The validator accepts the A41 blocked patch proposal example.
+- The validator blocks missing required fields.
+- The validator blocks a passing proposal that includes blocking reasons.
+- The validator blocks a blocked proposal without blocking reasons.
+- The validator blocks a blocked proposal that allows workflow advancement.
+- Focused validator tests pass.
+- The full test suite passes.
+- `runtime-hooks/scripts/check_runtime_hooks_environment.py` checks the new
+  validator file.
+- README documents the validator command and boundary.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a42_pre_edit_contract.json`.
+- Added the A42 contract target to `runtime-hooks/contracts/README.md`.
+- Added `runtime-hooks/scripts/validate_state_patch_proposal.py`.
+- Added `tests/runtime_hooks/test_validate_state_patch_proposal.py`.
+- Added the new helper to the runtime hook environment check.
+- Documented the state patch proposal validator command in
+  `runtime-hooks/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a42_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_validate_state_patch_proposal`.
+- Ran `python runtime-hooks\scripts\validate_state_patch_proposal.py runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json`.
+- Ran `python runtime-hooks\scripts\validate_state_patch_proposal.py runtime-hooks\examples\hook_mvp_001_a41_blocked_gate_result_state_patch_proposal.json --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_check_runtime_hooks_environment`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused state patch proposal validator tests reported 7 tests OK.
+- A40 passing patch proposal returned `status: pass` and `gate_status: pass`.
+- A41 blocked patch proposal returned `status: pass` and
+  `gate_status: blocked`.
+- Runtime hook environment tests reported 6 tests OK.
+- Full test suite reported 106 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

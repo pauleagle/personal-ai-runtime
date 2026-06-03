@@ -1,0 +1,52 @@
+{
+  "gate": "pre-edit",
+  "atomic_item_id": "HOOK-MVP-001-A42",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md#15.42",
+  "allowed_scope": [
+    "runtime-hooks/contracts/**",
+    "runtime-hooks/scripts/**",
+    "runtime-hooks/examples/**",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/**",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "agent-skills/**",
+    "agent-playbooks/**",
+    "modules/**"
+  ],
+  "acceptance_criteria": [
+    "A deterministic state patch proposal validator helper exists.",
+    "The validator accepts the A40 passing patch proposal example.",
+    "The validator accepts the A41 blocked patch proposal example.",
+    "The validator blocks malformed proposal artifacts and mismatched pass/blocked semantics.",
+    "Focused runtime hook validator tests pass.",
+    "The mounted pre-edit guard accepts this A42 project-specific contract."
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/contracts/hook_mvp_001_a42_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/scripts/validate_state_patch_proposal.py",
+    "runtime-hooks/scripts/check_runtime_hooks_environment.py",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/test_validate_state_patch_proposal.py",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_plan": [
+    "python runtime-hooks\\scripts\\enforce_pre_edit_gate.py runtime-hooks\\contracts\\hook_mvp_001_a42_pre_edit_contract.json --repo-root . --json",
+    "python -m unittest tests.runtime_hooks.test_validate_state_patch_proposal",
+    "python runtime-hooks\\scripts\\validate_state_patch_proposal.py runtime-hooks\\examples\\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json",
+    "python runtime-hooks\\scripts\\validate_state_patch_proposal.py runtime-hooks\\examples\\hook_mvp_001_a41_blocked_gate_result_state_patch_proposal.json --json",
+    "python -m unittest discover -s tests",
+    "git diff --check"
+  ],
+  "proposed_changed_files": [
+    "runtime-hooks/contracts/hook_mvp_001_a42_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/scripts/validate_state_patch_proposal.py",
+    "runtime-hooks/scripts/check_runtime_hooks_environment.py",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/test_validate_state_patch_proposal.py",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ]
+}
