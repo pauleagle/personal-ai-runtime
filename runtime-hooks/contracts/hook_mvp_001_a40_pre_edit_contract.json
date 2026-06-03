@@ -1,0 +1,45 @@
+{
+  "gate": "pre-edit",
+  "atomic_item_id": "HOOK-MVP-001-A40",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md#15.40",
+  "allowed_scope": [
+    "runtime-hooks/contracts/**",
+    "runtime-hooks/examples/**",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "runtime-hooks/scripts/**",
+    "tests/runtime_hooks/**",
+    "agent-skills/**",
+    "agent-playbooks/**",
+    "modules/**"
+  ],
+  "acceptance_criteria": [
+    "A state patch proposal shape is documented for gate result persistence boundaries.",
+    "A sample gate-result state patch proposal artifact exists.",
+    "The guidance distinguishes patch proposal artifacts from automatic orchestrator-state mutation.",
+    "The guidance preserves human-decision, scope-expansion, workflow cursor, and commit checkpoint boundaries.",
+    "The mounted pre-edit guard accepts this A40 project-specific contract."
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_plan": [
+    "python runtime-hooks\\scripts\\enforce_pre_edit_gate.py runtime-hooks\\contracts\\hook_mvp_001_a40_pre_edit_contract.json --repo-root . --json",
+    "python runtime-hooks\\scripts\\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\\contracts\\hook_mvp_001_a40_pre_edit_contract.json --require-pre-edit-guard --json",
+    "python -m json.tool runtime-hooks\\examples\\hook_mvp_001_a40_gate_result_state_patch_proposal.json",
+    "git diff --check"
+  ],
+  "proposed_changed_files": [
+    "runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ]
+}

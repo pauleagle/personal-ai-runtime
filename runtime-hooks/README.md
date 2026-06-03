@@ -293,6 +293,38 @@ That fixture shows a blocked `pre-edit` gate result represented in the
 orchestrator state's `blocked` queue. It is an example of the boundary contract,
 not a required schema for every project.
 
+### State Patch Proposal Shape
+
+When a workflow wants to hand a gate result to an orchestrator, write or pass a
+separate state patch proposal artifact instead of mutating state directly.
+
+A patch proposal should identify:
+
+- the source gate contract and captured gate result;
+- `atomic_item_id`, `gate`, `gate_status`, and `next_allowed_action`;
+- proposed queue movement or blocked queue entry;
+- proposed `workflow_step` movement, if any;
+- copied `blocking_reasons` for blocked gates;
+- `validation_artifact` and `checkpoint_status`;
+- whether a human decision or scope decision is required;
+- commit checkpoint status, or why it is not applicable.
+
+Boundary rules:
+
+- The runtime hook MVP may produce or validate inputs for a patch proposal, but
+  it does not apply the patch.
+- The orchestrator owns queue mutation, workflow cursor advancement, and merge
+  policy.
+- A passing `pre-edit` gate can propose moving an item toward edit work; it does
+  not complete the atomic item.
+- A blocked gate must propose a blocked state or handoff path with the original
+  blocking reasons preserved.
+- Commit checkpoints remain `post-run` or orchestrator responsibilities.
+
+Example patch proposal artifact:
+
+- `runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json`
+
 ## Blocked Gate Handoff Note
 
 When a gate returns `blocked` and the next safe action is `handoff`, write a

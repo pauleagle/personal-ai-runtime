@@ -2737,6 +2737,82 @@ Direct result:
 
 ---
 
+## 15.40 Atomic Slice: `HOOK-MVP-001-A40`
+
+```text
+HOOK-MVP-001-A40: gate-result state patch proposal boundary
+```
+
+Scope:
+
+- Define a state patch proposal shape for handing runtime hook gate results to
+  an orchestrator.
+- Add a sample patch proposal artifact for a passing `pre-edit` gate.
+- Clarify that patch proposals do not mutate durable orchestrator state by
+  themselves.
+- Preserve orchestrator ownership over workflow cursor advancement, queue
+  mutation, human decisions, scope expansion, merge policy, and commit
+  checkpoints.
+
+Acceptance criteria:
+
+- `runtime-hooks/README.md` documents the state patch proposal shape.
+- `runtime-hooks/contracts/README.md` lists the A40 project-specific contract.
+- `runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json`
+  exists.
+- The example patch proposal includes source, gate status, proposed workflow
+  step movement, queue patch, validation artifact, checkpoint status, human
+  decision status, scope decision status, commit checkpoint note, and boundary
+  notes.
+- The README states that the runtime hook MVP does not apply the patch.
+- `runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Full smoke with `--require-pre-edit-guard` passes for the A40 contract.
+- The patch proposal JSON parses successfully.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json`.
+- Added the A40 contract target to `runtime-hooks/contracts/README.md`.
+- Added
+  `runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json`.
+- Added state patch proposal shape guidance to `runtime-hooks/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a40_pre_edit_contract.json --repo-root . --json`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a40_pre_edit_contract.json --require-pre-edit-guard --json`.
+- Ran `python -m json.tool runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Full smoke returned `status: pass`, `next_allowed_action: ready`,
+  `pre_edit_guard.status: pass`, and `pre_edit_guard.allowed_to_edit: true`.
+- Patch proposal JSON parsed successfully.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

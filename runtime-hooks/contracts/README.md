@@ -14,6 +14,8 @@ Current targets:
   contract target for the mounted guard workflow.
 - `hook_mvp_001_a39_pre_edit_contract.json`: documentation slice for the
   project-specific contract generation design boundary.
+- `hook_mvp_001_a40_pre_edit_contract.json`: documentation and example slice
+  for the gate-result state patch proposal boundary.
 
 ## Designing Contract Generation
 
