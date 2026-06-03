@@ -3564,6 +3564,80 @@ Direct result:
 
 ---
 
+## 15.50 Atomic Slice: `HOOK-MVP-001-A50`
+
+```text
+HOOK-MVP-001-A50: markdown proposal source trace output
+```
+
+Scope:
+
+- Extend markdown state patch proposal results with proposal path.
+- Print proposal atomic item ID, source gate contract, and validation artifact
+  in markdown output.
+- Keep this as presentation-only smoke output: no JSON semantic expansion, patch
+  application, durable state mutation, wrapper, daemon, tool-call interception,
+  automatic scope expansion, or automatic human-governance decision.
+
+Acceptance criteria:
+
+- Markdown state patch proposal results report proposal path.
+- Markdown state patch proposal results report atomic item ID.
+- Markdown state patch proposal results report source gate contract and
+  validation artifact.
+- `runtime-hooks/contracts/README.md` lists the A50 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a50_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a50_pre_edit_contract.json`.
+- Added markdown state patch proposal result trace lines for proposal path,
+  atomic item ID, source gate contract, and validation artifact.
+- Added focused markdown smoke coverage for state patch proposal trace output.
+- Documented markdown proposal source trace output in `runtime-hooks/README.md`.
+- Added the A50 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a50_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 32 tests OK.
+- Direct markdown smoke returned `status: pass`, `next_allowed_action: ready`,
+  and printed proposal path, `HOOK-MVP-001-A40`, source gate contract, and
+  validation artifact.
+- Full test suite reported 118 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

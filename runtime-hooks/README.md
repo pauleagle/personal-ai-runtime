@@ -144,6 +144,8 @@ python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract
 Smoke validates selected state patch proposal artifacts with
 `validate_state_patch_proposal.py` and reports summarized results. It does not
 apply proposals or mutate orchestrator state.
+Markdown output includes each proposal path, atomic item ID, source gate
+contract, and validation artifact for human traceability.
 
 For workflows that must prove proposal validation ran, add
 `--require-state-patch-proposal`. Smoke blocks if that option is set but no

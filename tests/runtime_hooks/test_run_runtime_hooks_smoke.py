@@ -380,6 +380,47 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("### State Patch Proposal Results", output)
         self.assertIn("### Consistency Checks", output)
 
+    def test_cli_markdown_output_includes_state_patch_proposal_trace(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(
+                [
+                    "--repo-root",
+                    str(REPO_ROOT),
+                    "--contract",
+                    "tests/fixtures/gate_contract_pre_run_sample.json",
+                    "--state-patch-proposal",
+                    PASSING_STATE_PATCH_PROPOSAL,
+                ]
+            )
+
+        self.assertEqual(0, code)
+        output = stdout.getvalue().replace("\\", "/")
+        self.assertIn("### State Patch Proposal Results", output)
+        self.assertIn(
+            (
+                "path: "
+                + str(REPO_ROOT).replace("\\", "/")
+                + "/runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json"
+            ),
+            output,
+        )
+        self.assertIn("atomic_item_id: HOOK-MVP-001-A40", output)
+        self.assertIn(
+            (
+                "source_gate_contract: "
+                "runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json"
+            ),
+            output,
+        )
+        self.assertIn(
+            (
+                "validation_artifact: "
+                "runtime-hooks/contracts/hook_mvp_001_a40_pre_edit_contract.json"
+            ),
+            output,
+        )
+
     def test_cli_markdown_output_includes_matching_consistency_trace(self) -> None:
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):

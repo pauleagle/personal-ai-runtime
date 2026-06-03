@@ -34,6 +34,8 @@ Current targets:
   slice for pre-edit guard/proposal consistency checks.
 - `hook_mvp_001_a49_pre_edit_contract.json`: markdown matched proposal trace
   output slice for consistency checks.
+- `hook_mvp_001_a50_pre_edit_contract.json`: markdown state patch proposal
+  source metadata output slice.
 
 ## Designing Contract Generation
 

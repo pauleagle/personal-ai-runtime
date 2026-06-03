@@ -392,6 +392,20 @@ def emit_markdown(result):
                 + ": "
                 + proposal_result["status"]
             )
+            if proposal_result.get("path"):
+                print("  path: " + proposal_result["path"])
+            if proposal_result.get("atomic_item_id"):
+                print("  atomic_item_id: " + proposal_result["atomic_item_id"])
+            if proposal_result.get("source_gate_contract"):
+                print(
+                    "  source_gate_contract: "
+                    + proposal_result["source_gate_contract"]
+                )
+            if proposal_result.get("validation_artifact"):
+                print(
+                    "  validation_artifact: "
+                    + proposal_result["validation_artifact"]
+                )
     else:
         print("- (none)")
     print()
