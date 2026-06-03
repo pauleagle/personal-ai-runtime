@@ -381,6 +381,21 @@ def emit_markdown(result):
     else:
         print("- (not available)")
     print()
+    print("### Selected Inputs")
+    print()
+    print("- contract_paths:")
+    if result["contract_paths"]:
+        for path in result["contract_paths"]:
+            print("  - " + path)
+    else:
+        print("  - (none)")
+    print("- state_patch_proposal_paths:")
+    if result["state_patch_proposal_paths"]:
+        for path in result["state_patch_proposal_paths"]:
+            print("  - " + path)
+    else:
+        print("  - (none)")
+    print()
     print("### Gate Results")
     print()
     if result["gate_results"]:

@@ -377,6 +377,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("Status: pass", output)
         self.assertIn("Next allowed action: ready", output)
         self.assertIn("### Environment", output)
+        self.assertIn("### Selected Inputs", output)
         self.assertIn("### Pre-Edit Guard", output)
         self.assertIn("### State Patch Proposal Results", output)
         self.assertIn("### Consistency Checks", output)
@@ -402,6 +403,28 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("python_version: ", output)
         self.assertIn("minimum_python: 3.10", output)
         self.assertIn("next_allowed_action: run-validator-smoke", output)
+
+    def test_cli_markdown_output_includes_selected_inputs(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(
+                [
+                    "--repo-root",
+                    str(REPO_ROOT),
+                    "--contract",
+                    "tests/fixtures/gate_contract_pre_run_sample.json",
+                    "--state-patch-proposal",
+                    PASSING_STATE_PATCH_PROPOSAL,
+                ]
+            )
+
+        self.assertEqual(0, code)
+        output = stdout.getvalue()
+        self.assertIn("### Selected Inputs", output)
+        self.assertIn("- contract_paths:", output)
+        self.assertIn("  - tests/fixtures/gate_contract_pre_run_sample.json", output)
+        self.assertIn("- state_patch_proposal_paths:", output)
+        self.assertIn("  - " + PASSING_STATE_PATCH_PROPOSAL, output)
 
     def test_cli_markdown_output_includes_notes(self) -> None:
         stdout = io.StringIO()

@@ -43,6 +43,8 @@ Current targets:
 - `hook_mvp_001_a53_pre_edit_contract.json`: markdown environment trace output
   slice.
 - `hook_mvp_001_a54_pre_edit_contract.json`: markdown smoke notes output slice.
+- `hook_mvp_001_a55_pre_edit_contract.json`: markdown selected smoke inputs
+  output slice.
 
 ## Designing Contract Generation
 
