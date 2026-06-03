@@ -9,6 +9,7 @@ from pathlib import Path
 
 ENVIRONMENT_HELPER = "runtime-hooks/scripts/check_runtime_hooks_environment.py"
 PRE_EDIT_GUARD_HELPER = "runtime-hooks/scripts/enforce_pre_edit_gate.py"
+STATE_PATCH_PROPOSAL_HELPER = "runtime-hooks/scripts/validate_state_patch_proposal.py"
 VALIDATOR_HELPER = "runtime-hooks/scripts/validate_gate_contract.py"
 SAMPLE_CONTRACTS = [
     "tests/fixtures/gate_contract_pre_run_sample.json",
@@ -48,16 +49,35 @@ def summarize_pre_edit_guard_result(result):
     }
 
 
+def summarize_state_patch_proposal_result(result):
+    return {
+        "status": result.get("status"),
+        "path": result.get("path"),
+        "artifact_type": result.get("artifact_type"),
+        "gate": result.get("gate"),
+        "gate_status": result.get("gate_status"),
+        "blocking_reasons": result.get("blocking_reasons", []),
+        "next_allowed_action": result.get("next_allowed_action"),
+    }
+
+
 def normalize_contract_paths(contract_paths):
     if contract_paths:
         return [str(path) for path in contract_paths]
     return list(SAMPLE_CONTRACTS)
 
 
+def normalize_state_patch_proposal_paths(state_patch_proposal_paths):
+    if state_patch_proposal_paths:
+        return [str(path) for path in state_patch_proposal_paths]
+    return []
+
+
 def run_smoke(
     repo_root,
     version_info=None,
     contract_paths=None,
+    state_patch_proposal_paths=None,
     pre_edit_handoff_note_out=None,
     require_pre_edit_guard=False,
     attempted_command=None,
@@ -67,6 +87,10 @@ def run_smoke(
     gate_results = []
     pre_edit_guard_result = None
     selected_contracts = normalize_contract_paths(contract_paths)
+    selected_state_patch_proposals = normalize_state_patch_proposal_paths(
+        state_patch_proposal_paths
+    )
+    state_patch_proposal_results = []
 
     try:
         environment = load_module(
@@ -82,6 +106,8 @@ def run_smoke(
             "contract_paths": selected_contracts,
             "gate_results": gate_results,
             "pre_edit_guard": pre_edit_guard_result,
+            "state_patch_proposal_paths": selected_state_patch_proposals,
+            "state_patch_proposal_results": state_patch_proposal_results,
             "blocking_reasons": [reason],
             "next_allowed_action": "fix-environment",
             "notes": [],
@@ -96,6 +122,8 @@ def run_smoke(
             "contract_paths": selected_contracts,
             "gate_results": gate_results,
             "pre_edit_guard": pre_edit_guard_result,
+            "state_patch_proposal_paths": selected_state_patch_proposals,
+            "state_patch_proposal_results": state_patch_proposal_results,
             "blocking_reasons": environment_result["blocking_reasons"],
             "next_allowed_action": "fix-environment",
             "notes": ["validator smoke skipped because environment check is blocked"],
@@ -112,6 +140,8 @@ def run_smoke(
             "contract_paths": selected_contracts,
             "gate_results": gate_results,
             "pre_edit_guard": pre_edit_guard_result,
+            "state_patch_proposal_paths": selected_state_patch_proposals,
+            "state_patch_proposal_results": state_patch_proposal_results,
             "blocking_reasons": [reason],
             "next_allowed_action": "fix-environment",
             "notes": [],
@@ -128,10 +158,46 @@ def run_smoke(
             "contract_paths": selected_contracts,
             "gate_results": gate_results,
             "pre_edit_guard": pre_edit_guard_result,
+            "state_patch_proposal_paths": selected_state_patch_proposals,
+            "state_patch_proposal_results": state_patch_proposal_results,
             "blocking_reasons": [reason],
             "next_allowed_action": "fix-environment",
             "notes": [],
         }
+
+    if selected_state_patch_proposals:
+        try:
+            state_patch_validator = load_module(
+                "validate_state_patch_proposal",
+                repo_root / STATE_PATCH_PROPOSAL_HELPER,
+            )
+        except Exception as exc:
+            reason = "unable to load state patch proposal validator: " + str(exc)
+            return {
+                "status": "blocked",
+                "repo_root": str(repo_root.resolve()),
+                "environment": environment_result,
+                "contract_paths": selected_contracts,
+                "gate_results": gate_results,
+                "pre_edit_guard": pre_edit_guard_result,
+                "state_patch_proposal_paths": selected_state_patch_proposals,
+                "state_patch_proposal_results": state_patch_proposal_results,
+                "blocking_reasons": [reason],
+                "next_allowed_action": "fix-environment",
+                "notes": [],
+            }
+
+        for relative_path in selected_state_patch_proposals:
+            proposal_result = state_patch_validator.validate_proposal(
+                repo_root / relative_path
+            )
+            proposal_summary = summarize_state_patch_proposal_result(
+                proposal_result
+            )
+            state_patch_proposal_results.append(proposal_summary)
+            if proposal_summary["status"] != "pass":
+                for reason in proposal_summary["blocking_reasons"]:
+                    blocking_reasons.append(relative_path + ": " + reason)
 
     for relative_path in selected_contracts:
         gate_result = validator.validate_contract(repo_root / relative_path)
@@ -174,6 +240,8 @@ def run_smoke(
         "contract_paths": selected_contracts,
         "gate_results": gate_results,
         "pre_edit_guard": pre_edit_guard_result,
+        "state_patch_proposal_paths": selected_state_patch_proposals,
+        "state_patch_proposal_results": state_patch_proposal_results,
         "blocking_reasons": blocking_reasons,
         "next_allowed_action": "fix-contracts" if status == "blocked" else "ready",
         "notes": ["no third-party Python packages are required for the current MVP"],
@@ -200,6 +268,21 @@ def emit_markdown(result):
     else:
         print("- (not selected)")
     print()
+    print("### State Patch Proposal Results")
+    print()
+    if result["state_patch_proposal_results"]:
+        for proposal_result in result["state_patch_proposal_results"]:
+            print(
+                "- "
+                + str(proposal_result["gate"])
+                + "/"
+                + str(proposal_result["gate_status"])
+                + ": "
+                + proposal_result["status"]
+            )
+    else:
+        print("- (none)")
+    print()
     print("### Blocking Reasons")
     print()
     if result["blocking_reasons"]:
@@ -225,6 +308,15 @@ def main(argv=None):
         help="Write the blocked mounted pre-edit guard handoff note JSON to this path.",
     )
     parser.add_argument(
+        "--state-patch-proposal",
+        action="append",
+        dest="state_patch_proposals",
+        help=(
+            "Repo-relative state patch proposal artifact to validate. "
+            "May be provided multiple times."
+        ),
+    )
+    parser.add_argument(
         "--require-pre-edit-guard",
         action="store_true",
         help="Block if the selected contract set does not include a pre-edit contract.",
@@ -237,6 +329,10 @@ def main(argv=None):
         + " --repo-root "
         + args.repo_root
         + "".join(" --contract " + contract for contract in (args.contracts or []))
+        + "".join(
+            " --state-patch-proposal " + proposal
+            for proposal in (args.state_patch_proposals or [])
+        )
         + (
             " --pre-edit-handoff-note-out " + args.pre_edit_handoff_note_out
             if args.pre_edit_handoff_note_out
@@ -248,6 +344,7 @@ def main(argv=None):
     result = run_smoke(
         Path(args.repo_root),
         contract_paths=args.contracts,
+        state_patch_proposal_paths=args.state_patch_proposals,
         pre_edit_handoff_note_out=args.pre_edit_handoff_note_out,
         require_pre_edit_guard=args.require_pre_edit_guard,
         attempted_command=attempted_command,

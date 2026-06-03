@@ -20,6 +20,8 @@ Current targets:
   proposal example slice.
 - `hook_mvp_001_a42_pre_edit_contract.json`: deterministic state patch
   proposal validator slice.
+- `hook_mvp_001_a43_pre_edit_contract.json`: full smoke state patch proposal
+  validation slice.
 
 ## Designing Contract Generation
 

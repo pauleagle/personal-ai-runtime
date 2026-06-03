@@ -2980,6 +2980,89 @@ Direct result:
 
 ---
 
+## 15.43 Atomic Slice: `HOOK-MVP-001-A43`
+
+```text
+HOOK-MVP-001-A43: full smoke state patch proposal validation
+```
+
+Scope:
+
+- Extend the full smoke helper to accept repeated state patch proposal artifact
+  paths.
+- Validate selected proposals with
+  `runtime-hooks/scripts/validate_state_patch_proposal.py`.
+- Include proposal paths and summarized proposal validation results in smoke
+  output.
+- Keep this as aggregation-only: no patch application, durable state mutation,
+  wrapper, daemon, tool-call interception, or automatic scope expansion.
+
+Acceptance criteria:
+
+- `run_runtime_hooks_smoke.py` accepts repeated `--state-patch-proposal`
+  arguments.
+- Passing and blocked proposal examples can be selected together and return
+  summarized `state_patch_proposal_results`.
+- Invalid proposal artifacts block full smoke with concrete reasons.
+- CLI JSON output includes `state_patch_proposal_paths` and
+  `state_patch_proposal_results`.
+- Markdown output includes a state patch proposal results section.
+- README documents the combined smoke command and boundary.
+- `runtime-hooks/contracts/README.md` lists the A43 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a43_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a43_pre_edit_contract.json`.
+- Added `--state-patch-proposal` support to
+  `runtime-hooks/scripts/run_runtime_hooks_smoke.py`.
+- Added state patch proposal paths and result summaries to smoke output.
+- Added focused smoke tests for passing proposal selection, invalid proposal
+  blocking, CLI JSON output, and markdown output.
+- Documented the combined smoke command in `runtime-hooks/README.md`.
+- Added the A43 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a43_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a43_pre_edit_contract.json --require-pre-edit-guard --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 22 tests OK.
+- Combined A43 smoke returned `status: pass`, `next_allowed_action: ready`,
+  `pre_edit_guard.status: pass`, and one passing
+  `state_patch_proposal_results` entry.
+- Full test suite reported 108 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

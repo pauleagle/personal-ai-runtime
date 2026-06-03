@@ -17,6 +17,12 @@ ACTIVE_ITEM_CONTRACTS = [
     "runtime-hooks/examples/hook_mvp_001_a17_pre_edit_contract.json",
     "runtime-hooks/examples/hook_mvp_001_a18_post_run_contract.json",
 ]
+PASSING_STATE_PATCH_PROPOSAL = (
+    "runtime-hooks/examples/hook_mvp_001_a40_gate_result_state_patch_proposal.json"
+)
+BLOCKED_STATE_PATCH_PROPOSAL = (
+    "runtime-hooks/examples/hook_mvp_001_a41_blocked_gate_result_state_patch_proposal.json"
+)
 
 
 def load_script_module():
@@ -49,6 +55,8 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
             result["contract_paths"],
         )
         self.assertEqual(3, len(result["gate_results"]))
+        self.assertEqual([], result["state_patch_proposal_paths"])
+        self.assertEqual([], result["state_patch_proposal_results"])
         self.assertTrue(all(item["status"] == "pass" for item in result["gate_results"]))
         self.assertEqual("pre-edit", result["pre_edit_guard"]["hook"])
         self.assertEqual("pass", result["pre_edit_guard"]["status"])
@@ -66,6 +74,47 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual(1, len(result["gate_results"]))
         self.assertEqual("pre-run", result["gate_results"][0]["gate"])
         self.assertIsNone(result["pre_edit_guard"])
+
+    def test_accepts_explicit_state_patch_proposals(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["tests/fixtures/gate_contract_pre_run_sample.json"],
+            [PASSING_STATE_PATCH_PROPOSAL, BLOCKED_STATE_PATCH_PROPOSAL],
+        )
+
+        self.assertEqual("pass", result["status"])
+        self.assertEqual(
+            [PASSING_STATE_PATCH_PROPOSAL, BLOCKED_STATE_PATCH_PROPOSAL],
+            result["state_patch_proposal_paths"],
+        )
+        self.assertEqual(2, len(result["state_patch_proposal_results"]))
+        self.assertEqual("pass", result["state_patch_proposal_results"][0]["gate_status"])
+        self.assertEqual("blocked", result["state_patch_proposal_results"][1]["gate_status"])
+        self.assertTrue(
+            all(item["status"] == "pass" for item in result["state_patch_proposal_results"])
+        )
+
+    def test_blocks_invalid_state_patch_proposal(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            invalid_proposal = Path(temp_dir) / "invalid_proposal.json"
+            invalid_proposal.write_text("{}", encoding="utf-8")
+            result = self.script.run_smoke(
+                REPO_ROOT,
+                (3, 10, 11),
+                ["tests/fixtures/gate_contract_pre_run_sample.json"],
+                [str(invalid_proposal)],
+            )
+
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual("fix-contracts", result["next_allowed_action"])
+        self.assertEqual(1, len(result["state_patch_proposal_results"]))
+        self.assertTrue(
+            any(
+                "missing required field: atomic_item_id" in reason
+                for reason in result["blocking_reasons"]
+            )
+        )
 
     def test_blocks_when_pre_edit_guard_is_required_but_not_selected(self) -> None:
         result = self.script.run_smoke(
@@ -179,6 +228,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("Status: pass", output)
         self.assertIn("Next allowed action: ready", output)
         self.assertIn("### Pre-Edit Guard", output)
+        self.assertIn("### State Patch Proposal Results", output)
 
     def test_cli_accepts_explicit_contract(self) -> None:
         stdout = io.StringIO()
@@ -189,6 +239,8 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
                     str(REPO_ROOT),
                     "--contract",
                     "tests/fixtures/gate_contract_pre_run_sample.json",
+                    "--state-patch-proposal",
+                    PASSING_STATE_PATCH_PROPOSAL,
                     "--json",
                 ]
             )
@@ -196,6 +248,8 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual(0, code)
         result = json.loads(stdout.getvalue())
         self.assertEqual(["tests/fixtures/gate_contract_pre_run_sample.json"], result["contract_paths"])
+        self.assertEqual([PASSING_STATE_PATCH_PROPOSAL], result["state_patch_proposal_paths"])
+        self.assertEqual(1, len(result["state_patch_proposal_results"]))
         self.assertEqual(1, len(result["gate_results"]))
         self.assertIsNone(result["pre_edit_guard"])
 

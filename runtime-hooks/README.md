@@ -135,6 +135,16 @@ Run one or more explicit gate contracts:
 python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json --json
 ```
 
+Run explicit gate contracts and state patch proposal artifacts together:
+
+```powershell
+python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a43_pre_edit_contract.json --require-pre-edit-guard --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json
+```
+
+Smoke validates selected state patch proposal artifacts with
+`validate_state_patch_proposal.py` and reports summarized results. It does not
+apply proposals or mutate orchestrator state.
+
 Run:
 
 ```powershell
