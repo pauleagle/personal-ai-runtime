@@ -73,6 +73,19 @@ def normalize_state_patch_proposal_paths(state_patch_proposal_paths):
     return []
 
 
+def matching_pre_edit_proposal_exists(pre_edit_guard_result, proposal_results):
+    if not pre_edit_guard_result:
+        return True
+
+    guard_status = pre_edit_guard_result.get("status")
+    return any(
+        proposal.get("status") == "pass"
+        and proposal.get("gate") == "pre-edit"
+        and proposal.get("gate_status") == guard_status
+        for proposal in proposal_results
+    )
+
+
 def run_smoke(
     repo_root,
     version_info=None,
@@ -236,6 +249,16 @@ def run_smoke(
         blocking_reasons.append(
             "pre-edit handoff output requested but no pre-edit contract was selected"
         )
+
+    if require_pre_edit_guard and require_state_patch_proposal and pre_edit_guard_result:
+        if not matching_pre_edit_proposal_exists(
+            pre_edit_guard_result,
+            state_patch_proposal_results,
+        ):
+            blocking_reasons.append(
+                "state patch proposal gate_status does not match pre-edit guard status: "
+                + str(pre_edit_guard_result["status"])
+            )
 
     status = "blocked" if blocking_reasons else "pass"
     return {

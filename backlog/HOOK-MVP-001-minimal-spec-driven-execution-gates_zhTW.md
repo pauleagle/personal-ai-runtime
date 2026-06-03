@@ -3147,6 +3147,87 @@ Direct result:
 
 ---
 
+## 15.45 Atomic Slice: `HOOK-MVP-001-A45`
+
+```text
+HOOK-MVP-001-A45: pre-edit guard and proposal consistency smoke
+```
+
+Scope:
+
+- Add a consistency check when full smoke requires both the mounted `pre-edit`
+  guard and state patch proposal validation.
+- Require at least one selected `pre-edit` state patch proposal whose
+  `gate_status` matches the mounted guard status.
+- Block mismatched guard/proposal status with a concrete reason.
+- Keep this as smoke consistency checking only: no patch application, durable
+  state mutation, wrapper, daemon, tool-call interception, or automatic scope
+  expansion.
+
+Acceptance criteria:
+
+- Smoke passes when a passing `pre-edit` guard is paired with a passing
+  `pre-edit` proposal.
+- Smoke blocks when a passing `pre-edit` guard is paired only with a blocked
+  `pre-edit` proposal.
+- Smoke does not add a mismatch reason when a blocked `pre-edit` guard is paired
+  with a blocked `pre-edit` proposal.
+- CLI combined A45 smoke with a matching A40 proposal passes.
+- README documents the consistency check and boundary.
+- `runtime-hooks/contracts/README.md` lists the A45 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a45_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a45_pre_edit_contract.json`.
+- Added pre-edit guard/proposal status consistency checking to
+  `runtime-hooks/scripts/run_runtime_hooks_smoke.py`.
+- Added focused smoke tests for matching, mismatched, and blocked matching
+  guard/proposal combinations.
+- Documented the consistency check in `runtime-hooks/README.md`.
+- Added the A45 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a45_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a45_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 28 tests OK.
+- A45 matching smoke returned `status: pass`, `next_allowed_action: ready`,
+  `pre_edit_guard.status: pass`, and matching `pre-edit/pass`
+  `state_patch_proposal_results`.
+- Full test suite reported 114 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

@@ -24,6 +24,8 @@ Current targets:
   validation slice.
 - `hook_mvp_001_a44_pre_edit_contract.json`: required state patch proposal
   smoke gate slice.
+- `hook_mvp_001_a45_pre_edit_contract.json`: pre-edit guard and state patch
+  proposal consistency smoke slice.
 
 ## Designing Contract Generation
 

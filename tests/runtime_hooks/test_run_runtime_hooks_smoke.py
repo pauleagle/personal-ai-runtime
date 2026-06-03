@@ -145,6 +145,55 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual(1, len(result["state_patch_proposal_results"]))
         self.assertEqual("pass", result["state_patch_proposal_results"][0]["status"])
 
+    def test_accepts_matching_required_pre_edit_guard_and_state_patch_proposal(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["tests/fixtures/gate_contract_pre_edit_sample.json"],
+            [PASSING_STATE_PATCH_PROPOSAL],
+            require_pre_edit_guard=True,
+            require_state_patch_proposal=True,
+        )
+
+        self.assertEqual("pass", result["status"])
+        self.assertEqual("pass", result["pre_edit_guard"]["status"])
+        self.assertEqual("pass", result["state_patch_proposal_results"][0]["gate_status"])
+
+    def test_blocks_mismatched_required_pre_edit_guard_and_state_patch_proposal(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["tests/fixtures/gate_contract_pre_edit_sample.json"],
+            [BLOCKED_STATE_PATCH_PROPOSAL],
+            require_pre_edit_guard=True,
+            require_state_patch_proposal=True,
+        )
+
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual("fix-contracts", result["next_allowed_action"])
+        self.assertIn(
+            "state patch proposal gate_status does not match pre-edit guard status: pass",
+            result["blocking_reasons"],
+        )
+
+    def test_blocked_pre_edit_guard_matches_blocked_state_patch_proposal(self) -> None:
+        result = self.script.run_smoke(
+            REPO_ROOT,
+            (3, 10, 11),
+            ["runtime-hooks/examples/hook_mvp_001_a22_blocked_pre_edit_contract.json"],
+            [BLOCKED_STATE_PATCH_PROPOSAL],
+            require_pre_edit_guard=True,
+            require_state_patch_proposal=True,
+        )
+
+        self.assertEqual("blocked", result["status"])
+        self.assertEqual("blocked", result["pre_edit_guard"]["status"])
+        self.assertEqual("blocked", result["state_patch_proposal_results"][0]["gate_status"])
+        self.assertNotIn(
+            "state patch proposal gate_status does not match pre-edit guard status: blocked",
+            result["blocking_reasons"],
+        )
+
     def test_blocks_when_pre_edit_guard_is_required_but_not_selected(self) -> None:
         result = self.script.run_smoke(
             REPO_ROOT,
