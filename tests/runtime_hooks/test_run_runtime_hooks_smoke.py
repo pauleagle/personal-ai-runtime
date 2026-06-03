@@ -179,6 +179,26 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
             "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json",
             result["consistency_checks"][0]["expected_contract_path"],
         )
+        matched_proposal_path = result["consistency_checks"][0][
+            "matched_proposal_path"
+        ].replace("\\", "/")
+        self.assertTrue(
+            matched_proposal_path.endswith(
+                "runtime-hooks/examples/hook_mvp_001_a47_gate_result_state_patch_proposal.json"
+            )
+        )
+        self.assertEqual(
+            "HOOK-MVP-001-A47",
+            result["consistency_checks"][0]["matched_atomic_item_id"],
+        )
+        self.assertEqual(
+            "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json",
+            result["consistency_checks"][0]["matched_source_gate_contract"],
+        )
+        self.assertEqual(
+            "runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json",
+            result["consistency_checks"][0]["matched_validation_artifact"],
+        )
 
     def test_blocks_stale_state_patch_proposal_for_different_contract(self) -> None:
         result = self.script.run_smoke(
@@ -200,6 +220,8 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
             result["blocking_reasons"],
         )
         self.assertEqual("blocked", result["consistency_checks"][0]["status"])
+        self.assertIsNone(result["consistency_checks"][0]["matched_proposal_path"])
+        self.assertIsNone(result["consistency_checks"][0]["matched_atomic_item_id"])
 
     def test_blocks_mismatched_required_pre_edit_guard_and_state_patch_proposal(self) -> None:
         result = self.script.run_smoke(

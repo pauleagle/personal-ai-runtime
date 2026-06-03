@@ -90,22 +90,25 @@ def proposal_matches_contract(proposal, expected_contract_path):
     }
 
 
-def matching_pre_edit_proposal_exists(
+def find_matching_pre_edit_proposal(
     pre_edit_guard_result,
     proposal_results,
     expected_contract_path,
 ):
     if not pre_edit_guard_result:
-        return True
+        return None
 
     guard_status = pre_edit_guard_result.get("status")
-    return any(
-        proposal.get("status") == "pass"
-        and proposal.get("gate") == "pre-edit"
-        and proposal.get("gate_status") == guard_status
-        and proposal_matches_contract(proposal, expected_contract_path)
-        for proposal in proposal_results
-    )
+    for proposal in proposal_results:
+        if (
+            proposal.get("status") == "pass"
+            and proposal.get("gate") == "pre-edit"
+            and proposal.get("gate_status") == guard_status
+            and proposal_matches_contract(proposal, expected_contract_path)
+        ):
+            return proposal
+
+    return None
 
 
 def build_pre_edit_proposal_consistency_check(
@@ -114,11 +117,12 @@ def build_pre_edit_proposal_consistency_check(
     expected_contract_path,
 ):
     guard_status = pre_edit_guard_result.get("status")
-    passed = matching_pre_edit_proposal_exists(
+    matched_proposal = find_matching_pre_edit_proposal(
         pre_edit_guard_result,
         proposal_results,
         expected_contract_path,
     )
+    passed = matched_proposal is not None
     check = {
         "item": "pre-edit-guard-state-patch-proposal",
         "status": "pass" if passed else "blocked",
@@ -126,6 +130,16 @@ def build_pre_edit_proposal_consistency_check(
         "expected_contract_path": normalize_artifact_path(expected_contract_path),
         "matched_gate": "pre-edit",
         "matched_gate_status": guard_status if passed else None,
+        "matched_proposal_path": matched_proposal.get("path") if matched_proposal else None,
+        "matched_atomic_item_id": matched_proposal.get("atomic_item_id")
+        if matched_proposal
+        else None,
+        "matched_source_gate_contract": matched_proposal.get("source_gate_contract")
+        if matched_proposal
+        else None,
+        "matched_validation_artifact": matched_proposal.get("validation_artifact")
+        if matched_proposal
+        else None,
     }
     if not passed:
         check["reason"] = (

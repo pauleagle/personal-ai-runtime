@@ -156,6 +156,9 @@ selected pre-edit contract. This prevents a stale proposal for an older contract
 from satisfying a new mounted guard. This is a consistency check only; smoke
 still does not apply proposals or mutate orchestrator state. The
 machine-readable result is reported in `consistency_checks`.
+When a proposal matches, the check also reports the matched proposal path,
+atomic item ID, source gate contract, and validation artifact so the
+orchestrator can trace which proposal satisfied the guard.
 
 Run:
 

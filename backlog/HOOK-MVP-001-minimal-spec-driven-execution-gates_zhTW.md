@@ -3405,6 +3405,86 @@ Direct result:
 
 ---
 
+## 15.48 Atomic Slice: `HOOK-MVP-001-A48`
+
+```text
+HOOK-MVP-001-A48: matched proposal trace output
+```
+
+Scope:
+
+- Add matched proposal trace metadata to passing pre-edit guard/proposal
+  consistency checks.
+- Report matched proposal path, atomic item ID, source gate contract, and
+  validation artifact when a proposal satisfies the selected pre-edit contract.
+- Keep blocked consistency checks explicit by leaving matched proposal fields
+  empty.
+- Keep this as smoke observability only: no patch application, durable state
+  mutation, wrapper, daemon, tool-call interception, automatic scope expansion,
+  or automatic human-governance decision.
+
+Acceptance criteria:
+
+- Passing pre-edit guard/proposal consistency checks report the matched proposal
+  path.
+- Passing pre-edit guard/proposal consistency checks report matched proposal
+  source metadata.
+- Blocked pre-edit guard/proposal consistency checks keep matched proposal
+  fields empty.
+- `runtime-hooks/contracts/README.md` lists the A48 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a48_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a48_pre_edit_contract.json`.
+- Added matched proposal trace metadata to passing
+  `pre-edit-guard-state-patch-proposal` consistency checks.
+- Kept blocked consistency checks explicit with empty matched proposal fields.
+- Documented matched proposal trace output in `runtime-hooks/README.md`.
+- Added the A48 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a48_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a47_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a47_gate_result_state_patch_proposal.json --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 29 tests OK.
+- A47 matching smoke returned `status: pass`, `next_allowed_action: ready`, and
+  a passing `consistency_checks` entry with `matched_proposal_path`,
+  `matched_atomic_item_id`, `matched_source_gate_contract`, and
+  `matched_validation_artifact`.
+- Full test suite reported 115 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
