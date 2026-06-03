@@ -1,0 +1,41 @@
+{
+  "gate": "pre-edit",
+  "atomic_item_id": "HOOK-MVP-001-A56",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md#15.56",
+  "allowed_scope": [
+    "runtime-hooks/contracts/**",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "agent-skills/**",
+    "agent-playbooks/**",
+    "modules/**",
+    "runtime-hooks/scripts/**",
+    "tests/**"
+  ],
+  "acceptance_criteria": [
+    "README records the HOOK-MVP-001 completion boundary after A55.",
+    "README separates completed MVP capabilities from deferred next-phase work.",
+    "README records WSL2 sandbox stability as a separate follow-up experiment, not part of HOOK-MVP-001.",
+    "Backlog records the A56 closeout slice and validation result.",
+    "The mounted pre-edit guard accepts this A56 project-specific contract."
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/contracts/hook_mvp_001_a56_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_plan": [
+    "python runtime-hooks\\scripts\\enforce_pre_edit_gate.py runtime-hooks\\contracts\\hook_mvp_001_a56_pre_edit_contract.json --repo-root . --json",
+    "python -m unittest discover -s tests",
+    "git diff --check"
+  ],
+  "proposed_changed_files": [
+    "runtime-hooks/contracts/hook_mvp_001_a56_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/README.md",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ]
+}

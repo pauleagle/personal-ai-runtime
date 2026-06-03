@@ -566,3 +566,35 @@ Safe next options are to pause here, design project-specific contract
 generation, design orchestrator-state persistence, or start a separate spec for
 real runtime interception. Do not treat this mounted guard as full runtime
 interception.
+
+## HOOK-MVP-001 Completion Boundary
+
+HOOK-MVP-001 is complete as an explicit-artifact runtime governance MVP.
+
+Completed MVP capabilities:
+
+- deterministic validation for `pre-run`, `pre-edit`, and `post-run` gate
+  contracts;
+- fresh-clone environment checks and full smoke checks;
+- a manual or orchestrator-step hard-block `pre-edit` guard;
+- blocked handoff note output for mounted `pre-edit` guard failures;
+- state patch proposal shape validation and smoke aggregation;
+- required proposal validation and pre-edit guard/proposal consistency checks;
+- stale proposal detection by selected pre-edit contract source;
+- human-readable markdown smoke output with selected inputs, environment, gate
+  results, mounted guard results, proposal results, blocking reasons,
+  consistency checks, and notes.
+
+Still deferred to separate specs or follow-up items:
+
+- automatic project-specific contract generation or discovery;
+- durable orchestrator-state mutation or persistence;
+- Codex CLI wrapper, daemon, or broad tool-call interception;
+- policy DSL, complex path rules, or multi-repo authorization policy;
+- automatic scope expansion, approval, commit, revert, or completion decisions.
+
+Runtime/tooling follow-up:
+
+- WSL2 sandbox stability testing is a separate environment experiment after
+  this MVP. It may reduce Windows sandbox refresh noise, but it is not part of
+  HOOK-MVP-001's correctness contract.

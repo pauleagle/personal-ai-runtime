@@ -4009,6 +4009,77 @@ Direct result:
 
 ---
 
+## 15.56 Atomic Slice: `HOOK-MVP-001-A56`
+
+```text
+HOOK-MVP-001-A56: MVP completion boundary closeout
+```
+
+Scope:
+
+- Record the HOOK-MVP-001 completion boundary after A55.
+- Separate completed MVP capabilities from deferred next-phase work.
+- Record WSL2 sandbox stability testing as a separate tooling experiment after
+  this MVP, not as part of the hook MVP correctness contract.
+- Keep this slice documentation-only: no helper behavior changes, test changes,
+  wrapper, daemon, tool-call interception, durable state mutation, or automatic
+  governance decision.
+
+Acceptance criteria:
+
+- README records the HOOK-MVP-001 completion boundary after A55.
+- README separates completed MVP capabilities from deferred next-phase work.
+- README records WSL2 sandbox stability as a separate follow-up experiment, not
+  part of HOOK-MVP-001.
+- `runtime-hooks/contracts/README.md` lists the A56 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a56_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No helper behavior changes.
+- No new tests.
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a56_pre_edit_contract.json`.
+- Added HOOK-MVP-001 completion boundary to `runtime-hooks/README.md`.
+- Summarized completed MVP capabilities after A55.
+- Separated deferred next-phase work from the completed MVP.
+- Recorded WSL2 sandbox stability testing as a separate follow-up environment
+  experiment, not part of this MVP's correctness contract.
+- Added the A56 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a56_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Full test suite reported 123 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
