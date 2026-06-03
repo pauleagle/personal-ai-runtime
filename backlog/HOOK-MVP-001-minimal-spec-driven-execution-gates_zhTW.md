@@ -3228,6 +3228,86 @@ Direct result:
 
 ---
 
+## 15.46 Atomic Slice: `HOOK-MVP-001-A46`
+
+```text
+HOOK-MVP-001-A46: consistency check output
+```
+
+Scope:
+
+- Add machine-readable `consistency_checks` output to full smoke results.
+- Report pre-edit guard/state patch proposal consistency pass as a pass check.
+- Report pre-edit guard/state patch proposal mismatch as a blocked check.
+- Ensure early blocked smoke paths include `consistency_checks: []`.
+- Document the new output field.
+- Keep this as observability only: no gate semantic changes beyond A45, no patch
+  application, durable state mutation, wrapper, daemon, tool-call interception,
+  or automatic scope expansion.
+
+Acceptance criteria:
+
+- Full smoke JSON includes `consistency_checks`.
+- Matching required pre-edit guard/proposal smoke includes a passing consistency
+  check.
+- Mismatched required pre-edit guard/proposal smoke includes a blocked
+  consistency check and blocking reason.
+- Early blocked environment-smoke path includes an empty `consistency_checks`
+  list.
+- Markdown output includes a consistency checks section.
+- README documents the machine-readable consistency check field.
+- `runtime-hooks/contracts/README.md` lists the A46 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a46_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a46_pre_edit_contract.json`.
+- Added `consistency_checks` to `runtime-hooks/scripts/run_runtime_hooks_smoke.py`.
+- Added focused smoke assertions for passing, blocked, and early blocked
+  consistency check output.
+- Documented `consistency_checks` in `runtime-hooks/README.md`.
+- Added the A46 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a46_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract runtime-hooks\contracts\hook_mvp_001_a46_pre_edit_contract.json --require-pre-edit-guard --require-state-patch-proposal --state-patch-proposal runtime-hooks\examples\hook_mvp_001_a40_gate_result_state_patch_proposal.json --json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 28 tests OK.
+- A46 matching smoke returned `status: pass`, `next_allowed_action: ready`, and
+  one passing `consistency_checks` entry with `guard_status: pass`.
+- Full test suite reported 114 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：

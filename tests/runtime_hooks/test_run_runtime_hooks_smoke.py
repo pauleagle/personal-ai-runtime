@@ -57,6 +57,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual(3, len(result["gate_results"]))
         self.assertEqual([], result["state_patch_proposal_paths"])
         self.assertEqual([], result["state_patch_proposal_results"])
+        self.assertEqual([], result["consistency_checks"])
         self.assertTrue(all(item["status"] == "pass" for item in result["gate_results"]))
         self.assertEqual("pre-edit", result["pre_edit_guard"]["hook"])
         self.assertEqual("pass", result["pre_edit_guard"]["status"])
@@ -158,6 +159,11 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("pass", result["status"])
         self.assertEqual("pass", result["pre_edit_guard"]["status"])
         self.assertEqual("pass", result["state_patch_proposal_results"][0]["gate_status"])
+        self.assertEqual("pass", result["consistency_checks"][0]["status"])
+        self.assertEqual(
+            "pre-edit-guard-state-patch-proposal",
+            result["consistency_checks"][0]["item"],
+        )
 
     def test_blocks_mismatched_required_pre_edit_guard_and_state_patch_proposal(self) -> None:
         result = self.script.run_smoke(
@@ -175,6 +181,8 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
             "state patch proposal gate_status does not match pre-edit guard status: pass",
             result["blocking_reasons"],
         )
+        self.assertEqual("blocked", result["consistency_checks"][0]["status"])
+        self.assertEqual("pass", result["consistency_checks"][0]["guard_status"])
 
     def test_blocked_pre_edit_guard_matches_blocked_state_patch_proposal(self) -> None:
         result = self.script.run_smoke(
@@ -189,6 +197,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("blocked", result["status"])
         self.assertEqual("blocked", result["pre_edit_guard"]["status"])
         self.assertEqual("blocked", result["state_patch_proposal_results"][0]["gate_status"])
+        self.assertEqual("pass", result["consistency_checks"][0]["status"])
         self.assertNotIn(
             "state patch proposal gate_status does not match pre-edit guard status: blocked",
             result["blocking_reasons"],
@@ -267,6 +276,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertEqual("fix-environment", result["next_allowed_action"])
         self.assertEqual([], result["gate_results"])
         self.assertIsNone(result["pre_edit_guard"])
+        self.assertEqual([], result["consistency_checks"])
         self.assertIn(
             "unable to load environment helper",
             result["blocking_reasons"][0],
@@ -307,6 +317,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("Next allowed action: ready", output)
         self.assertIn("### Pre-Edit Guard", output)
         self.assertIn("### State Patch Proposal Results", output)
+        self.assertIn("### Consistency Checks", output)
 
     def test_cli_accepts_explicit_contract(self) -> None:
         stdout = io.StringIO()

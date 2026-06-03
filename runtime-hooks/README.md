@@ -152,7 +152,8 @@ state patch proposal artifact is selected.
 When `--require-pre-edit-guard` and `--require-state-patch-proposal` are both
 set, smoke also requires at least one selected `pre-edit` proposal whose
 `gate_status` matches the mounted guard status. This is a consistency check
-only; smoke still does not apply proposals or mutate orchestrator state.
+only; smoke still does not apply proposals or mutate orchestrator state. The
+machine-readable result is reported in `consistency_checks`.
 
 Run:
 

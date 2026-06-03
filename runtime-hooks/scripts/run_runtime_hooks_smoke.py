@@ -86,6 +86,52 @@ def matching_pre_edit_proposal_exists(pre_edit_guard_result, proposal_results):
     )
 
 
+def build_pre_edit_proposal_consistency_check(pre_edit_guard_result, proposal_results):
+    guard_status = pre_edit_guard_result.get("status")
+    passed = matching_pre_edit_proposal_exists(pre_edit_guard_result, proposal_results)
+    check = {
+        "item": "pre-edit-guard-state-patch-proposal",
+        "status": "pass" if passed else "blocked",
+        "guard_status": guard_status,
+        "matched_gate": "pre-edit",
+        "matched_gate_status": guard_status if passed else None,
+    }
+    if not passed:
+        check["reason"] = (
+            "state patch proposal gate_status does not match pre-edit guard status: "
+            + str(guard_status)
+        )
+    return check
+
+
+def blocked_result(
+    repo_root,
+    environment,
+    contract_paths,
+    gate_results,
+    pre_edit_guard,
+    state_patch_proposal_paths,
+    state_patch_proposal_results,
+    blocking_reasons,
+    next_allowed_action,
+    notes=None,
+):
+    return {
+        "status": "blocked",
+        "repo_root": str(repo_root.resolve()),
+        "environment": environment,
+        "contract_paths": contract_paths,
+        "gate_results": gate_results,
+        "pre_edit_guard": pre_edit_guard,
+        "state_patch_proposal_paths": state_patch_proposal_paths,
+        "state_patch_proposal_results": state_patch_proposal_results,
+        "consistency_checks": [],
+        "blocking_reasons": blocking_reasons,
+        "next_allowed_action": next_allowed_action,
+        "notes": notes or [],
+    }
+
+
 def run_smoke(
     repo_root,
     version_info=None,
@@ -105,6 +151,7 @@ def run_smoke(
         state_patch_proposal_paths
     )
     state_patch_proposal_results = []
+    consistency_checks = []
 
     try:
         environment = load_module(
@@ -113,71 +160,64 @@ def run_smoke(
         )
     except Exception as exc:
         reason = "unable to load environment helper: " + str(exc)
-        return {
-            "status": "blocked",
-            "repo_root": str(repo_root.resolve()),
-            "environment": None,
-            "contract_paths": selected_contracts,
-            "gate_results": gate_results,
-            "pre_edit_guard": pre_edit_guard_result,
-            "state_patch_proposal_paths": selected_state_patch_proposals,
-            "state_patch_proposal_results": state_patch_proposal_results,
-            "blocking_reasons": [reason],
-            "next_allowed_action": "fix-environment",
-            "notes": [],
-        }
+        return blocked_result(
+            repo_root,
+            None,
+            selected_contracts,
+            gate_results,
+            pre_edit_guard_result,
+            selected_state_patch_proposals,
+            state_patch_proposal_results,
+            [reason],
+            "fix-environment",
+        )
 
     environment_result = environment.evaluate_environment(repo_root, version_info)
     if environment_result["status"] != "pass":
-        return {
-            "status": "blocked",
-            "repo_root": str(repo_root.resolve()),
-            "environment": environment_result,
-            "contract_paths": selected_contracts,
-            "gate_results": gate_results,
-            "pre_edit_guard": pre_edit_guard_result,
-            "state_patch_proposal_paths": selected_state_patch_proposals,
-            "state_patch_proposal_results": state_patch_proposal_results,
-            "blocking_reasons": environment_result["blocking_reasons"],
-            "next_allowed_action": "fix-environment",
-            "notes": ["validator smoke skipped because environment check is blocked"],
-        }
+        return blocked_result(
+            repo_root,
+            environment_result,
+            selected_contracts,
+            gate_results,
+            pre_edit_guard_result,
+            selected_state_patch_proposals,
+            state_patch_proposal_results,
+            environment_result["blocking_reasons"],
+            "fix-environment",
+            ["validator smoke skipped because environment check is blocked"],
+        )
 
     try:
         validator = load_module("validate_gate_contract", repo_root / VALIDATOR_HELPER)
     except Exception as exc:
         reason = "unable to load gate contract validator: " + str(exc)
-        return {
-            "status": "blocked",
-            "repo_root": str(repo_root.resolve()),
-            "environment": environment_result,
-            "contract_paths": selected_contracts,
-            "gate_results": gate_results,
-            "pre_edit_guard": pre_edit_guard_result,
-            "state_patch_proposal_paths": selected_state_patch_proposals,
-            "state_patch_proposal_results": state_patch_proposal_results,
-            "blocking_reasons": [reason],
-            "next_allowed_action": "fix-environment",
-            "notes": [],
-        }
+        return blocked_result(
+            repo_root,
+            environment_result,
+            selected_contracts,
+            gate_results,
+            pre_edit_guard_result,
+            selected_state_patch_proposals,
+            state_patch_proposal_results,
+            [reason],
+            "fix-environment",
+        )
 
     try:
         pre_edit_guard = load_module("enforce_pre_edit_gate", repo_root / PRE_EDIT_GUARD_HELPER)
     except Exception as exc:
         reason = "unable to load pre-edit guard helper: " + str(exc)
-        return {
-            "status": "blocked",
-            "repo_root": str(repo_root.resolve()),
-            "environment": environment_result,
-            "contract_paths": selected_contracts,
-            "gate_results": gate_results,
-            "pre_edit_guard": pre_edit_guard_result,
-            "state_patch_proposal_paths": selected_state_patch_proposals,
-            "state_patch_proposal_results": state_patch_proposal_results,
-            "blocking_reasons": [reason],
-            "next_allowed_action": "fix-environment",
-            "notes": [],
-        }
+        return blocked_result(
+            repo_root,
+            environment_result,
+            selected_contracts,
+            gate_results,
+            pre_edit_guard_result,
+            selected_state_patch_proposals,
+            state_patch_proposal_results,
+            [reason],
+            "fix-environment",
+        )
 
     if selected_state_patch_proposals:
         try:
@@ -187,19 +227,17 @@ def run_smoke(
             )
         except Exception as exc:
             reason = "unable to load state patch proposal validator: " + str(exc)
-            return {
-                "status": "blocked",
-                "repo_root": str(repo_root.resolve()),
-                "environment": environment_result,
-                "contract_paths": selected_contracts,
-                "gate_results": gate_results,
-                "pre_edit_guard": pre_edit_guard_result,
-                "state_patch_proposal_paths": selected_state_patch_proposals,
-                "state_patch_proposal_results": state_patch_proposal_results,
-                "blocking_reasons": [reason],
-                "next_allowed_action": "fix-environment",
-                "notes": [],
-            }
+            return blocked_result(
+                repo_root,
+                environment_result,
+                selected_contracts,
+                gate_results,
+                pre_edit_guard_result,
+                selected_state_patch_proposals,
+                state_patch_proposal_results,
+                [reason],
+                "fix-environment",
+            )
 
         for relative_path in selected_state_patch_proposals:
             proposal_result = state_patch_validator.validate_proposal(
@@ -251,14 +289,13 @@ def run_smoke(
         )
 
     if require_pre_edit_guard and require_state_patch_proposal and pre_edit_guard_result:
-        if not matching_pre_edit_proposal_exists(
+        consistency_check = build_pre_edit_proposal_consistency_check(
             pre_edit_guard_result,
             state_patch_proposal_results,
-        ):
-            blocking_reasons.append(
-                "state patch proposal gate_status does not match pre-edit guard status: "
-                + str(pre_edit_guard_result["status"])
-            )
+        )
+        consistency_checks.append(consistency_check)
+        if consistency_check["status"] != "pass":
+            blocking_reasons.append(consistency_check["reason"])
 
     status = "blocked" if blocking_reasons else "pass"
     return {
@@ -270,6 +307,7 @@ def run_smoke(
         "pre_edit_guard": pre_edit_guard_result,
         "state_patch_proposal_paths": selected_state_patch_proposals,
         "state_patch_proposal_results": state_patch_proposal_results,
+        "consistency_checks": consistency_checks,
         "blocking_reasons": blocking_reasons,
         "next_allowed_action": "fix-contracts" if status == "blocked" else "ready",
         "notes": ["no third-party Python packages are required for the current MVP"],
@@ -316,6 +354,14 @@ def emit_markdown(result):
     if result["blocking_reasons"]:
         for reason in result["blocking_reasons"]:
             print("- " + reason)
+    else:
+        print("- (none)")
+    print()
+    print("### Consistency Checks")
+    print()
+    if result["consistency_checks"]:
+        for check in result["consistency_checks"]:
+            print("- " + check["item"] + ": " + check["status"])
     else:
         print("- (none)")
 

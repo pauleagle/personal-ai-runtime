@@ -26,6 +26,8 @@ Current targets:
   smoke gate slice.
 - `hook_mvp_001_a45_pre_edit_contract.json`: pre-edit guard and state patch
   proposal consistency smoke slice.
+- `hook_mvp_001_a46_pre_edit_contract.json`: machine-readable consistency
+  check output slice.
 
 ## Designing Contract Generation
 
