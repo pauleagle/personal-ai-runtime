@@ -380,6 +380,7 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("### Pre-Edit Guard", output)
         self.assertIn("### State Patch Proposal Results", output)
         self.assertIn("### Consistency Checks", output)
+        self.assertIn("### Notes", output)
 
     def test_cli_markdown_output_includes_environment_trace(self) -> None:
         stdout = io.StringIO()
@@ -401,6 +402,26 @@ class RunRuntimeHooksSmokeTest(unittest.TestCase):
         self.assertIn("python_version: ", output)
         self.assertIn("minimum_python: 3.10", output)
         self.assertIn("next_allowed_action: run-validator-smoke", output)
+
+    def test_cli_markdown_output_includes_notes(self) -> None:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = self.script.main(
+                [
+                    "--repo-root",
+                    str(REPO_ROOT),
+                    "--contract",
+                    "tests/fixtures/gate_contract_pre_run_sample.json",
+                ]
+            )
+
+        self.assertEqual(0, code)
+        output = stdout.getvalue()
+        self.assertIn("### Notes", output)
+        self.assertIn(
+            "- no third-party Python packages are required for the current MVP",
+            output,
+        )
 
     def test_cli_markdown_output_includes_gate_result_trace(self) -> None:
         stdout = io.StringIO()

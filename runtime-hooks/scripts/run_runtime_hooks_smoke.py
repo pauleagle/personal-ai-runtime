@@ -483,6 +483,14 @@ def emit_markdown(result):
                 print("  reason: " + check["reason"])
     else:
         print("- (none)")
+    print()
+    print("### Notes")
+    print()
+    if result["notes"]:
+        for note in result["notes"]:
+            print("- " + note)
+    else:
+        print("- (none)")
 
 
 def main(argv=None):

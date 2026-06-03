@@ -1,0 +1,47 @@
+{
+  "gate": "pre-edit",
+  "atomic_item_id": "HOOK-MVP-001-A54",
+  "spec_ref": "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md#15.54",
+  "allowed_scope": [
+    "runtime-hooks/contracts/**",
+    "runtime-hooks/scripts/**",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/**",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "forbidden_scope": [
+    "agent-skills/**",
+    "agent-playbooks/**",
+    "modules/**"
+  ],
+  "acceptance_criteria": [
+    "Markdown smoke output includes a Notes section.",
+    "Markdown Notes section reports non-blocking smoke notes.",
+    "Markdown Notes section reports none when notes are empty.",
+    "Focused runtime hook smoke tests pass.",
+    "The mounted pre-edit guard accepts this A54 project-specific contract."
+  ],
+  "expected_artifacts": [
+    "runtime-hooks/contracts/hook_mvp_001_a54_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/scripts/run_runtime_hooks_smoke.py",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/test_run_runtime_hooks_smoke.py",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ],
+  "validation_plan": [
+    "python runtime-hooks\\scripts\\enforce_pre_edit_gate.py runtime-hooks\\contracts\\hook_mvp_001_a54_pre_edit_contract.json --repo-root . --json",
+    "python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke",
+    "python runtime-hooks\\scripts\\run_runtime_hooks_smoke.py --repo-root . --contract tests\\fixtures\\gate_contract_pre_run_sample.json",
+    "python -m unittest discover -s tests",
+    "git diff --check"
+  ],
+  "proposed_changed_files": [
+    "runtime-hooks/contracts/hook_mvp_001_a54_pre_edit_contract.json",
+    "runtime-hooks/contracts/README.md",
+    "runtime-hooks/scripts/run_runtime_hooks_smoke.py",
+    "runtime-hooks/README.md",
+    "tests/runtime_hooks/test_run_runtime_hooks_smoke.py",
+    "backlog/HOOK-MVP-001-minimal-spec-driven-execution-gates_zhTW.md"
+  ]
+}

@@ -3860,6 +3860,80 @@ Direct result:
 
 ---
 
+## 15.54 Atomic Slice: `HOOK-MVP-001-A54`
+
+```text
+HOOK-MVP-001-A54: markdown notes output
+```
+
+Scope:
+
+- Add a markdown Notes section to full smoke output.
+- Print non-blocking smoke notes from the structured result.
+- Print `(none)` when notes are empty.
+- Keep this as presentation-only smoke output: no JSON semantic expansion, gate
+  behavior change, patch application, durable state mutation, wrapper, daemon,
+  tool-call interception, automatic scope expansion, or automatic
+  human-governance decision.
+
+Acceptance criteria:
+
+- Markdown smoke output includes a Notes section.
+- Markdown Notes section reports non-blocking smoke notes.
+- Markdown Notes section reports none when notes are empty.
+- `runtime-hooks/contracts/README.md` lists the A54 project-specific contract.
+- `runtime-hooks/contracts/hook_mvp_001_a54_pre_edit_contract.json` passes the
+  mounted `pre-edit` guard.
+- Focused runtime hook smoke tests pass.
+- Full test suite passes.
+- `git diff --check` passes.
+
+Non-goals:
+
+- No durable orchestrator-state mutation.
+- No orchestrator state persistence helper.
+- No automatic patch application.
+- No automatic contract generation, discovery, repair, or scope expansion.
+- No wrapper.
+- No daemon.
+- No Codex CLI integration.
+- No broad tool-call interception.
+- No automatic human-governance decision.
+
+Implementation log:
+
+Status: completed.
+
+Implemented:
+
+- Added `runtime-hooks/contracts/hook_mvp_001_a54_pre_edit_contract.json`.
+- Added a markdown Notes section that prints non-blocking smoke notes or
+  `(none)` when no notes are present.
+- Added focused markdown smoke coverage for notes output.
+- Documented markdown notes output in `runtime-hooks/README.md`.
+- Added the A54 contract target to `runtime-hooks/contracts/README.md`.
+
+Validation actions:
+
+- Ran `python runtime-hooks\scripts\enforce_pre_edit_gate.py runtime-hooks\contracts\hook_mvp_001_a54_pre_edit_contract.json --repo-root . --json`.
+- Ran `python -m unittest tests.runtime_hooks.test_run_runtime_hooks_smoke`.
+- Ran `python runtime-hooks\scripts\run_runtime_hooks_smoke.py --repo-root . --contract tests\fixtures\gate_contract_pre_run_sample.json`.
+- Ran `python -m unittest discover -s tests`.
+- Ran `git diff --check`.
+
+Direct result:
+
+- Mounted `pre-edit` guard returned `status: pass`, `allowed_to_edit: true`, and
+  `next_allowed_action: edit`.
+- Focused runtime hook smoke tests reported 36 tests OK.
+- Direct markdown smoke returned `status: pass`, `next_allowed_action: ready`,
+  and printed the non-blocking note `no third-party Python packages are required
+  for the current MVP`.
+- Full test suite reported 122 tests OK.
+- `git diff --check` passed.
+
+---
+
 # 16. 長期方向
 
 此方向可能逐步演化為：
