@@ -359,6 +359,96 @@ Mutation testing 告訴你：
 
 ---
 
+## 架構圖與決策流程圖
+
+### Grid of Atomic Subagents 架構圖
+
+```mermaid
+flowchart LR
+  Human["Human<br/>correctness governance"]
+  Spec["Spec artifacts<br/>SPEC / atomic items / decisions"]
+  State["Durable orchestrator state<br/>workflow_step / dependencies / usage gate / commits"]
+  Orchestrator["Orchestrator<br/>state machine / scheduler / merge gate"]
+  Pack["Bounded context pack<br/>spec refs / diff / tests / allowed scope"]
+  Subagent["Stateless subagent<br/>one task / one output contract"]
+  Result["Structured result<br/>patch / tests / gap report / decision proposal"]
+  Validation["Validation gate<br/>tests / mutation / diff check / contract checks"]
+  Merge{"Merge or human gate?"}
+  ReadOnly["Parallel read-only jobs<br/>diff inventory / test discovery / spec lookup"]
+  Writer["Serialized writer jobs<br/>file edits / state updates / commits"]
+
+  Human --> Spec
+  Spec --> Orchestrator
+  State <--> Orchestrator
+  Orchestrator --> Pack
+  Orchestrator --> ReadOnly
+  Orchestrator --> Writer
+  Pack --> Subagent
+  Subagent --> Result
+  Result --> Validation
+  ReadOnly --> Validation
+  Writer --> Validation
+  Validation --> Merge
+  Merge -- readonly or validated --> State
+  Merge -- ambiguity / breaking change / accepted risk --> Human
+  Human -- decision --> State
+  State --> Orchestrator
+```
+
+### 決策流程圖
+
+```mermaid
+flowchart TD
+  Start["Start<br/>request, diff, or atomic item"]
+  ClearSpec{"Spec, scope, and acceptance criteria clear?"}
+  DrillDown["Step 1-2<br/>drill down / draft spec"]
+  DA{"Blocking Devil's Advocate objections?"}
+  ResolveDA["Step 3.5<br/>resolve, defer, or accept risk by human"]
+  AtomicReady{"Atomic item metadata ready?"}
+  Decompose["Step 4.5<br/>workflow decomposition / atomic items"]
+  TestDesign["Step 5<br/>spec-based test design"]
+  Implement["Step 6<br/>implementation"]
+  DiffImpact["Step 7-9<br/>diff, intent, impact, risk and gap analysis"]
+  JIT["Step 10<br/>JIT test selection or generation"]
+  Tests{"Step 11<br/>baseline tests pass?"}
+  FixCode["Code issue<br/>fix implementation"]
+  Mutation{"Step 12-13<br/>mutation killed or equivalent?"}
+  Classify{"Gap classification"}
+  TestGap["Test gap<br/>refine or promote tests"]
+  SpecGap["Spec gap or behavior ambiguity<br/>prepare decision proposal"]
+  Equivalent["Equivalent mutation or accepted limitation<br/>record rationale"]
+  HumanDecision{"Step 15<br/>human decision"}
+  Evolve["Step 16<br/>spec / test evolution"]
+  Verified["Verified atomic item<br/>commit checkpoint"]
+  UsageGate{"Remaining usage gate"}
+  Continue["Continue next atomic item"]
+  Handoff["Stop and write handoff"]
+
+  Start --> ClearSpec
+  ClearSpec -- no --> DrillDown --> ClearSpec
+  ClearSpec -- yes --> DA
+  DA -- yes --> ResolveDA --> DA
+  DA -- no --> AtomicReady
+  AtomicReady -- no --> Decompose --> AtomicReady
+  AtomicReady -- yes --> TestDesign --> Implement --> DiffImpact --> JIT --> Tests
+  Tests -- no --> FixCode --> DiffImpact
+  Tests -- yes --> Mutation
+  Mutation -- no --> Classify
+  Mutation -- yes --> Verified
+  Classify -- implementation issue --> FixCode
+  Classify -- test gap --> TestGap --> Tests
+  Classify -- spec gap / ambiguity / breaking change --> SpecGap --> HumanDecision
+  Classify -- equivalent / accepted limitation --> Equivalent --> Verified
+  HumanDecision -- accept change / update spec --> Evolve --> ClearSpec
+  HumanDecision -- reject change --> FixCode
+  HumanDecision -- defer with rationale --> Verified
+  Verified --> UsageGate
+  UsageGate -- enough usage and approved --> Continue
+  UsageGate -- low or unknown usage --> Handoff
+```
+
+---
+
 ## 完整工作流
 
 ```text
