@@ -24,19 +24,21 @@ Run the helper from Windows PowerShell or Linux/macOS shells with the same Pytho
 ## Workflow
 
 1. Read impacted scope, selected tests, spec refs, risk items, and deterministic tooling evidence.
-2. Decide whether to use framework mutation or scoped manual mutation.
-3. If using a framework, restrict mutation to impacted scope when practical.
-4. If using manual mutation, define one to three meaningful mutants tied to the diff risk.
-5. Apply mutation safely, run focused tests, classify killed, survived, equivalent, skipped, or blocked.
-6. Revert any manual mutation before finishing.
-7. Report exact commands, scope, mutants, results, and limitations.
-8. Hand survived or unclear results to `test-effectiveness-evaluation`.
+2. Decide whether to use framework mutation, scoped manual mutation, or a skipped/blocked result based on impact, relevance, and cost.
+3. Treat manual mutation as the atomic-item probe: define one to three meaningful mutants tied to the diff risk and run the smallest focused tests that should kill them.
+4. Treat framework mutation as the repeatable/reportable path for CI or regression confidence; restrict it to impacted scope when practical.
+5. If the available framework can only run broad full-scope mutation and the cost is not justified, prefer scoped manual mutation or report the validation gap instead of broadening blindly.
+6. Apply mutation safely, run focused tests, classify killed, survived, equivalent, skipped, or blocked.
+7. Revert any manual mutation before finishing.
+8. Report exact commands, scope, mutants, results, and limitations.
+9. Hand survived or unclear results to `test-effectiveness-evaluation`.
 
 ## Mandatory Rules
 
 - Do not claim mutation tooling was run if it was not.
 - Manual mutation is valid only when mutants, tests, and results are explicit.
 - Do not chase mutation score without impact analysis.
+- Mutation scope must follow the impact set; full-scope mutation without impact analysis is an anti-pattern unless explicitly used as a checkpoint gate.
 - Equivalent mutations must be marked as suspicious unless reasoning is clear.
 - Survived mutations require gap classification.
 - Leave the worktree free of intentional mutants.
@@ -46,6 +48,7 @@ Run the helper from Windows PowerShell or Linux/macOS shells with the same Pytho
 - Do not broaden to full-scope mutation when cost or relevance is unjustified.
 - Do not add tests solely to improve mutation score.
 - Do not decide spec evolution alone.
+- Do not use framework mutation cost as a reason to skip test-effectiveness validation when a small manual mutant can target the impacted risk.
 
 ## Validation
 
@@ -56,9 +59,10 @@ Check:
 3. Mutants are described.
 4. Commands and tests are reported.
 5. Results are classified.
-6. Framework mutation score is included when the tool produces one.
-7. Manual mutants were reverted.
-8. Tooling availability is based on command evidence, not assumption.
+6. Scope choice explains why focused, scoped manual, framework, full checkpoint, skipped, or blocked was appropriate.
+7. Framework mutation score is included when the tool produces one.
+8. Manual mutants were reverted.
+9. Tooling availability is based on command evidence, not assumption.
 
 ## Output
 

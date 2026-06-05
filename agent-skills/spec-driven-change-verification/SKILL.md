@@ -58,10 +58,11 @@ When playbook context is needed, search for the specific section and read only t
 7. Work on one atomic item at a time. Design or select spec-traced tests before or alongside implementation.
 8. After implementation, inspect the diff to infer intent, impacted components, impacted specs, impacted tests, risks, and validation gaps.
 9. Run focused tests and add or select JIT tests when the diff exposes uncovered behavior.
-10. Validate test effectiveness with mutation testing when available; for small impacted scopes, use scoped manual mutation checks when framework mutation is not practical.
-11. Classify results as code issue, test gap, spec gap, equivalent mutation, accepted risk, or human decision required.
-12. Update specs, tests, README/index files, orchestrator state, atomic metadata, run notes, or handoff artifacts when the workflow step requires durable state.
-13. Advance `workflow_step` only after the current step's validation and durable-state updates are complete.
+10. Use impact/JIT evidence to choose a validation scope: run focused tests and scoped mutation inside the atomic-item loop; reserve full suites or full mutation runs for checkpoint gates, broad-impact changes, or release-level confidence.
+11. Validate test effectiveness with mutation testing when available; prefer scoped manual mutation for one to three meaningful impacted risks when framework mutation would force irrelevant full-scope cost.
+12. Classify results as code issue, test gap, spec gap, equivalent mutation, accepted risk, or human decision required.
+13. Update specs, tests, README/index files, orchestrator state, atomic metadata, run notes, or handoff artifacts when the workflow step requires durable state.
+14. Advance `workflow_step` only after the current step's validation and durable-state updates are complete.
 
 ## Child Skill Delegation
 
@@ -92,6 +93,8 @@ Use these child skills when the task matches their trigger:
 - Do not write tests only for coverage. Every durable test needs a semantic source.
 - Do not trust generated tests until they pass baseline execution and, when relevant, kill a meaningful mutation.
 - Do not claim mutation tooling was run if it was not. State when mutation was manual, scoped, skipped, or blocked.
+- Do not treat full-scope mutation as the default inner loop. If validation cost is growing, first narrow by diff, intent, impact set, spec refs, and JIT risk items.
+- Use full unit or full mutation runs as explicit checkpoint evidence, not as a substitute for impact analysis.
 - Humans decide ambiguity, breaking behavior, accepted risk, and spec evolution. The agent may propose options, not silently redefine correctness.
 - Keep durable workflow state outside chat: atomic item metadata, `workflow_step`, dependency edges, validation results, remaining gaps, and decision status belong in project artifacts.
 - Treat subagents as stateless bounded workers. Pass only the required context pack and require structured output.
@@ -113,11 +116,12 @@ Before reporting completion, check:
 
 1. The implemented change maps to spec refs and the current atomic item.
 2. Focused tests or an explicit test-gap explanation are present.
-3. Mutation testing or scoped manual mutation reasoning is reported honestly.
-4. Diff analysis found no unrelated changes.
-5. Durable state, README/index files, spec files, or run notes were updated when required.
-6. Remaining gaps and human decision points are explicit.
-7. If the source playbook was read, the reason and section scope are reported.
+3. Validation scope is justified as focused, JIT, scoped mutation, full-suite checkpoint, or skipped/blocked.
+4. Mutation testing or scoped manual mutation reasoning is reported honestly.
+5. Diff analysis found no unrelated changes.
+6. Durable state, README/index files, spec files, or run notes were updated when required.
+7. Remaining gaps and human decision points are explicit.
+8. If the source playbook was read, the reason and section scope are reported.
 
 ## Output
 
