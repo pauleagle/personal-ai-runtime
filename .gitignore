@@ -44,6 +44,9 @@
 /outputs/
 /logs/
 
+# Local handoff cache
+/handoff.md
+
 # Environment files
 .env
 .env.*
