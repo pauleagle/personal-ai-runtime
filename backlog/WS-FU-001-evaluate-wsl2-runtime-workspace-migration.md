@@ -225,7 +225,7 @@ This follow-up is complete when:
 - [x] A normal WSL2 development distro exists, or the follow-up records why it was not installed.
 - [x] A WSL2 Linux-filesystem clone of the pushed `personal-ai-runtime` repo is created for testing without disturbing the Windows workspace.
 - [x] Assistant and private context path bridging is documented for the WSL clone.
-- [ ] Runtime hook environment smoke passes in WSL2, or blockers are documented.
+- [x] Runtime hook environment smoke passes in WSL2, or blockers are documented.
 - [ ] Runtime hook full smoke passes in WSL2, or blockers are documented.
 - [ ] The full test suite passes in WSL2, or blockers are documented.
 - [ ] Repeated smoke results compare WSL2 behavior against the known Windows sandbox spawn setup refresh noise.
@@ -265,6 +265,46 @@ This follow-up is complete when:
 ### Next Gate
 
 The next slice should start from the WSL clone and decide how to handle Linux-native Node/npm plus any project dependency bootstrap before runtime hook smoke or full tests.
+
+---
+
+## Dependency Baseline Observation - 2026-06-08
+
+### WS-FU-001B WSL Dependency Baseline And Environment Smoke
+
+- WSL clone was fast-forwarded from `efd7563` to `5672516 docs(backlog): record WS-FU-001 bootstrap clone`.
+- WSL clone status after pull: `master...origin/master`, clean.
+- No root-level dependency manifest was found for this workspace slice:
+  - no `package.json`
+  - no `pyproject.toml`
+  - no `requirements*.txt`
+  - no `uv.lock`
+  - no common Node/Python lockfile
+- Runtime hook environment helper states that no third-party Python packages are required for the current MVP.
+- No package installation was performed in this slice.
+- Tool baseline remained:
+  - `git version 2.43.0`
+  - `Python 3.12.3`
+  - `pip3` not installed
+  - `uv` not installed
+  - native WSL `node` not installed
+  - `npm` resolves through Windows interop at `/mnt/c/nvm4w/nodejs/npm`, version `10.8.2`
+- Environment smoke command:
+
+```bash
+python3 runtime-hooks/scripts/check_runtime_hooks_environment.py --repo-root . --json
+```
+
+- Environment smoke result: `pass`.
+- Python version in smoke result: `3.12.3`.
+- Minimum required Python: `3.10`.
+- Blocking reasons: none.
+- Next allowed action from the helper: `run-validator-smoke`.
+- Not run in this slice: runtime hook full smoke, full test suite.
+
+### Next Gate
+
+The next slice can start from the WSL clone and run the focused runtime hook validator/full smoke path. Linux-native Node/npm should stay deferred unless a later validation path proves it is actually required.
 
 ---
 
