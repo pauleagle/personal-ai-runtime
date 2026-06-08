@@ -228,7 +228,7 @@ This follow-up is complete when:
 - [x] Runtime hook environment smoke passes in WSL2, or blockers are documented.
 - [x] Runtime hook full smoke passes in WSL2, or blockers are documented.
 - [x] The full test suite passes in WSL2, or blockers are documented.
-- [ ] Repeated smoke results compare WSL2 behavior against the known Windows sandbox spawn setup refresh noise.
+- [x] Repeated smoke results compare WSL2 behavior against the known Windows sandbox spawn setup refresh noise.
 - [ ] A recommendation exists: keep Windows primary, promote WSL2 runtime primary, maintain both, or defer.
 - [ ] No private context content is copied into the runtime repo during the experiment.
 
@@ -371,6 +371,55 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
 ### Next Gate
 
 The next slice can run a repeated WSL smoke loop to compare stability against the known Windows `windows sandbox: spawn setup refresh` noise, then record whether WSL should remain experimental or move toward primary runtime status.
+
+---
+
+## Repeated Smoke Observation - 2026-06-08
+
+### WS-FU-001E WSL Repeated Runtime Hook Smoke Loop
+
+- WSL clone was fast-forwarded from `b13a801` to `3d4e230 docs(backlog): record WS-FU-001 WSL full tests`.
+- WSL clone status before loop: `master...origin/master`, clean.
+- Smoke target: A47 focused runtime hook full smoke.
+- Selected contract: `runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json`.
+- Selected state patch proposal: `runtime-hooks/examples/hook_mvp_001_a47_gate_result_state_patch_proposal.json`.
+- Loop count: `10`.
+- Loop result: `10/10` passed.
+- Final loop summary:
+
+```text
+RUN 1
+PASS 1
+RUN 2
+PASS 2
+RUN 3
+PASS 3
+RUN 4
+PASS 4
+RUN 5
+PASS 5
+RUN 6
+PASS 6
+RUN 7
+PASS 7
+RUN 8
+PASS 8
+RUN 9
+PASS 9
+RUN 10
+PASS 10
+SUMMARY passes=10 total=10
+```
+
+- No `windows sandbox: spawn setup refresh` message appeared during the repeated WSL smoke loop.
+- WSL clone status after loop: `master...origin/master`, clean.
+- Ignored artifact after loop: `runtime-hooks/scripts/__pycache__/`.
+- No tracked or untracked repo changes were left by the repeated smoke loop.
+- Not run in this slice: final recommendation decision.
+
+### Next Gate
+
+The next slice can make and record the recommendation: keep Windows primary, promote WSL2 runtime primary, maintain both, or defer. The current evidence supports at least keeping the WSL clone as a viable runtime validation workspace.
 
 ---
 
