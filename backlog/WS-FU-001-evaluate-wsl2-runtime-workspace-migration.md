@@ -4,7 +4,7 @@
 
 - Type: Workspace Follow-up
 - ID: WS-FU-001
-- Status: In Progress
+- Status: Completed
 - Source Observation: WSL is installed and current, but only Docker Desktop's WSL2 data distro is registered; the runtime workspace still lives at `C:\personal-ai-runtime`.
 - Suggested Location: `backlog/WS-FU-001-evaluate-wsl2-runtime-workspace-migration.md`
 - Scope:
@@ -229,8 +229,8 @@ This follow-up is complete when:
 - [x] Runtime hook full smoke passes in WSL2, or blockers are documented.
 - [x] The full test suite passes in WSL2, or blockers are documented.
 - [x] Repeated smoke results compare WSL2 behavior against the known Windows sandbox spawn setup refresh noise.
-- [ ] A recommendation exists: keep Windows primary, promote WSL2 runtime primary, maintain both, or defer.
-- [ ] No private context content is copied into the runtime repo during the experiment.
+- [x] A recommendation exists: keep Windows primary, promote WSL2 runtime primary, maintain both, or defer.
+- [x] No private context content is copied into the runtime repo during the experiment.
 
 ---
 
@@ -420,6 +420,50 @@ SUMMARY passes=10 total=10
 ### Next Gate
 
 The next slice can make and record the recommendation: keep Windows primary, promote WSL2 runtime primary, maintain both, or defer. The current evidence supports at least keeping the WSL clone as a viable runtime validation workspace.
+
+---
+
+## Final Recommendation - 2026-06-08
+
+### WS-FU-001F Recommendation Decision
+
+Recommendation: maintain both.
+
+The WSL2 clone is now validated enough to use as a runtime validation workspace for this repo's current Python/runtime-hook workflow. Keep the Windows workspace as the controller workspace for assistant routing, backlog documentation, commit checkpointing, and human push flow until the remaining non-runtime workflow gaps are proven.
+
+Evidence supporting this recommendation:
+
+- A normal WSL2 distro exists: `Ubuntu-24.04`.
+- A Linux-filesystem clone exists at `/home/pauleagle/personal-ai-runtime`.
+- Assistant/context bridge paths are verified:
+  - `/mnt/c/personal-ai-assistant`
+  - `/mnt/c/personal-ai-context-private`
+- Runtime hook environment smoke passed in WSL2.
+- Focused runtime hook full smoke passed in WSL2.
+- Full Python test suite passed in WSL2: `123` tests, `OK`.
+- Repeated focused runtime hook smoke passed in WSL2: `10/10`.
+- No `windows sandbox: spawn setup refresh` message appeared during WSL smoke or WSL test commands.
+- The WSL clone stayed clean after validation, aside from ignored `runtime-hooks/scripts/__pycache__/`.
+- No private context content was copied into the runtime repo.
+
+Operational decision:
+
+- Use WSL2 for runtime-hook and Python test validation when Linux behavior or sandbox stability matters.
+- Keep Windows as the controller workspace for now, especially for durable backlog updates, assistant-side handoff routing, and the current human push checkpoint flow.
+- Keep using HTTPS for the WSL clone until a deliberate GitHub SSH credential strategy is chosen; do not copy Windows private keys into WSL as an incidental migration step.
+- Do not promote WSL2 as the sole primary runtime workspace yet.
+
+Promotion blockers or follow-ups before WSL2 can become primary:
+
+- VS Code Remote WSL editing, terminal, and Git status workflow are not yet verified.
+- GitHub SSH or credential-manager behavior inside WSL is not yet designed.
+- Linux-native Node/npm is not installed; current `npm` visibility comes from Windows interop.
+- Nested module workflows, especially `modules/audio-topology-runtime`, Stable Audio / GPU / audio artifact behavior, and manual runner scripts are not yet validated in WSL.
+- Cross-workspace handoff behavior still depends on Windows-hosted `personal-ai-assistant` and private context bridge paths.
+
+Final status:
+
+WS-FU-001 completed as a migration spike. The result is not "move everything to WSL2 now"; it is "maintain both, with WSL2 approved as a viable runtime validation workspace and Windows retained as controller until the editor/auth/heavy-module gaps are closed."
 
 ---
 
