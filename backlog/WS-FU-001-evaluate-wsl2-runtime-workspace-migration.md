@@ -227,7 +227,7 @@ This follow-up is complete when:
 - [x] Assistant and private context path bridging is documented for the WSL clone.
 - [x] Runtime hook environment smoke passes in WSL2, or blockers are documented.
 - [x] Runtime hook full smoke passes in WSL2, or blockers are documented.
-- [ ] The full test suite passes in WSL2, or blockers are documented.
+- [x] The full test suite passes in WSL2, or blockers are documented.
 - [ ] Repeated smoke results compare WSL2 behavior against the known Windows sandbox spawn setup refresh noise.
 - [ ] A recommendation exists: keep Windows primary, promote WSL2 runtime primary, maintain both, or defer.
 - [ ] No private context content is copied into the runtime repo during the experiment.
@@ -343,6 +343,34 @@ python3 runtime-hooks/scripts/run_runtime_hooks_smoke.py \
 ### Next Gate
 
 The next slice can start from the WSL clone and run the full Python test suite once, then record whether any Linux path, permission, or environment differences appear. Repeated smoke loops should remain a separate slice after the first full-test baseline.
+
+---
+
+## Full Test Suite Observation - 2026-06-08
+
+### WS-FU-001D WSL Full Python Test Suite Baseline
+
+- WSL clone was fast-forwarded from `8fb4239` to `b13a801 docs(backlog): record WS-FU-001 WSL hook smoke`.
+- WSL clone status before test: `master...origin/master`, clean.
+- Test command:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
+```
+
+- Test result: `OK`.
+- Test count: `123`.
+- Runtime: `3.701s`.
+- Observed non-failure output: repeated Git hints about the default initial branch name `master` from tests that initialize temporary repositories.
+- WSL clone status after test: `master...origin/master`, clean.
+- Ignored artifact after test: `runtime-hooks/scripts/__pycache__/`.
+- No tracked or untracked repo changes were left by the full test suite.
+- No `windows sandbox: spawn setup refresh` message appeared during the WSL test command.
+- Not run in this slice: repeated smoke loop, recommendation decision.
+
+### Next Gate
+
+The next slice can run a repeated WSL smoke loop to compare stability against the known Windows `windows sandbox: spawn setup refresh` noise, then record whether WSL should remain experimental or move toward primary runtime status.
 
 ---
 
