@@ -4,7 +4,7 @@
 
 - Type: Workspace Follow-up
 - ID: WS-FU-001
-- Status: Draft
+- Status: In Progress
 - Source Observation: WSL is installed and current, but only Docker Desktop's WSL2 data distro is registered; the runtime workspace still lives at `C:\personal-ai-runtime`.
 - Suggested Location: `backlog/WS-FU-001-evaluate-wsl2-runtime-workspace-migration.md`
 - Scope:
@@ -222,15 +222,49 @@ Suggested compact log shape:
 
 This follow-up is complete when:
 
-- [ ] A normal WSL2 development distro exists, or the follow-up records why it was not installed.
-- [ ] A WSL2 Linux-filesystem clone of the pushed `personal-ai-runtime` repo is created for testing without disturbing the Windows workspace.
-- [ ] Assistant and private context path bridging is documented for the WSL clone.
+- [x] A normal WSL2 development distro exists, or the follow-up records why it was not installed.
+- [x] A WSL2 Linux-filesystem clone of the pushed `personal-ai-runtime` repo is created for testing without disturbing the Windows workspace.
+- [x] Assistant and private context path bridging is documented for the WSL clone.
 - [ ] Runtime hook environment smoke passes in WSL2, or blockers are documented.
 - [ ] Runtime hook full smoke passes in WSL2, or blockers are documented.
 - [ ] The full test suite passes in WSL2, or blockers are documented.
 - [ ] Repeated smoke results compare WSL2 behavior against the known Windows sandbox spawn setup refresh noise.
 - [ ] A recommendation exists: keep Windows primary, promote WSL2 runtime primary, maintain both, or defer.
 - [ ] No private context content is copied into the runtime repo during the experiment.
+
+---
+
+## Bootstrap Observation - 2026-06-08
+
+### WS-FU-001A Bootstrap WSL Clone
+
+- Distro: `Ubuntu-24.04`, WSL version `2`, running as user `pauleagle`.
+- Linux OS: `Ubuntu 24.04.4 LTS (Noble Numbat)`.
+- WSL platform baseline: WSL `2.7.3.0`, kernel `6.6.114.1-1`.
+- WSL distro list now includes `docker-desktop-data` and `Ubuntu-24.04`.
+- WSL repo path: `/home/pauleagle/personal-ai-runtime`.
+- Clone source: `https://github.com/pauleagle/personal-ai-runtime.git`.
+- Clone commit: `efd7563 docs(backlog): define WS-FU-001 bootstrap start`.
+- Clone status: `master...origin/master`, clean immediately after clone.
+- WSL Git baseline:
+  - `user.name=pauleagle`
+  - `user.email=pauleagle.tw@gmail.com`
+  - `core.autocrlf=input`
+- Bridge paths verified:
+  - `/mnt/c/personal-ai-assistant`
+  - `/mnt/c/personal-ai-context-private`
+- Bridge policy: bridge paths are validation references only; private context content must not be copied into the runtime repo.
+- Tool baseline:
+  - `git version 2.43.0`
+  - `Python 3.12.3`
+  - `node` not installed as a native WSL command
+  - `npm` resolves through Windows interop at `/mnt/c/nvm4w/nodejs/npm`, version `10.8.2`
+- SSH baseline: `git@github.com` failed with `Permission denied (publickey)`, so the bootstrap clone used HTTPS rather than copying SSH private keys into WSL.
+- Not run in this slice: dependency installation, runtime hook smoke, runtime hook full smoke, full test suite.
+
+### Next Gate
+
+The next slice should start from the WSL clone and decide how to handle Linux-native Node/npm plus any project dependency bootstrap before runtime hook smoke or full tests.
 
 ---
 
