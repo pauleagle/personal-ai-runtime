@@ -24,6 +24,20 @@ The current machine has WSL2 available, but `wsl -l -v` only shows `docker-deskt
 
 ---
 
+## Clone Strategy Decision
+
+Because the existing Windows workspace has reached a checkpoint and has been pushed, the WSL2 workspace should be created as a clean clone from the pushed repository state.
+
+The WSL2 experiment should not copy, move, rsync, or bind-mount the current `C:\personal-ai-runtime` working tree as its main repo. The expected starting point is a fresh Linux-filesystem clone, such as:
+
+```text
+/home/<wsl-user>/personal-ai-runtime
+```
+
+The Windows workspace remains the known-good checkpoint while the WSL2 clone gathers evidence.
+
+---
+
 ## Background
 
 Current workspace layout:
@@ -102,6 +116,7 @@ Create a bounded WSL2 workspace migration experiment that answers:
 This follow-up should not:
 
 - Move the current `C:\personal-ai-runtime` workspace immediately.
+- Copy or synchronize the current Windows working tree into WSL2 as the experiment's main repo.
 - Delete, reset, or rewrite the Windows workspace.
 - Move `personal-ai-assistant` or `personal-ai-context-private` into WSL2.
 - Treat Docker Desktop's `docker-desktop-data` distro as a development distro.
@@ -172,7 +187,7 @@ Suggested compact log shape:
 This follow-up is complete when:
 
 - [ ] A normal WSL2 development distro exists, or the follow-up records why it was not installed.
-- [ ] A WSL2 Linux-filesystem clone of `personal-ai-runtime` is created for testing without disturbing the Windows workspace.
+- [ ] A WSL2 Linux-filesystem clone of the pushed `personal-ai-runtime` repo is created for testing without disturbing the Windows workspace.
 - [ ] Assistant and private context path bridging is documented for the WSL clone.
 - [ ] Runtime hook environment smoke passes in WSL2, or blockers are documented.
 - [ ] Runtime hook full smoke passes in WSL2, or blockers are documented.
