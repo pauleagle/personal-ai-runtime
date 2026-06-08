@@ -226,7 +226,7 @@ This follow-up is complete when:
 - [x] A WSL2 Linux-filesystem clone of the pushed `personal-ai-runtime` repo is created for testing without disturbing the Windows workspace.
 - [x] Assistant and private context path bridging is documented for the WSL clone.
 - [x] Runtime hook environment smoke passes in WSL2, or blockers are documented.
-- [ ] Runtime hook full smoke passes in WSL2, or blockers are documented.
+- [x] Runtime hook full smoke passes in WSL2, or blockers are documented.
 - [ ] The full test suite passes in WSL2, or blockers are documented.
 - [ ] Repeated smoke results compare WSL2 behavior against the known Windows sandbox spawn setup refresh noise.
 - [ ] A recommendation exists: keep Windows primary, promote WSL2 runtime primary, maintain both, or defer.
@@ -305,6 +305,44 @@ python3 runtime-hooks/scripts/check_runtime_hooks_environment.py --repo-root . -
 ### Next Gate
 
 The next slice can start from the WSL clone and run the focused runtime hook validator/full smoke path. Linux-native Node/npm should stay deferred unless a later validation path proves it is actually required.
+
+---
+
+## Runtime Hook Full Smoke Observation - 2026-06-08
+
+### WS-FU-001C WSL Focused Runtime Hook Full Smoke
+
+- WSL clone was fast-forwarded from `5672516` to `8fb4239 docs(backlog): record WS-FU-001 WSL env smoke`.
+- WSL clone status before smoke: `master...origin/master`, clean.
+- Selected contract: `runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json`.
+- Selected state patch proposal: `runtime-hooks/examples/hook_mvp_001_a47_gate_result_state_patch_proposal.json`.
+- Smoke command:
+
+```bash
+python3 runtime-hooks/scripts/run_runtime_hooks_smoke.py \
+  --repo-root . \
+  --contract runtime-hooks/contracts/hook_mvp_001_a47_pre_edit_contract.json \
+  --require-pre-edit-guard \
+  --require-state-patch-proposal \
+  --state-patch-proposal runtime-hooks/examples/hook_mvp_001_a47_gate_result_state_patch_proposal.json \
+  --json
+```
+
+- Smoke result: `pass`.
+- Environment result inside smoke: `pass`.
+- Pre-edit guard result: `pass`, `allowed_to_edit=true`, `next_allowed_action=edit`.
+- State patch proposal result: `pass`, `atomic_item_id=HOOK-MVP-001-A47`, `gate_status=pass`.
+- Consistency check result: `pre-edit-guard-state-patch-proposal` passed against `HOOK-MVP-001-A47`.
+- Blocking reasons: none.
+- Smoke next allowed action: `ready`.
+- WSL clone status after smoke: `master...origin/master`, clean.
+- No handoff artifact was written during this smoke.
+- No `windows sandbox: spawn setup refresh` message appeared during the WSL smoke command.
+- Not run in this slice: full test suite, repeated smoke loop.
+
+### Next Gate
+
+The next slice can start from the WSL clone and run the full Python test suite once, then record whether any Linux path, permission, or environment differences appear. Repeated smoke loops should remain a separate slice after the first full-test baseline.
 
 ---
 
