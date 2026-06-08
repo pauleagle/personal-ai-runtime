@@ -38,6 +38,42 @@ The Windows workspace remains the known-good checkpoint while the WSL2 clone gat
 
 ---
 
+## Execution Start Position
+
+The next executable work should start as a bounded bootstrap slice, not as a full migration.
+
+### WS-FU-001A Bootstrap WSL Clone
+
+Start from the Windows controller workspace only long enough to verify the pushed remote checkpoint, install or select a normal WSL2 development distro, and capture baseline WSL evidence.
+
+As soon as a normal distro exists, the repo-heavy work should move into the Linux filesystem clone:
+
+```text
+/home/<wsl-user>/personal-ai-runtime
+```
+
+The first slice should stop after:
+
+- a normal WSL2 distro exists and is visible in `wsl -l -v`,
+- the pushed `personal-ai-runtime` repo is cloned into the Linux filesystem,
+- Git identity and line-ending behavior are configured for the clone,
+- assistant/context bridge paths are defined for validation only,
+- baseline evidence is recorded,
+- and the Windows workspace remains unchanged and clean.
+
+Do not continue into dependency installation, runtime hook smoke, or full test validation until this bootstrap slice has its own checkpoint.
+
+### Controller And Target Paths
+
+- Windows controller workspace: `C:\personal-ai-runtime`
+- WSL target repo path: `/home/<wsl-user>/personal-ai-runtime`
+- Assistant bridge path in WSL: `/mnt/c/personal-ai-assistant`
+- Private context bridge path in WSL: `/mnt/c/personal-ai-context-private`
+
+The bridge paths are read-only logical references for startup rules and validation context. Private context content must not be copied into the WSL repo.
+
+---
+
 ## Background
 
 Current workspace layout:
