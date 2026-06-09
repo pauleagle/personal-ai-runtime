@@ -115,6 +115,7 @@ Skill 不應只是複製 playbook 全文。若 playbook 有背景說明、設計
 | `nested-module-git-initialization.md` | `nested-module-git-initialization/` | `aligned` | 整理 `modules/` 或 `poc-modules/` 子專案時檢查獨立 Git 邊界，必要時執行 `git init` |
 | `release-preflight.md` | - | `draft` | 發版、tag、README、CHANGELOG 與 Git 狀態檢查流程 |
 | `utf8-traditional-chinese-defaults.md` | `utf8-traditional-chinese-defaults/` | `aligned` | 文件讀寫預設 UTF-8、繁體中文優先，並在 PowerShell 文字輸出時明確使用 `-Encoding UTF8` |
+| `cross-environment-cli-bootstrap.md` | - | `draft` | 跨 Windows/WSL/sandbox 環境補齊任務必要 CLI、user-local 工具、臨時 script 與驗證流程 |
 
 ## 命名
 
