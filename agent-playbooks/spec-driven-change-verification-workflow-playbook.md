@@ -397,55 +397,99 @@ flowchart LR
 
 ### 決策流程圖
 
-```mermaid
-flowchart TD
-  Start["Start<br/>request, diff, or atomic item"]
-  ClearSpec{"Spec, scope, and acceptance criteria clear?"}
-  DrillDown["Step 1-2<br/>drill down / draft spec"]
-  DA{"Blocking Devil's Advocate objections?"}
-  ResolveDA["Step 3.5<br/>resolve, defer, or accept risk by human"]
-  AtomicReady{"Atomic item metadata ready?"}
-  Decompose["Step 4.5<br/>workflow decomposition / atomic items"]
-  TestDesign["Step 5<br/>spec-based test design"]
-  Implement["Step 6<br/>implementation"]
-  DiffImpact["Step 7-9<br/>diff, intent, impact, risk and gap analysis"]
-  JIT["Step 10<br/>JIT test selection or generation"]
-  Tests{"Step 11<br/>baseline tests pass?"}
-  FixCode["Code issue<br/>fix implementation"]
-  Mutation{"Step 12-13<br/>mutation killed or equivalent?"}
-  Classify{"Gap classification"}
-  TestGap["Test gap<br/>refine or promote tests"]
-  SpecGap["Spec gap or behavior ambiguity<br/>prepare decision proposal"]
-  Equivalent["Equivalent mutation or accepted limitation<br/>record rationale"]
-  HumanDecision{"Step 15<br/>human decision"}
-  Evolve["Step 16<br/>spec / test evolution"]
-  Verified["Verified atomic item<br/>commit checkpoint"]
-  UsageGate{"Remaining usage gate"}
-  Continue["Continue next atomic item"]
-  Handoff["Stop and write handoff"]
+以下 Mermaid 對應 `diagrams/spec-driven-change-verification-workflow-playbook/sdvc-workflow-decision-flow.png` 的主決策流，採用 styled decision-flow layout。側欄支援系統保留為關鍵 support nodes；正式執行細節仍以後續完整工作流與 orchestrator state 規則為準。
 
-  Start --> ClearSpec
-  ClearSpec -- no --> DrillDown --> ClearSpec
-  ClearSpec -- yes --> DA
-  DA -- yes --> ResolveDA --> DA
-  DA -- no --> AtomicReady
-  AtomicReady -- no --> Decompose --> AtomicReady
-  AtomicReady -- yes --> TestDesign --> Implement --> DiffImpact --> JIT --> Tests
-  Tests -- no --> FixCode --> DiffImpact
-  Tests -- yes --> Mutation
-  Mutation -- no --> Classify
-  Mutation -- yes --> Verified
-  Classify -- implementation issue --> FixCode
-  Classify -- test gap --> TestGap --> Tests
-  Classify -- spec gap / ambiguity / breaking change --> SpecGap --> HumanDecision
-  Classify -- equivalent / accepted limitation --> Equivalent --> Verified
-  HumanDecision -- accept change / update spec --> Evolve --> ClearSpec
-  HumanDecision -- reject change --> FixCode
-  HumanDecision -- defer with rationale --> Verified
-  Verified --> UsageGate
-  UsageGate -- enough usage and approved --> Continue
-  UsageGate -- low or unknown usage --> Handoff
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'background': '#0b0f19',
+    'primaryColor': '#1e293b',
+    'primaryTextColor': '#f8fafc',
+    'lineColor': '#475569',
+    'textColor': '#f8fafc',
+    'edgeLabelBackground': '#0b0f19'
+  }
+}}%%
+
+flowchart TD
+  classDef blueBox fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
+  classDef grayBox fill:#334155,stroke:#64748b,stroke-width:2px,color:#f8fafc;
+  classDef greenBox fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+  classDef redBox fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#f8fafc;
+  classDef purpleBox fill:#4c1d95,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc;
+  classDef darkBox fill:#111827,stroke:#374151,stroke-width:1px,color:#9ca3af;
+
+  Start([START]) --> Step1["1. INTENT RECEIVED<br/>Goal / Problem / Requirement"]
+  Step1 --> Step2["2. PROPOSAL CREATION<br/>propose/change-id/proposal.md<br/>Scope / Intent / Constraints / Risks / Impact"]
+
+  Step2 --> Gate3{"3. PROPOSAL DECISION GATE<br/>Is the proposal clear, feasible and aligned?"}
+
+  Gate3 -- NO --> Reject3["REJECTED<br/>Feedback / Clarify<br/>Re-scope / New Proposal"]
+  Gate3 -- YES --> Step4["4. DELTA SPEC DEFINITION<br/>ADDED / MODIFIED / REMOVED requirements<br/>BDD scenarios / acceptance criteria"]
+
+  DA["DA Design Alignment<br/>Cross-model discussion<br/>Intent alignment / risk review"]
+  Gate3 -. design alignment .-> DA
+  DA -. review result .-> Gate3
+
+  Step4 --> Gate5{"5. SPEC REVIEW GATE<br/>Are specs complete, consistent and verifiable?"}
+  Gate5 -- NO --> Rework5["SPEC REWORK<br/>Clarify requirements<br/>Refine scenarios / update spec"]
+  Rework5 --> Step4
+  Gate5 -- YES --> Step6["6. TASK BREAKDOWN<br/>Atomic tasks / verification units<br/>Dependency split / TDD plan"]
+
+  Step6 --> Gate7{"7. TASK VALIDATION GATE<br/>Are tasks atomic, independent and testable?"}
+  Gate7 -- NO --> Revise7["REVISE TASKS<br/>Re-split / adjust dependencies<br/>Update plan"]
+  Revise7 --> Step6
+  Gate7 -- YES --> Step8["8. EXECUTION ROUTING<br/>Router selects best model and skills based on task type, cost, quality, context, and policy"]
+
+  subgraph Execution_Routing["Execution targets"]
+    direction LR
+    O1["OpenAI<br/>Codex"] --- A2["Anthropic<br/>Claude"] --- G3["Google<br/>Gemini"] --- L4["Local<br/>Models"] --- C5["Custom<br/>Adapters"]
+  end
+  Step8 --> Execution_Routing
+
+  Execution_Routing --> Step9["9. IMPLEMENTATION<br/>Code / config / tests<br/>Docs / infra / refactor / enhance"]
+
+  RuntimeEnforce["RUNTIME HOOKS ENFORCED<br/>Pre / post hooks<br/>Quality gates / guardrails"]
+  Step9 -. hook enforcement .-> RuntimeEnforce
+
+  Step9 --> Gate10{"10. VERIFICATION AND REVIEW GATE<br/>All verification passed?"}
+
+  Gate10 -- YES --> Step11["11. CHANGE ACCEPTED<br/>Change is verified, approved and ready"]
+  Gate10 -- NO --> Step12["FAILURE HANDLING LOOP<br/>Analyze failure<br/>Fix / adjust / retry<br/>Re-verify"]
+
+  Step12 --> Step9
+  Step11 --> Step13["12. CRYSTALLIZATION<br/>Extract knowledge / update playbooks<br/>Update skills / refine runtime laws"]
+  Step13 --> Step14["13. ARCHIVE AND INGESTION<br/>Delta merge and versioning<br/>Ingest to RAG / knowledge base"]
+  Step14 --> Continuous([14. CONTINUOUS EVOLUTION])
+
+  class Start,Step1,Step2,Step4,Step6,Step8,Step9,Step13,Step14,Continuous blueBox;
+  class Gate3,Gate5,Gate7,Gate10 grayBox;
+  class Reject3,Rework5,Revise7,Step12 redBox;
+  class Step11 greenBox;
+  class DA,RuntimeEnforce purpleBox;
+  class O1,A2,G3,L4,C5 darkBox;
 ```
+
+#### 決策流程圖支援看板
+
+右側長條看板不直接塞進 Mermaid 主圖，以免 renderer 自動排線造成交錯。這些內容作為支援系統與外部整合清單，搭配上方決策流閱讀。
+
+| Playbook / Skill / Hook Stack | Included Capabilities | Workflow Role |
+| --- | --- | --- |
+| Playbooks | Workflow playbooks; verification playbooks; TDD / design playbooks; recovery playbooks | 提供流程、驗證、設計與復原策略的可追溯操作準則。 |
+| Skills Library | Spec authoring; task decomposition; test generation; code review; refactoring | 將決策流程中的 spec、task、test、review 與 cleanup 工作拆成可委派能力。 |
+| Runtime Hooks | Pre / post hooks; quality gates; policy guardrails; output validation; trace and audit | 在 implementation 與 verification 期間執行自動檢查、阻擋違規輸出，並留下稽核線索。 |
+| Runtime Laws | Safety first; spec first; verify always; small and atomic; iterate and improve | 作為跨 playbook、skill、hook 的不變治理原則，防止 agent 單方面改寫 correctness。 |
+
+| External Integrations | Examples | Workflow Role |
+| --- | --- | --- |
+| Git / GitHub | Commit history; branches; pull requests; reviews | 提供 diff source、review boundary、checkpoint 與版本追溯。 |
+| CI / CD | Jenkins; GitHub Actions | 執行 automated validation、policy checks、release 或部署前 gate。 |
+| Test Frameworks | PyTest; Playwright | 承載 baseline tests、focused tests、browser / integration tests 與 regression suites。 |
+| Monitoring | Prometheus; Grafana | 將 production signal、alerts、performance drift 或 behavior anomaly 轉成 input sources。 |
+| Artifacts / Storage | S3; GCS; MinIO | 保存測試輸出、mutation reports、run artifacts、logs 與可重現 evidence。 |
+| Notifications | Slack; Email | 回報 gate failure、human decision request、handoff、review needed 與 workflow completion。 |
 
 ---
 
