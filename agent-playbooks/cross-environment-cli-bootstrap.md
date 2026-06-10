@@ -21,6 +21,7 @@
 - 使用者沒有 sudo / 不在 sudoers，但任務仍可透過 user-local 工具完成。
 - 需要跨 Windows controller workspace 與 WSL runtime workspace 同步 handoff、worklog 或驗證證據。
 - 任務需要小型 deterministic helper script 來避免長文本複製、重複追加或路徑同步錯誤。
+- 需要讓 repo-local `agent-skills/` 被 Codex session 看見，且應先用 repo script 做 bootstrap。
 - 同一類工具補齊流程開始反覆出現，準備日後萃取成 skill。
 
 ## 不適用時機
@@ -101,6 +102,39 @@
   - `python` shim：`python --version` 與簡單 import。
   - `shellcheck`：檢查目標 shell scripts。
   - `uv` / `hf`：只跑不含 secret 的版本或 help / auth status 檢查。
+
+### 7. Repo Agent Skills Symlink Bootstrap
+
+當 repo 內 `agent-skills/` 是 skill source of truth，而目前 Codex session 尚未看見這些 skills 時，先使用 repo script，不要先萃取成 skill。
+
+標準入口：
+
+```bash
+scripts/sync-agent-skills-to-codex.sh
+```
+
+預設行為：
+
+- Source: `<repo>/agent-skills`
+- Target: `${CODEX_HOME:-$HOME/.codex}/skills`
+- 只 symlink 具有 `SKILL.md` 的 skill directory。
+- 已存在且指向正確 source 的 symlink 保持不變。
+- 同名目標若不是 symlink，或 symlink 指向其他位置，視為 conflict 並停止完成狀態，不自動覆蓋。
+
+安全檢查：
+
+```bash
+scripts/sync-agent-skills-to-codex.sh --dry-run
+find -L ~/.codex/skills -maxdepth 2 -name SKILL.md -print
+```
+
+若環境使用非預設 Codex home：
+
+```bash
+CODEX_HOME=/path/to/codex-home scripts/sync-agent-skills-to-codex.sh
+```
+
+完成後，如果目前 Codex session 仍看不到新 skills，開新的 Codex session 是最穩定的 reload 方式。
 
 ## Agent 行為規則
 
