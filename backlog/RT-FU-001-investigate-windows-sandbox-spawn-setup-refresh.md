@@ -28,6 +28,14 @@ During `SK-FU-001`, several commands appeared to fail before the target script p
 
 ---
 
+## Current Position
+
+After moving runtime validation to WSL2, this issue is no longer blocking current work. The Windows sandbox spawn/setup failure should remain tracked as a dormant runtime follow-up, not as an active repo defect.
+
+When Codex officially resolves the Windows sandbox behavior, the workspace can move back to a Windows-only setup and avoid cross-environment handoff overhead. Until then, the WSL2 workflow is also useful as a portable cross-environment validation path, which may make the project easier to open source later.
+
+---
+
 ## Observed Pattern
 
 The failure was observed while running local validation or smoke-check commands, especially around:
@@ -195,17 +203,20 @@ The best current hypothesis is that `windows sandbox: spawn setup refresh` is a 
 
 Confidence is moderate because escalated reruns succeeded with valid outputs, but the trigger is not yet isolated.
 
+Current operational status: WSL2 runtime validation avoids the observed Windows sandbox failure, so this item should be revisited when Codex Windows sandbox behavior changes or when deciding whether to return the primary workspace to Windows.
+
 ---
 
 ## Acceptance Criteria
 
 This follow-up is complete when:
 
-- [ ] At least three future occurrences are recorded with exact commands and retry results, or the issue disappears for a meaningful period.
+- [ ] At least three future occurrences are recorded with exact commands and retry results, or the issue disappears for a meaningful period in the Windows sandbox.
 - [ ] The observations distinguish script-level failures from sandbox startup failures.
 - [ ] A recommendation exists for whether to keep using normal sandbox first, retry once in sandbox, escalate immediately for known affected command shapes, or report the runtime issue upstream.
 - [ ] Any recommended escalation pattern remains narrow and avoids broad arbitrary command approval.
 - [ ] Related skill/helper validation logs do not misclassify sandbox startup failures as helper defects.
+- [ ] If Codex resolves the Windows sandbox issue, decide whether to move the primary workspace back to Windows-only or keep WSL2 as a portable open-source validation path.
 
 ---
 
