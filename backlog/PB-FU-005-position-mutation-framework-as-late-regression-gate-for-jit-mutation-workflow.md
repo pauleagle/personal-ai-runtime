@@ -59,7 +59,7 @@ diff / intent / impact
 | spec 還在快速演化，測試邊界常調整 | 先不要引入 framework |
 | 同一類 mutant 反覆出現，manual mutation 開始重複 | 考慮 framework |
 | 模組進入穩定期，要做 release / regression gate | 考慮 framework |
-| 大量條件分支、狀態 aggregation、WAV analyzer、timeline mapper 已成形 | 評估 scoped framework mutation |
+| 大量條件分支、狀態 aggregation、artifact analyzer、timeline mapper 已成形 | 評估 scoped framework mutation |
 
 ---
 
@@ -143,15 +143,15 @@ atomic item / risk key / spec ref
 
 ---
 
-## 8. 參考案例：MVP09-02
+## 8. 泛化參考案例：Evidence / Provenance Gate
 
-`audio-topology-runtime` 的 `MVP09-02` 是典型 manual mutation 足夠的案例。
+某個 atomic item 若只是新增 evidence / provenance gate，通常是 manual mutation 足夠的案例。
 
 範圍：
 
 - provenance gate；
 - deterministic policy / identity / readiness checks；
-- 無 WAV sample analysis；
+- 無大型 artifact sample analysis；
 - 無大型 state aggregation；
 - 主要風險可列為 4 個 mutant。
 
@@ -159,14 +159,14 @@ Manual mutation 檢查：
 
 | Mutant | 目的 |
 |---|---|
-| 移除 concrete WAV missing guard | 確認 expected paths 不能替代 concrete WAV |
-| 把 `candidate_valid` 錯當成 MVP09 selected 狀態 | 確認不能繞過 MVP07 selection evidence |
-| 移除 backend request fingerprint identity comparison | 確認 materialization identity 錯接會被抓到 |
-| provenance gate 繞過 request validation | 確認 MVP09-01 gate 仍是 MVP09-02 前置條件 |
+| 移除 concrete artifact missing guard | 確認 expected paths 不能替代 concrete artifacts |
+| 把 generic valid 狀態錯當成 explicitly selected 狀態 | 確認不能繞過 selection evidence |
+| 移除 request / identity fingerprint comparison | 確認 identity 錯接會被抓到 |
+| provenance gate 繞過 upstream request validation | 確認前置 gate 仍是必要條件 |
 
 結果：4/4 killed。
 
-這類情境不需要立刻引入 framework；framework 較適合等 `MVP09-03` 到 `MVP09-06` 累積 WAV integrity、timeline mapping、boundary evidence、status aggregation 後，再評估是否作為 scoped regression gate。
+這類情境不需要立刻引入 framework；framework 較適合等同一模組累積 artifact integrity、timeline / relationship mapping、boundary evidence、status aggregation 等較厚邏輯後，再評估是否作為 scoped regression gate。
 
 ---
 
