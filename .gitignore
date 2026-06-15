@@ -47,6 +47,9 @@
 # Local handoff cache
 /handoff.md
 
+# Local tool installs
+/.tools/
+
 # Environment files
 .env
 .env.*
