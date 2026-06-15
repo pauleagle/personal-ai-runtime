@@ -21,7 +21,7 @@
 - Overall upstream diff: `AGENTS.md` only, 2 insertions / 2 deletions.
 - Changed upstream notice contact from `tw.lifehacker@gmail.com` to `hey@raymondhouch.com`.
 - Changed upstream course page from `https://lifehacker.tw` to `https://lifehacker.tw/courses/24hr-claude-code-tutorial`.
-- `pro-kit/` diff: no changes detected, so `extracted/pro-kit/` did not need a new Claude → Codex alignment pass for this upstream update.
+- `pro-kit/` diff: no changes detected. Local extracted pro-kit material was removed to keep derived notes within the source-use boundary.
 
 ## License Notes
 
