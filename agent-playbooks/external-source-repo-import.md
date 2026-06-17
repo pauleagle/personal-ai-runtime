@@ -12,7 +12,11 @@ External Source Repo Import 是將外部 Git repository URL 匯入 `external-sou
 
 正式目錄應在確認 clone 可行後才建立。若 clone 前置檢查或 clone 本身失敗，agent 應停止並回報原因，不留下半套來源工作區。
 
-外部 repo 的原始內容應由 `.gitignore` 排除；本專案只追蹤整理後的 metadata、notes、extracted files 與 `.gitkeep`。
+外部 repo 的原始內容應由 `.gitignore` 排除。
+
+`external-source/*/extracted/` 是版權事故高發區，預設應視為本機暫存／萃取工作區；本專案只追蹤該目錄的 `.gitkeep`，不追蹤 extracted 內容檔。若需要把萃取結果納入 repo，應先完成明確的版權與 attribution review，再放入較穩定、可審查的目標文件。
+
+本專案預設只追蹤來源 metadata、notes、license notice、source links 與目錄保留用 `.gitkeep`。
 
 ## 適用時機
 
@@ -114,9 +118,6 @@ external-source/<source-name>/
 │  ├─ open-questions.md
 │  └─ .gitkeep
 ├─ extracted/
-│  ├─ summary.md
-│  ├─ concepts.md
-│  ├─ checklist.md
 │  └─ .gitkeep
 └─ upstream/
    └─ clone/
@@ -143,7 +144,9 @@ external-source/<source-name>/
 - License
 - Related references
 
-`notes/reading-notes.md`、`notes/open-questions.md`、`extracted/summary.md`、`extracted/concepts.md`、`extracted/checklist.md` 應建立為可後續填寫的空模板。
+`notes/reading-notes.md`、`notes/open-questions.md` 應建立為可後續填寫的空模板。
+
+`extracted/` 只建立 `.gitkeep`。不要建立、stage 或追蹤 `extracted/summary.md`、`extracted/concepts.md`、`extracted/checklist.md` 等內容檔；若工作中需要暫存萃取草稿，可放在本機 ignored 的 `extracted/` 目錄內。
 
 ### 7. License 掃描
 
@@ -173,6 +176,16 @@ agent 應確認根目錄 `.gitignore` 包含 upstream ignore 規則：
 
 這個規則應避免 upstream clone 的大量原始檔被本 repo 追蹤，同時保留整理用目錄結構。`upstream/` 仍可容納其他 acquisition method，例如 `crawl/` 或 `snapshot/`，不應被 clone ignore 規則整個排除。
 
+agent 也應確認根目錄 `.gitignore` 包含 extracted ignore 規則：
+
+```gitignore
+# External source extracted workspaces
+/external-source/*/extracted/*
+!/external-source/*/extracted/.gitkeep
+```
+
+這個規則應避免尚未完成版權與 attribution review 的萃取內容被本 repo 追蹤，同時保留 `extracted/` 目錄作為本機工作區。
+
 ### 9. 驗證
 
 agent 應驗證：
@@ -181,7 +194,9 @@ agent 應驗證：
 - upstream clone 成功移入正確位置
 - markdown 檔可用 UTF-8 正常讀取
 - `.gitignore` 沒有忽略來源工作區的整理文件
+- `.gitignore` 有忽略 `external-source/*/extracted/*`，但沒有忽略 `external-source/*/extracted/.gitkeep`
 - `git status --short` 不顯示 upstream repo 的大量原始檔
+- `git status --short` 不顯示 extracted 內容檔；若有，只能是 `extracted/.gitkeep`
 
 ## Agent 行為規則
 
@@ -198,6 +213,8 @@ agent 應驗證：
 agent 不應刪除既有 `external-source/<source-name>/`，除非使用者明確要求。
 
 agent 不應把 upstream repo 內容複製到 `notes/` 或 `extracted/`；這些目錄只放本專案整理後的內容。
+
+agent 不應把 `external-source/*/extracted/` 內容檔加入 git。`extracted/` 預設只保留 `.gitkeep`，任何可提交的萃取成果都應先經過版權與 attribution review，並寫入明確的目標 artifact。
 
 ## 標準 Prompt
 
@@ -217,7 +234,7 @@ agent 不應把 upstream repo 內容複製到 `notes/` 或 `extracted/`；這些
 
 請先確認 `git ls-remote` 或等價檢查可成功；若無法確認或 clone 失敗，請停止並回報，不要建立半套目錄。
 
-clone 成功後，請建立 README、source-links、notes、extracted、`upstream/clone` 結構與 `.gitkeep`，掃描 license，並同步確認根目錄 `.gitignore` 已排除 `/external-source/*/upstream/clone/*`。
+clone 成功後，請建立 README、source-links、notes、extracted、`upstream/clone` 結構與 `.gitkeep`，掃描 license，並同步確認根目錄 `.gitignore` 已排除 `/external-source/*/upstream/clone/*` 與 `/external-source/*/extracted/*`；`extracted/` 只能追蹤 `.gitkeep`。
 
 ## 建議輸出格式
 

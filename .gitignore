@@ -40,6 +40,10 @@
 !/external-source/*/upstream/.gitkeep
 !/external-source/*/upstream/clone/.gitkeep
 
+# External source extracted workspaces
+/external-source/*/extracted/*
+!/external-source/*/extracted/.gitkeep
+
 # Runtime outputs
 /outputs/
 /logs/

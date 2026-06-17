@@ -46,9 +46,7 @@ external-source/
    │  ├─ reading-notes.md
    │  └─ open-questions.md
    ├─ extracted/
-   │  ├─ summary.md
-   │  ├─ concepts.md
-   │  └─ checklist.md
+   │  └─ .gitkeep
    └─ upstream/
       └─ clone/
          └─ <upstream-project>/
@@ -146,9 +144,11 @@ external-source/
 
 ### `extracted/`
 
-放置已經初步整理過的內容。
+本機萃取草稿區。這個目錄預設被 `.gitignore` 排除，只追蹤 `.gitkeep`。
 
-這裡的內容應該比 `notes/` 更結構化，適合後續轉換成：
+因為這裡常放外部來源的初步摘要、概念拆解、片段重組或 checklist，是版權與 attribution 事故高發區，所以不要把內容檔提交進 repo。
+
+若萃取內容已經完成來源確認、版權檢查與 attribution review，應改寫成更穩定、可審查的目標 artifact，例如：
 
 - `agent-playbooks/`
 - `agent-skills/`
@@ -168,7 +168,9 @@ external-source/
 - `upstream/crawl/` 可放網站或文件 crawl 結果
 - `upstream/snapshot/` 可放單次保存的文章、PDF、頁面或資料集
 - 不在 `upstream/` 內直接寫本專案整理筆記
-- 本專案的理解、萃取、轉換結果放在 `notes/` 或 `extracted/`
+- 本專案的閱讀筆記放在 `notes/`
+- 未審查的萃取草稿可放在本機 ignored 的 `extracted/`
+- 可提交的轉換結果應先完成版權與 attribution review，再放到 `knowledge/`、`agent-playbooks/`、`agent-skills/` 或其他明確 artifact
 - 若 Git repo 來源需要更新，優先更新 `upstream/clone/<upstream-project>/`
 
 ---
@@ -182,7 +184,9 @@ external source
   ↓
 notes
   ↓
-extracted summary
+local extracted draft (ignored)
+  ↓
+copyright + attribution review
   ↓
 knowledge / playbook
   ↓
@@ -196,7 +200,9 @@ skill / prompt / checklist
   ↓
 閱讀筆記
   ↓
-萃取摘要
+本機萃取草稿（ignored）
+  ↓
+版權與 attribution review
   ↓
 內部知識或操作流程
   ↓
@@ -356,8 +362,7 @@ personal-ai-runtime/
       │  ├─ reading-notes.md
       │  └─ open-questions.md
       ├─ extracted/
-      │  ├─ problem-map.md
-      │  └─ goal-compiler.md
+      │  └─ .gitkeep
       └─ upstream/
          └─ clone/
             └─ WFGY/
