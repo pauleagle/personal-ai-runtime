@@ -105,18 +105,19 @@
 
 ### 7. Repo Agent Skills Symlink Bootstrap
 
-當 repo 內 `agent-skills/` 是 skill source of truth，而目前 Codex session 尚未看見這些 skills 時，先使用 repo script，不要先萃取成 skill。
+當 repo 內 `agent-skills/` 是 skill source of truth，而目前 agent session（Codex 或 Claude）尚未看見這些 skills 時，先使用 repo script，不要先萃取成 skill。
 
 標準入口：
 
 ```bash
-scripts/sync-agent-skills-to-codex.sh
+scripts/sync-agent-skills-to-agents.sh
 ```
 
 預設行為：
 
 - Source: `<repo>/agent-skills`
-- Target: `${CODEX_HOME:-$HOME/.codex}/skills`
+- Targets: `${CODEX_HOME:-$HOME/.codex}/skills` 與 `${CLAUDE_HOME:-$HOME/.claude}/skills`
+- 可用 `--agents codex` 或 `--agents claude` 只同步單一 agent。
 - 只 symlink 具有 `SKILL.md` 的 skill directory。
 - 已存在且指向正確 source 的 symlink 保持不變。
 - 同名目標若不是 symlink，或 symlink 指向其他位置，視為 conflict 並停止完成狀態，不自動覆蓋。
@@ -124,17 +125,18 @@ scripts/sync-agent-skills-to-codex.sh
 安全檢查：
 
 ```bash
-scripts/sync-agent-skills-to-codex.sh --dry-run
+scripts/sync-agent-skills-to-agents.sh --dry-run
 find -L ~/.codex/skills -maxdepth 2 -name SKILL.md -print
+find -L ~/.claude/skills -maxdepth 2 -name SKILL.md -print
 ```
 
-若環境使用非預設 Codex home：
+若環境使用非預設 agent home：
 
 ```bash
-CODEX_HOME=/path/to/codex-home scripts/sync-agent-skills-to-codex.sh
+CODEX_HOME=/path/to/codex-home CLAUDE_HOME=/path/to/claude-home scripts/sync-agent-skills-to-agents.sh
 ```
 
-完成後，如果目前 Codex session 仍看不到新 skills，開新的 Codex session 是最穩定的 reload 方式。
+完成後，如果目前 agent session 仍看不到新 skills，開新的 session 是最穩定的 reload 方式。
 
 ## Agent 行為規則
 
