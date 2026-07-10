@@ -286,7 +286,7 @@ claude \
 以下第一點來自 Claude 對自家 runtime 的認識，依 RTR-01 的證據優先序屬於**模型自述（claim）**，取得自然樣本前不得寫入歸因表：
 
 - （claim）Claude 的流量層錯誤預期有兩族不同形態：subscription 用量視窗耗盡（harness 層訊息，帶 reset 時間提示，可能不出現在 JSON error 欄位）與 API 層 `429 rate_limit_error` / `529 overloaded_error`（API error shape，可能帶 `retry-after`）。兩者觀察面不同，取樣時 auth provider 必須分開記錄，否則兩族樣本會互相污染。
-- （結構判斷，不依賴自述）coordinator 與 subagent 走同一份 auth 憑證，共用同一帳務主體的流量池 — **委派不會繞過配額**。因此同 runtime 內「換一個模型重試」對配額耗盡大概率無效；跨 runtime fallback（Claude 流量盡 → 改派 Codex，反之亦然）是唯一在結構上可能有效的方向。對 RTR-01 的直接含意：配額狀態應以 **runtime 為單位**追蹤，不是以模型為單位。
+- （結構判斷）同一個 CLI session 內的 coordinator 與 subagent 通常沿用同一 auth principal；委派本身不會建立新的 entitlement，因此**不能假設 subagent 能繞過原帳號的配額限制**。但「同一 auth principal」不足以證明 quota pool 的粒度：provider 仍可能依帳號、runtime、模型、access mode、時間窗或 credits 分池。同 runtime 換模型與跨 runtime fallback 都只能列為候選，是否有效須由 live probe 證明；配額狀態應同時記錄 `auth_principal`、`quota_scope`（未知時明記 `unknown`）、模型與 access mode，不能只以 runtime 為單位推定。
 
 ### OBS-02：新模型上線或計價／entitlement 轉換
 
@@ -306,7 +306,7 @@ claude \
 
 #### Claude 側補充判斷
 
-- **已預告的 entitlement 轉換是一次性自然實驗窗口。** 與 OBS-01 的「等自然遇到」不同，轉換常有已知日期 — 轉換前用 subscription 身分採樣是免費的，錯過轉換點就永遠無法重建「轉換前」對照組。因此對照採樣值得在已知轉換日**之前**主動排程（同一最小 prompt + 同一呼叫路徑）；轉換後的第一次採樣若可能扣點數，先取得使用者同意。
+- **已預告的 entitlement 轉換是一次性自然實驗窗口。** 與 OBS-01 的「等自然遇到」不同，轉換常有已知日期；錯過轉換點就無法重建相同 entitlement 下的「轉換前」對照組。因此對照採樣值得在已知轉換日**之前**主動排程（同一最小 prompt + 同一呼叫路徑）。轉換前樣本只能稱為「目前 entitlement 內可用」，不能直接稱為免費；轉換後的第一次採樣若可能扣點數，先取得使用者同意。
 - **alias 漂移與模型上線不同步。** `opus` / `sonnet` / `haiku` 這類 family alias 改指新版本的時點，和新模型可用的時點是兩個獨立事件。轉換觀察應同時記錄 alias 呼叫與精確 model ID 呼叫的結果，否則無法區分「模型行為變了」與「alias 指向變了」。
 - **「後端已服務、本地 CLI 未認識」的窗口兩側都可能存在。** Codex 側已有實測形態（metadata fallback 警告、版本 gating 400）；Claude 側對應形態尚無樣本，遇到剛上線模型時記錄是否有等價的本地警告或版本 gating，補進第 3 節歸因表。
 
@@ -326,11 +326,11 @@ claude \
 
 原始發想是「各模型會知道自家當前哪幾個的特性／擅長點，可模板化取得」。Claude 側支持模板化，但自述有三個結構性邊界，模板設計必須內建，否則第 5 級證據會被高估：
 
-1. **Knowledge cutoff 盲點。** 模型只認識自己 training cutoff 之前的模型；cutoff 之後上線的（包含比自己新的自家模型）它一無所知，或只有 harness 注入的隻字片語。自述模板**必須要求模型附上自己的 knowledge cutoff**；詢問對象的 cutoff 早於候選模型上線日時，該 claim 應直接判無效，而不是降信心。
-2. **家族不對稱性。** 模型對自家模型族的認識深於對方家，模板化取得自述應**各問各家**：經本 playbook 的雙向委派管道，向 Claude 取 Claude 家 claim、向 Codex 取 GPT 家 claim，不要問單一模型拿全部候選的特性。跨家 claim（Claude 評論 GPT 模型、反之）的信心上限應低於自家 claim。
-3. **Harness 注入訊號比模型記憶新。** 兩個 runtime 的 system prompt 都可能注入「當前最新模型」的 metadata（Claude Code 會告知最新 model family 與 ID）。這個來源比模型參數記憶新、比 live probe 舊，證據新鮮度介於第 3 級（官方 catalog）與第 5 級（自述）之間。自述模板應要求模型區分每條 claim 的來源是 `training-memory` 還是 `harness-injected`，不要混在一起回。
+1. **Training-memory coverage 盲點。** 若一條 claim 的唯一來源是 `training-memory`，且可驗證的 knowledge coverage / cutoff 早於候選模型上線日，該 claim 應判無效，而不是只降信心。但模型未必能可靠自述精確 cutoff；模板應要求填來源與 coverage，無可靠 metadata 時標成 `unknown`。若同一 claim 有 `harness-injected`、官方資料或 `live-probe` 證據，不能因 training cutoff 較早就一併否決，應分來源評估。
+2. **家族不對稱性是 heuristic，不是硬規則。** 模板化取得自述時仍優先**各問各家**：向 Claude 取 Claude 家 claim、向 Codex 取 GPT 家 claim；純 `training-memory` 的跨家 claim 預設較低信心。但跨家 claim 若直接引用官方 catalog、runtime metadata 或 live probe，可依該證據本身提升信心，不應只因回答者屬於另一家就設固定上限。
+3. **Harness 注入是獨立 provenance，不保證固定新鮮度。** runtime 的 system prompt 可能注入比 training memory 新的 model metadata，但內容仍可能簡化、延遲或只描述預設模型。自述模板應要求每條 claim 區分 `training-memory`、`harness-injected`、`official-catalog` 或 `live-probe`，並記錄可得的 `observed_at`；在未核對更新時間前，不要只因來源是 harness 就預設其證據等級必然介於官方 catalog 與模型記憶之間。
 
-自述模板的最小輸出契約可直接沿用下方候選 schema：每條 claim 填 `strength_claims` 與 `confidence`，`observed_at` 填詢問時間，`evidence` 標注 `training-memory` / `harness-injected` / `live-probe` 之一。
+自述模板的最小輸出契約可直接沿用下方候選 schema：每條 claim 填 `strength_claims` 與 `confidence`，`observed_at` 填詢問時間，`evidence` 分別標注 `training-memory` / `harness-injected` / `official-catalog` / `live-probe`，不要把多來源壓成單一標籤。
 
 Router 輸入至少包含：
 
@@ -349,6 +349,7 @@ Router 輸入至少包含：
   "model": "alias-or-model-id",
   "availability": "available|unavailable|unknown",
   "access_mode": "subscription|credits|api|unknown",
+  "quota_scope": "account|runtime|model|access-mode|unknown",
   "strength_claims": [],
   "constraints": [],
   "evidence": [],
@@ -392,6 +393,8 @@ Router 不應靜默覆寫使用者指定模型。未指定模型時，也不應�
 - 若探測結果顯示需要升級帳號方案或處理 credential，回報邊界與使用者可自行執行的命令，不要自行操作。
 - 不要為了觀察配額錯誤而刻意耗盡流量，也不要在未取得同意前用付費點數探測 entitlement 轉換。
 - 不要把模型自述直接當成 router truth；至少與 live availability 或另一項可追蹤證據交叉檢查。
+- 不要從共用 auth principal 直接推導共用 quota pool；quota scope 未經觀察時保持 `unknown`。
+- 只有純 `training-memory` claim 才能依 knowledge cutoff / coverage 淘汰；harness、官方 catalog 與 live probe 證據應分開判讀。
 - 驗證結果若含版本號、模型白名單這類會過期的事實，寫進工作日誌或 handoff，**不要寫進本 playbook 正文**。
 
 ## 標準 Prompt
