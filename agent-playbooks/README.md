@@ -116,6 +116,7 @@ Skill 不應只是複製 playbook 全文。若 playbook 有背景說明、設計
 | `release-preflight.md` | - | `draft` | 發版、tag、README、CHANGELOG 與 Git 狀態檢查流程 |
 | `utf8-traditional-chinese-defaults.md` | `utf8-traditional-chinese-defaults/` | `aligned` | 文件讀寫預設 UTF-8、繁體中文優先，並在 PowerShell 文字輸出時明確使用 `-Encoding UTF8` |
 | `cross-environment-cli-bootstrap.md` | - | `draft` | 跨 Windows/WSL/sandbox 環境補齊任務必要 CLI、user-local 工具、臨時 script 與驗證流程 |
+| `cross-agent-model-delegation.md` | - | `draft` | 跨 Claude / Codex runtime 的指定模型委派、探測、錯誤歸因與三層驗證；含配額／entitlement 觀察及 capability-aware router 研究 backlog |
 
 ## 命名
 
