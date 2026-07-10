@@ -9,6 +9,36 @@ description: Use after Devil's Advocate Review to resolve numbered objections fr
 
 Turn review objections into resolved spec changes, explicit deferred rationale, accepted human risk, or a blocked gate before atomic decomposition.
 
+## Script-First Execution
+
+Read the numbered objection list and the affected spec sections directly from their artifacts. When a durable orchestrator state artifact exists as JSON, validate it first:
+
+```sh
+python agent-skills/orchestrator-state-machine/scripts/validate_orchestrator_state.py path/to/state.json --json
+```
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+Use LLM judgement only for resolution decisions and gate status.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `devils-advocate-drill-down`
+- Execution Profile: `heavy-llm`
+- Reusable Rules: every objection gets a status, processed `Low` to `High`; `open` or unresolved `confirmed` objections block `workflow-atomic-decomposition`; `deferred-with-rationale` needs a reason and non-blocking explanation; `accepted-risk-by-human` must name the human decision.
+- Scope / Governance Defaults: no atomic item implementation here; do not silently drop objections; do not mark the gate `pass` if compatibility or replacement policy is missing for a major behavior change.
+- Output Contract: see the `### Devil's Advocate Drill-down Report` template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
+
 ## Workflow
 
 1. Read the numbered Devil's Advocate objections, current spec, scope, non-goals, and human decisions already made.
@@ -45,11 +75,21 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- objection resolution table
-- spec patch requirements
-- compatibility or replacement decision table
-- deferred items and rationale
-- accepted risks and human decisions
-- atomic decomposition gate status
+```md
+### Devil's Advocate Drill-down Report
+
+| ID | Status | Resolution Or Rationale | Spec Patch Required | Human Decision |
+| --- | --- | --- | --- | --- |
+|  |  |  |  |  |
+
+| Change | Compatibility Or Replacement Policy | Decision | Decided By |
+| --- | --- | --- | --- |
+|  |  |  |  |
+
+- Spec patch requirements:
+- Deferred items and rationale:
+- Accepted risks and human decisions:
+- Atomic decomposition gate status: pass | blocked
+```

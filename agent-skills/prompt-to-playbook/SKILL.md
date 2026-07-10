@@ -13,17 +13,35 @@ Turn a one-off prompt, successful case, or repeated task instruction into a reus
 
 Before creating or updating a local playbook file, inspect deterministic repository facts for the request:
 
-```powershell
+```sh
 python agent-skills/prompt-to-playbook/scripts/inspect_playbook_request.py --repo-root . --target-playbook agent-playbooks/name.md --json
 ```
 
 If the source prompt or example is a local file, include it:
 
-```powershell
+```sh
 python agent-skills/prompt-to-playbook/scripts/inspect_playbook_request.py --repo-root . --source path/to/prompt.md --target-playbook agent-playbooks/name.md --json
 ```
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape. The helper checks source file evidence, target playbook path safety, `agent-playbooks/README.md` mapping presence, mapped skills, status values, and whether updating a mapped aligned playbook requires `skill-extracted` status until resync. Use LLM judgement after this evidence to decide whether the prompt is reusable, how to generalize it, and what content belongs in the playbook.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable. The helper checks source file evidence, target playbook path safety, `agent-playbooks/README.md` mapping presence, mapped skills, status values, and whether updating a mapped aligned playbook requires `skill-extracted` status until resync. Use LLM judgement after this evidence to decide whether the prompt is reusable, how to generalize it, and what content belongs in the playbook.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `prompt-to-playbook`
+- Execution Profile: `heavy-llm`
+- Reusable Rules: preserve the prompt's reusable intent, not its one-off wording; add `適用時機` / `不適用時機` and `Agent 行為規則`; keep the standard prompt copyable and practical; downgrade an `aligned` mapped playbook to `skill-extracted` after changing it until the skill is reviewed and resynced.
+- Scope / Governance Defaults: do not auto-extract the playbook into a general task skill; do not create per-skill README/scripts/references/assets or `agents/openai.yaml` unless separately requested; do not invent stable process rules from a vague prompt — report gaps instead.
+- Output Contract: `### Prompt To Playbook Report` template (see `## Output`).
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -64,14 +82,18 @@ After creating or updating files:
 1. Check that the playbook follows `agent-playbooks/README.md`.
 2. Check that the playbook is generalized beyond the source prompt.
 3. Check that README tables are consistent when changed.
-4. Run `quick_validate.py` for this skill when the skill itself is created or edited.
+4. When README mappings changed, run `python agent-skills/playbook-to-skill/scripts/audit_skill_inventory.py --repo-root . --json` and confirm `valid` is true; when this skill's helper changed, also run `python -m unittest discover -s tests/agent_skills -q`.
 
 ## Output
 
-When reporting results, include:
+Use this report template:
 
-- Files changed
-- New or updated playbook
-- New or updated skill, if any
-- README updates
-- Validation result
+```md
+### Prompt To Playbook Report
+
+- Files changed:
+- New or updated playbook:
+- New or updated skill, if any:
+- README updates:
+- Validation result:
+```

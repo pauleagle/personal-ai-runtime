@@ -13,13 +13,31 @@ Check whether tests can detect meaningful broken behavior, not merely whether co
 
 Before choosing framework mutation, manual mutation, or a blocked/skipped result, collect deterministic tooling evidence:
 
-```powershell
-python agent-skills\mutation-testing\scripts\detect_mutation_test_tools.py --repo-root . --json
+```sh
+python agent-skills/mutation-testing/scripts/detect_mutation_test_tools.py --repo-root . --json
 ```
 
 The helper detects available mutation/test binaries, `package.json` test or mutation scripts, Python project markers, test directories, and candidate commands. It does not run tests or mutation tooling. Treat its output as availability evidence only; do not report killed, survived, equivalent, or mutation score unless a separate mutation or manual mutation check was actually executed.
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `mutation-testing`
+- Execution Profile: `hybrid`
+- Reusable Rules: never claim mutation tooling ran when it did not; mutation scope follows the impact set; survived mutations require gap classification.
+- Scope / Governance Defaults: do not broaden to full-scope mutation when cost or relevance is unjustified; do not add tests solely to improve mutation score; do not decide spec evolution alone.
+- Output Contract: see the Mutation Testing Report template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -66,15 +84,19 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- mutation mode
-- impacted scope
-- mutants
-- commands run
-- framework mutation score, when produced
-- killed mutations
-- survived mutations
-- equivalent or suspicious mutations
-- skipped or blocked reason
-- limitations
+```md
+### Mutation Testing Report
+
+- Mutation Mode:
+- Impacted Scope:
+- Mutants:
+- Commands Run:
+- Framework Mutation Score, When Produced:
+- Killed Mutations:
+- Survived Mutations:
+- Equivalent Or Suspicious Mutations:
+- Skipped Or Blocked Reason:
+- Limitations:
+```

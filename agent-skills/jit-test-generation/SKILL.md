@@ -9,6 +9,38 @@ description: Use to generate or select focused just-in-time tests from diff, int
 
 Generate or select focused tests for the current change, based on actual diff impact and spec-traced risk.
 
+## Script-First Execution
+
+Before selecting or generating tests, collect deterministic evidence with the existing helpers:
+
+```sh
+python agent-skills/diff-analysis/scripts/collect_git_diff_evidence.py --repo-root . --json
+python agent-skills/impact-analysis/scripts/collect_impact_evidence.py --repo-root . --json
+python agent-skills/mutation-testing/scripts/detect_mutation_test_tools.py --repo-root . --json
+```
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+Use these to ground diff scope, impacted paths, and available test commands; use LLM judgement only for selecting or designing the candidate tests and their traceability metadata.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `jit-test-generation`
+- Execution Profile: `heavy-llm`
+- Reusable Rules: generated tests are not trusted by default; every JIT test needs a spec ref or risk item; do not generate broad full-suite tests as a substitute for impact analysis; do not persist generated tests unless promotion criteria are met.
+- Scope / Governance Defaults: do not mutate code; do not mark tests trusted; do not update long-term regression suites without explicit promotion.
+- Output Contract: see the JIT Test Generation Report template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
+
 ## Workflow
 
 1. Read diff analysis, intent analysis, impact analysis, spec refs, existing test inventory, and validation gaps.
@@ -48,13 +80,17 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- selected existing tests
-- generated JIT test candidates
-- traceability metadata
-- reproducibility notes
-- expected behavior
-- expected mutant or failure mode, when relevant
-- candidate status
-- validation handoff
+```md
+### JIT Test Generation Report
+
+- Selected Existing Tests:
+- Generated JIT Test Candidates:
+- Traceability Metadata:
+- Reproducibility Notes:
+- Expected Behavior:
+- Expected Mutant Or Failure Mode, When Relevant:
+- Candidate Status:
+- Validation Handoff:
+```

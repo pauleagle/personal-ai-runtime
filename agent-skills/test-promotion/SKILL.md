@@ -15,6 +15,24 @@ Before promotion judgement, collect deterministic evidence for the candidate tes
 
 Use LLM judgement only after evidence collection to classify promotion level, weigh mutation strength, identify traceability gaps, and decide whether a test should be refined, persisted, or discarded.
 
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `test-promotion`
+- Execution Profile: `heavy-llm`
+- Reusable Rules: promotion runs `L0` (generated) through `L3` (persisted) with evidence required at each step; do not keep tests only because they increase count or coverage; do not promote a test just because it passes the full suite without explaining what risk it protects.
+- Scope / Governance Defaults: do not persist tests without clear promotion evidence; do not change spec to justify a weak test; do not hide discarded tests that reveal a real gap.
+- Output Contract: see the `### Test Promotion Report` template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
+
 ## Workflow
 
 1. Read test origin, spec refs, baseline results, mutation results, impacted scope, stability notes, and test effectiveness evaluation.
@@ -53,13 +71,20 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- test promotion table
-- promoted tests
-- persisted test targets
-- discarded tests
-- refinement needs
-- traceability notes
-- impacted risk or mutation evidence
-- maintenance risk
+```md
+### Test Promotion Report
+
+| Test | Origin | Level (L0-L3) | Evidence | Decision | Target Suite |
+| --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  |  |
+
+- Promoted Tests:
+- Persisted Test Targets:
+- Discarded Tests:
+- Refinement Needs:
+- Traceability Notes:
+- Impacted Risk Or Mutation Evidence:
+- Maintenance Risk:
+```

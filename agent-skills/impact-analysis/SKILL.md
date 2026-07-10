@@ -13,19 +13,37 @@ Determine what a change can affect and classify verification gaps so testing, mu
 
 Collect changed-path evidence before semantic impact judgement:
 
-```powershell
-python agent-skills\impact-analysis\scripts\collect_impact_evidence.py --repo-root . --json
+```sh
+python agent-skills/impact-analysis/scripts/collect_impact_evidence.py --repo-root . --json
 ```
 
 For staged-only impact review:
 
-```powershell
-python agent-skills\impact-analysis\scripts\collect_impact_evidence.py --repo-root . --staged --json
+```sh
+python agent-skills/impact-analysis/scripts/collect_impact_evidence.py --repo-root . --staged --json
 ```
 
 The helper records Git status/diff paths and mechanically classifies paths as `source`, `tests`, `specs`, `docs`, `config`, `generated`, or `other`. Use this as evidence for likely affected areas; use LLM judgement after that to classify risk, confidence, validation recommendations, rerun point, and human decision needs.
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `impact-analysis`
+- Execution Profile: `hybrid`
+- Reusable Rules: impact must trace to diff, intent, spec, tests, or known dependency; do not escalate every change to full-scope testing by default; do not hide spec gaps as test gaps; distinguish low-confidence impact from confirmed impact.
+- Scope / Governance Defaults: do not implement fixes; do not run tests unless asked; do not accept breaking changes without human decision.
+- Output Contract: see the Impact Analysis Report template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -64,13 +82,17 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- impacted components
-- impacted specs
-- impacted tests
-- risk classification
-- impact confidence
-- focused validation recommendation
-- rerun point
-- human decision needed
+```md
+### Impact Analysis Report
+
+- Impacted Components:
+- Impacted Specs:
+- Impacted Tests:
+- Risk Classification:
+- Impact Confidence:
+- Focused Validation Recommendation:
+- Rerun Point:
+- Human Decision Needed:
+```

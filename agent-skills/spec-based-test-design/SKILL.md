@@ -9,6 +9,36 @@ description: Use to design tests from accepted specs or atomic items, preserving
 
 Design tests from the correctness spec so validation checks behavior, boundaries, invariants, and regression risk rather than only increasing coverage.
 
+## Script-First Execution
+
+Before designing tests, collect deterministic evidence about changed paths and existing tests:
+
+```sh
+python agent-skills/impact-analysis/scripts/collect_impact_evidence.py --repo-root . --json
+```
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+Use targeted file reads and `rg` to enumerate existing test files and the spec sections or acceptance criteria under design. Use LLM judgement only for scenario selection and the test matrix itself.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `spec-based-test-design`
+- Execution Profile: `heavy-llm`
+- Reusable Rules: every durable test must trace to a spec ref, risk item, or atomic item; do not write tests only for coverage metrics; include negative and boundary cases when the spec defines them; distinguish existing tests, proposed tests, and generated candidate tests.
+- Scope / Governance Defaults: do not implement product code; do not run mutation testing (use `mutation-testing`); do not invent behavior not present in spec.
+- Output Contract: see the `### Spec-Based Test Design Report` template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
+
 ## Workflow
 
 1. Read the accepted spec, atomic item metadata, acceptance criteria, invariants, error conditions, existing tests, and allowed scope.
@@ -45,12 +75,19 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- test matrix
-- spec-to-test mapping
-- atomic-item-to-test mapping
-- selected existing tests
-- proposed new tests
-- edge and error cases
-- test gaps
+```md
+### Spec-Based Test Design Report
+
+| Test | Kind (existing / proposed / candidate) | Spec Ref | Atomic Item | Scenario |
+| --- | --- | --- | --- | --- |
+|  |  |  |  |  |
+
+- Spec-To-Test Mapping:
+- Atomic-Item-To-Test Mapping:
+- Selected Existing Tests:
+- Proposed New Tests:
+- Edge And Error Cases:
+- Test Gaps:
+```

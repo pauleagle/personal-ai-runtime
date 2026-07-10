@@ -13,11 +13,31 @@ Apply accepted governance decisions to specs, tests, and workflow artifacts so b
 
 When the spec/test evolution work is represented as a local JSON plan, validate the plan before editing specs, tests, indexes, or workflow notes:
 
-```powershell
+```sh
 python agent-skills/spec-test-evolution/scripts/validate_spec_test_evolution_plan.py path/to/evolution-plan.json --json
 ```
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape. The helper checks that decision source, affected artifacts, update groups, traceability refs, rerun point, and next validation step are present. It warns when the decision source looks unresolved or root index traceability is absent. Use LLM judgement after this deterministic check to decide whether the evolution is semantically correct and whether human approval is still required.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+The helper checks that decision source, affected artifacts, update groups, traceability refs, rerun point, and next validation step are present. It warns when the decision source looks unresolved or root index traceability is absent. Use LLM judgement after this deterministic check to decide whether the evolution is semantically correct and whether human approval is still required.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `spec-test-evolution`
+- Execution Profile: `hybrid`
+- Reusable Rules: do not evolve spec without a human decision when correctness is ambiguous; do not leave behavior changes only in implementation or tests; follow-up items require parent backlink and root/local index visibility; set the rerun point to the earliest affected workflow step when a gap requires rework.
+- Scope / Governance Defaults: do not implement unrelated changes; do not promote backlog items into accepted spec without approval; do not mark the workflow complete while traceability gaps remain.
+- Output Contract: see the `### Spec/Test Evolution Report` template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -56,14 +76,18 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- decision applied
-- spec updates
-- test updates
-- index or README updates
-- workflow note updates
-- traceability updates
-- rerun point
-- remaining gaps
-- next validation step
+```md
+### Spec/Test Evolution Report
+
+- Decision Applied:
+- Spec Updates:
+- Test Updates:
+- Index Or README Updates:
+- Workflow Note Updates:
+- Traceability Updates:
+- Rerun Point:
+- Remaining Gaps:
+- Next Validation Step:
+```

@@ -13,13 +13,31 @@ Keep long-running spec-driven work in durable artifacts rather than chat context
 
 Before semantic state decisions, validate durable state artifacts when they are JSON:
 
-```powershell
-python agent-skills\orchestrator-state-machine\scripts\validate_orchestrator_state.py <state-file> --json
+```sh
+python agent-skills/orchestrator-state-machine/scripts/validate_orchestrator_state.py <state-file> --json
 ```
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
 
 The helper checks required cursor/status fields and queue shapes. It does not decide which job should run next; use LLM judgement after validation for dependency, usage, validation, human decision, and merge gates.
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `orchestrator-state-machine`
+- Execution Profile: `hybrid`
+- Reusable Rules: `workflow_step` is a live progress cursor, not a static history label; subagent output does not count as progress until merged into durable state; human decisions block state advancement until recorded; do not mark partial or failed jobs completed.
+- Scope / Governance Defaults: state artifacts are the only in-scope change target here; do not infer completed work from chat memory alone; do not run parallel jobs when dependency or merge policy is unclear.
+- Output Contract: see the `### Orchestrator State Report` template under Output.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -59,13 +77,17 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- current state
-- workflow_step
-- ready queue
-- blocked queue and reasons
-- selected next job
-- state patch proposal or history
-- checkpoint status
-- resume note
+```md
+### Orchestrator State Report
+
+- current state:
+- workflow_step:
+- ready queue:
+- blocked queue and reasons:
+- selected next job:
+- state patch proposal or history:
+- checkpoint status:
+- resume note:
+```

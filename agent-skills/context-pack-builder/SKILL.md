@@ -13,13 +13,13 @@ Create minimal but sufficient context packs so subagents can run one bounded job
 
 After selecting candidate sources, build deterministic source metadata before handing the pack to a subagent:
 
-```powershell
-python agent-skills\context-pack-builder\scripts\build_context_manifest.py --repo-root . --json <source> [<source> ...]
+```sh
+python agent-skills/context-pack-builder/scripts/build_context_manifest.py --repo-root . --json <source> [<source> ...]
 ```
 
 The helper checks file existence, source kind, relative path, byte size, line count, SHA-256, missing sources, directories, outside-repo paths, and per-file size warnings. Use this as the manifest evidence layer; use LLM judgement to decide inclusion rationale, exclusions, compact prior findings, allowed scope, forbidden scope, validation requirements, and output contract.
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
 
 ## Prompt / Handoff Contract
 
@@ -82,15 +82,19 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- context pack manifest
-- stable prefix / dynamic run packet, when handing off to a subagent
-- included sources
-- excluded sources
-- compact prior findings
-- allowed scope
-- forbidden scope
-- validation requirements
-- output contract
-- stale or missing artifact warnings
+```md
+### Context Pack Report
+
+- context pack manifest:
+- stable prefix / dynamic run packet, when handing off to a subagent:
+- included sources:
+- excluded sources:
+- compact prior findings:
+- allowed scope:
+- forbidden scope:
+- validation requirements:
+- output contract:
+- stale or missing artifact warnings:
+```

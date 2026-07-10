@@ -9,19 +9,19 @@ description: Use when creating, reading, updating, normalizing, or converting te
 
 When validating Codex skills or investigating Windows encoding failures, use the bundled UTF-8-safe validator before treating a validation failure as a skill defect.
 
-```powershell
-python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\<skill-name>
+```sh
+python agent-skills/utf8-traditional-chinese-defaults/scripts/validate_skill_utf8.py agent-skills/<skill-name>
 ```
 
 For structured evidence:
 
-```powershell
-python agent-skills\utf8-traditional-chinese-defaults\scripts\validate_skill_utf8.py agent-skills\<skill-name> --json
+```sh
+python agent-skills/utf8-traditional-chinese-defaults/scripts/validate_skill_utf8.py agent-skills/<skill-name> --json
 ```
 
 The validator reads `SKILL.md` with explicit `encoding="utf-8"` and reports decode errors cleanly. Use LLM judgement after this deterministic check to decide whether the issue is a file encoding problem, terminal display problem, validator limitation, or actual frontmatter defect.
 
-Run the validator from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
 
 ## Workflow
 
@@ -47,10 +47,14 @@ Run the validator from Windows PowerShell or Linux/macOS shells with the same Py
 
 ## Output Notes
 
-When relevant, include:
+When relevant, use this report template:
 
-- Files changed
-- Encoding used or verified
-- Language convention followed
-- Validation performed
-- Any reason for deviating from UTF-8 or Traditional Chinese defaults
+```md
+### Encoding Report
+
+- Files changed:
+- Encoding used or verified:
+- Language convention followed:
+- Validation performed:
+- Any reason for deviating from UTF-8 or Traditional Chinese defaults:
+```

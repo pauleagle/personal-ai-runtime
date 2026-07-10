@@ -15,7 +15,7 @@ Before LLM judgement, collect deterministic evidence that matches the current wo
 
 Common entry checks:
 
-```powershell
+```sh
 python agent-skills/diff-analysis/scripts/collect_git_diff_evidence.py --repo-root . --json
 python agent-skills/impact-analysis/scripts/collect_impact_evidence.py --repo-root . --json
 python agent-skills/mutation-testing/scripts/detect_mutation_test_tools.py --repo-root . --json
@@ -23,12 +23,14 @@ python agent-skills/mutation-testing/scripts/detect_mutation_test_tools.py --rep
 
 When the corresponding artifacts exist, validate them before semantic interpretation:
 
-```powershell
+```sh
 python agent-skills/orchestrator-state-machine/scripts/validate_orchestrator_state.py path/to/state.json --json
 python agent-skills/context-pack-builder/scripts/build_context_manifest.py --repo-root . --json <source> [<source> ...]
 python agent-skills/atomic-subagent-runner/scripts/validate_subagent_job_contract.py path/to/job.json --json
 python agent-skills/spec-test-evolution/scripts/validate_spec_test_evolution_plan.py path/to/evolution-plan.json --json
 ```
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
 
 Use LLM reasoning after these checks to interpret impact, resolve ambiguity, classify gaps, frame human decisions, and decide which child skill should own the next step.
 
@@ -46,6 +48,24 @@ Read `agent-playbooks/spec-driven-change-verification-workflow-playbook.md` only
 - the task explicitly requires updating the playbook itself.
 
 When playbook context is needed, search for the specific section and read only the relevant excerpt. Do not pull the full playbook into context as a routine setup step.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `spec-driven-change-verification`
+- Execution Profile: `hybrid`
+- Reusable Rules: spec defines correctness with traceable refs; report mutation honestly; humans decide ambiguity and breaking behavior; durable state lives outside chat.
+- Scope / Governance Defaults: not for trivial edits with no behavior, spec, or test impact; do not start implementation while spec refs or acceptance criteria are materially unclear; do not merge unrelated refactors into an atomic item or mark a workflow step complete while validation, state updates, or human decisions are missing.
+- Output Contract: see the `### Spec-Driven Change Verification Report` template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -125,15 +145,19 @@ Before reporting completion, check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- current workflow step and atomic item
-- spec refs and allowed scope
-- playbook sections read, if any
-- changes made
-- tests and validation run
-- mutation result or manual mutation note
-- gap classification
-- durable state updates
-- human decisions needed
-- next step
+```md
+### Spec-Driven Change Verification Report
+
+- Current workflow step and atomic item:
+- Spec refs and allowed scope:
+- Playbook sections read, if any:
+- Changes made:
+- Tests and validation run:
+- Mutation result or manual mutation note:
+- Gap classification:
+- Durable state updates:
+- Human decisions needed:
+- Next step:
+```

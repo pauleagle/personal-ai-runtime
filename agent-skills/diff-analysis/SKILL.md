@@ -13,19 +13,37 @@ Inspect changes after implementation or before review so verification is driven 
 
 Collect deterministic Git evidence before semantic diff judgement.
 
-```powershell
-python agent-skills\diff-analysis\scripts\collect_git_diff_evidence.py --repo-root . --json
+```sh
+python agent-skills/diff-analysis/scripts/collect_git_diff_evidence.py --repo-root . --json
 ```
 
 For staged-only review:
 
-```powershell
-python agent-skills\diff-analysis\scripts\collect_git_diff_evidence.py --repo-root . --staged --json
+```sh
+python agent-skills/diff-analysis/scripts/collect_git_diff_evidence.py --repo-root . --staged --json
 ```
 
 The helper records `git status --short`, `git diff --name-only`, `git diff --name-status`, and `git diff --stat`. Use this output as the file-level evidence layer; use LLM judgement only after that to classify changed components, behavior-change candidates, unrelated edits, impacted specs/tests, and validation scope.
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `diff-analysis`
+- Execution Profile: `hybrid`
+- Reusable Rules: do not treat all changed files as intended; call out unrelated edits and untracked noise; do not infer correctness from a clean diff alone; keep file-level and behavior-level observations separate.
+- Scope / Governance Defaults: read-only (no file edits); route acceptability ambiguity to human decision or decision proposal; do not run tests unless explicitly asked.
+- Output Contract: see the Diff Analysis Report template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -64,12 +82,16 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- changed files
-- changed components
-- behavior-change candidates
-- unrelated edits or workspace noise
-- impacted specs
-- impacted tests
-- recommended validation scope
+```md
+### Diff Analysis Report
+
+- Changed Files:
+- Changed Components:
+- Behavior-Change Candidates:
+- Unrelated Edits Or Workspace Noise:
+- Impacted Specs:
+- Impacted Tests:
+- Recommended Validation Scope:
+```

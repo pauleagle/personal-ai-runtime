@@ -13,12 +13,32 @@ Infer what a change is trying to accomplish and where intent is uncertain, so im
 
 Before inferring intent, collect deterministic evidence when local repo artifacts are available:
 
-```powershell
+```sh
 python agent-skills/diff-analysis/scripts/collect_git_diff_evidence.py --repo-root . --json
 python agent-skills/impact-analysis/scripts/collect_impact_evidence.py --repo-root . --json
 ```
 
 Use commit messages, PR text, user prompts, specs, and atomic item metadata as stated evidence when available. Use LLM judgement only to infer the likely intent, confidence, contradictions, spec alignment, and behavior drift risk. Do not ask the LLM to rediscover changed files, path categories, or git status when the local helpers can collect them.
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `intent-analysis`
+- Execution Profile: `heavy-llm`
+- Reusable Rules: treat intent as inference, not fact, unless explicitly stated by the user or spec; always state confidence and uncertainty; do not expand scope based on guessed intent; report spec conflicts instead of silently accepting them.
+- Scope / Governance Defaults: read-only (no file edits); do not decide correctness alone; do not generate tests without impact context.
+- Output Contract: see the Intent Analysis Report template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -56,12 +76,16 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- inferred intent
-- evidence
-- confidence
-- uncertainty
-- spec alignment
-- behavior drift risk
-- next analysis step
+```md
+### Intent Analysis Report
+
+- Inferred Intent:
+- Evidence:
+- Confidence: high | medium | low
+- Uncertainty:
+- Spec Alignment:
+- Behavior Drift Risk:
+- Next Analysis Step:
+```

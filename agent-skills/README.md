@@ -70,6 +70,17 @@ Execution profile describes how much of a skill's reliable execution should come
 
 Use the profile as an execution hint, not as a permission boundary. Script-first minimization applies to every profile: when a command, parser, validator, or file read can establish a fact, run it before LLM judgement. A `heavy-llm` skill should still use scripts for file, diff, test, or validator facts when available.
 
+## Helper Script Contract
+
+Bundled helpers under `agent-skills/<skill>/scripts/` share one CLI contract:
+
+- Python 3 with `argparse`, invoked as `python` (use `python3` when `python` is unavailable).
+- Forward-slash relative paths from the repo root work the same way on Windows PowerShell and POSIX shells (Linux/macOS).
+- `--json` prints one machine-readable JSON object to stdout; without it, the helper prints concise human-readable text or Markdown.
+- The JSON object always includes `valid` (bool) plus `message` and/or `findings`; other keys are skill-specific evidence.
+- Exit code `0` means valid/success; a non-zero exit code means invalid, failed, or blocked.
+- Helpers only collect or validate evidence and never edit project files, unless the skill explicitly documents a flag such as `--initialize`.
+
 ## Prompt And Context Pattern
 
 For `hybrid`, `low-llm`, and `heavy-llm` skills, keep LLM-facing prompts cache-friendly without forcing large templates onto small tasks.

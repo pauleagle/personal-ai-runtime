@@ -13,11 +13,13 @@ Run one short-lived bounded job and return a structured result that can be valid
 
 When the subagent job is represented as a local JSON contract, validate the contract before launching or evaluating the worker:
 
-```powershell
+```sh
 python agent-skills/atomic-subagent-runner/scripts/validate_subagent_job_contract.py path/to/job.json --json
 ```
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape. The helper checks required fields, non-empty context and validation fields, allowed/forbidden scope shape, likely hidden chat-history dependency, and whether state patch or merge gate governance is declared. Use LLM judgement after this deterministic check to decide whether the job is small enough, semantically safe, and ready to run.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+The helper checks required fields, non-empty context and validation fields, allowed/forbidden scope shape, likely hidden chat-history dependency, and whether state patch or merge gate governance is declared. Use LLM judgement after this deterministic check to decide whether the job is small enough, semantically safe, and ready to run.
 
 ## Prompt / Handoff Contract
 
@@ -80,14 +82,18 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- job result
-- consumed stable prefix / dynamic run packet, when provided
-- consumed artifacts
-- produced artifacts
-- validation result
-- state patch proposal
-- unresolved gaps
-- retry or blocked note
-- human decision required
+```md
+### Subagent Job Report
+
+- job result:
+- consumed stable prefix / dynamic run packet, when provided:
+- consumed artifacts:
+- produced artifacts:
+- validation result:
+- state patch proposal:
+- unresolved gaps:
+- retry or blocked note:
+- human decision required:
+```

@@ -15,6 +15,24 @@ Before semantic review, collect deterministic evidence that is available for the
 
 Use LLM judgement for the actual adversarial review: hidden assumptions, edge cases, compatibility risk, migration cost, overdesign, and whether an objection should block atomic decomposition.
 
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `devils-advocate-review`
+- Execution Profile: `heavy-llm`
+- Reusable Rules: objections use IDs in the form `DA-[scope]-[number]` (e.g. `DA-P0-001`); objections are review findings, not final decisions; include at least one compatibility or replacement check for major behavior changes; distinguish risks from style preferences.
+- Scope / Governance Defaults: no implementation here; no atomic decomposition while blocking objections remain unresolved; no broad speculative objections without an actionable consequence.
+- Output Contract: see the `### Devil's Advocate Review Report` template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
+
 ## Workflow
 
 1. Read the draft plan/spec, scope, non-goals, acceptance criteria, architecture constraints, and known risks.
@@ -52,12 +70,18 @@ Check that each objection has:
 
 ## Output
 
-Report:
+Use this report template:
 
-- numbered objections
-- hidden assumptions
-- compatibility or replacement concerns
-- testing or mutation concerns
-- simplification proposals
-- blocking status
-- recommended drill-down order
+```md
+### Devil's Advocate Review Report
+
+| ID | Severity | Spec Scope | Risk | Why It Matters | Required Action | Blocks Decomposition? |
+| --- | --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  |  |  |
+
+- Hidden assumptions:
+- Compatibility or replacement concerns:
+- Testing or mutation concerns:
+- Simplification proposals:
+- Recommended drill-down order:
+```

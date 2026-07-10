@@ -13,13 +13,31 @@ Interpret validation results to decide whether tests are effective, weak, incomp
 
 Before classifying effectiveness, extract deterministic evidence from available test or mutation result artifacts:
 
-```powershell
-python agent-skills\test-effectiveness-evaluation\scripts\collect_validation_result_evidence.py --json <result-file> [<result-file> ...]
+```sh
+python agent-skills/test-effectiveness-evaluation/scripts/collect_validation_result_evidence.py --json <result-file> [<result-file> ...]
 ```
 
 The helper reads text result files, detects unittest run counts and pass/fail status, and extracts mutation term counts such as `killed`, `survived`, `equivalent`, `skipped`, and `blocked`. It does not decide whether a survived mutation is a test gap, spec gap, implementation issue, or equivalent mutation; use LLM judgement for that classification after evidence is collected.
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `test-effectiveness-evaluation`
+- Execution Profile: `hybrid`
+- Reusable Rules: passing tests alone do not prove effectiveness; survived mutation is a gap until classified; do not promote generated tests without evidence; distinguish test weakness from spec ambiguity.
+- Scope / Governance Defaults: do not edit tests or code unless explicitly asked; do not decide human governance questions; do not hide flaky or inconclusive results.
+- Output Contract: see the Test Effectiveness Report template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -58,13 +76,17 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- effective tests
-- weak tests
-- candidate tests
-- survived mutation classification
-- validation gaps
-- recommended improvements
-- promotion recommendation
-- human decision needed
+```md
+### Test Effectiveness Report
+
+- Effective Tests:
+- Weak Tests:
+- Candidate Tests:
+- Survived Mutation Classification:
+- Validation Gaps:
+- Recommended Improvements:
+- Promotion Recommendation:
+- Human Decision Needed:
+```

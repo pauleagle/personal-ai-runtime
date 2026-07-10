@@ -60,13 +60,13 @@ The helper is the deterministic evidence collector for this skill. Use LLM judgm
 4. Do not rely only on `git -C <project-root> rev-parse --show-toplevel`; it may report the parent workspace repository.
 5. If `.git` is missing and the task is actively editing or organizing that child project, run the helper with `-Initialize` or run:
 
-```powershell
+```sh
 git -C <project-root> init
 ```
 
 6. After checking or initializing, ensure the resulting status was captured by the helper or run:
 
-```powershell
+```sh
 git -C <project-root> status --short
 ```
 

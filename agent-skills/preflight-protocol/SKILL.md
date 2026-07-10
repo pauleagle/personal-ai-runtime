@@ -42,6 +42,16 @@ Do not use this skill for very small, low-risk tasks, such as:
 
 Before outputting the preflight, read or search files when needed to understand the task. Keep this discovery read-only.
 
+When the task concerns an existing repo or in-flight changes, ground the preflight with deterministic read-only evidence first:
+
+```sh
+python agent-skills/diff-analysis/scripts/collect_git_diff_evidence.py --repo-root . --json
+```
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+This evidence feeds the "Known inputs / constraints", "Risks", and "Files likely to be touched" sections below; targeted file reads and `rg` remain the evidence layer for structure facts.
+
 Do not modify files, run destructive commands, make architecture decisions, or start implementation before the preflight unless the user has explicitly skipped preflight.
 
 ## Required Preflight Output

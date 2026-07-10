@@ -15,9 +15,11 @@ Turn `agent-playbooks/` workflows into concise Codex skills while keeping playbo
 
 For routine README inventory and mapping checks, run the bundled audit helper before semantic alignment review:
 
-```powershell
-python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json
+```sh
+python agent-skills/playbook-to-skill/scripts/audit_skill_inventory.py --repo-root . --json
 ```
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
 
 The helper parses `agent-playbooks/README.md` and `agent-skills/README.md`, checks allowed status/profile values, confirms mapped files exist, validates `SKILL.md` frontmatter names against folder names, and warns when a skill has `scripts/` without Windows plus Linux/POSIX/macOS invocation guidance or a documented platform limitation.
 
@@ -26,6 +28,24 @@ Before semantic judgement, use deterministic checks for facts that commands can 
 Use LLM reasoning for extraction strategy, semantic alignment, gap classification, and recommendations after those facts are collected.
 
 When adding reusable skill scripts, support Windows and Linux by default. Prefer one portable implementation, such as Python, with thin PowerShell and POSIX shell wrappers when wrapper ergonomics help. If a script cannot be cross-platform, document the limitation and validation gap in the skill.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `playbook-to-skill`
+- Execution Profile: `hybrid`
+- Reusable Rules: do not compress a multi-phase, multi-trigger playbook into one skill; extract a child skill only when it has its own trigger, responsibility, workflow, validation, and output contract; never copy full playbook text into a skill; each skill omits background stories, design history, and unstable ideas.
+- Scope / Governance Defaults: report assessment and extraction mode only unless the user clearly asked to modify files; update README mappings only when status, mapping, or description actually changes; follow README Sync status rules (`draft` / `skill-extracted` / `aligned` / `aligned-with-followups` / `deprecated`).
+- Output Contract: `### Playbook To Skill Report` template (see `## Output`).
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 
@@ -127,17 +147,21 @@ After edits:
 3. Check that each `description` states concrete trigger scenarios.
 4. Check that each skill is shorter and more command-oriented than the playbook.
 5. Check one-to-many README mappings and status rules.
-6. Run `quick_validate.py` when available.
+6. Run `python agent-skills/playbook-to-skill/scripts/audit_skill_inventory.py --repo-root . --json` and confirm `valid` is true; when helper scripts changed, also run `python -m unittest discover -s tests/agent_skills -q`.
 
 ## Output
 
-When reporting results, include:
+Use this report template:
 
-- Playbook Assessment
-- Extraction Mode
-- Extraction Strategy
-- Extraction Map, when relevant
-- Files changed
-- README updates
-- Validation result
-- Open questions
+```md
+### Playbook To Skill Report
+
+- Playbook Assessment:
+- Extraction Mode:
+- Extraction Strategy:
+- Extraction Map, when relevant:
+- Files changed:
+- README updates:
+- Validation result:
+- Open questions:
+```

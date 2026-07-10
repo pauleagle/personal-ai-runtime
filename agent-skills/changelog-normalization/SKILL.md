@@ -13,11 +13,29 @@ description: Normalize, inspect, or clean up CHANGELOG.md files into versioned, 
 
 Before semantic cleanup, collect deterministic changelog structure evidence when a local file is available:
 
-```powershell
+```sh
 python agent-skills/changelog-normalization/scripts/analyze_changelog_structure.py --repo-root . --changelog CHANGELOG.md --json
 ```
 
-Run the helper from Windows PowerShell or Linux/macOS shells with the same Python command shape. The helper checks file existence, UTF-8 readability, Markdown headings, version sections, ISO dates, category headings, newest-first date order, uncategorized entries, and likely TODO / commit-log / AI residue. Use LLM judgement only after this evidence to decide what to keep, merge, move, rewrite, remove, or ask the user about.
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable. The helper checks file existence, UTF-8 readability, Markdown headings, version sections, ISO dates, category headings, newest-first date order, uncategorized entries, and likely TODO / commit-log / AI residue. Use LLM judgement only after this evidence to decide what to keep, merge, move, rewrite, remove, or ask the user about.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `changelog-normalization`
+- Execution Profile: `low-llm`
+- Reusable Rules: do not invent version numbers, dates, features, or fixes; keep latest versions at the top with one section per version; categorize changes by type; forbidden edits are pasting commit-log or AI conversation text verbatim and leaving temporary TODOs; allowed edits are keep/merge/move/rewrite/remove entries and placing unclear ownership under `Unreleased`.
+- Scope / Governance Defaults: edit only when the user asked to normalize, clean up, rewrite, or apply changes and version ownership plus deletion scope are clear; otherwise report the proposed strategy or ask before destructive changes.
+- Output Contract: `## Assessment Output` template.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
 
 ## Workflow
 

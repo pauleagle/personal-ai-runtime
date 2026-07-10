@@ -9,6 +9,36 @@ description: Use when a revised spec is ready to split into selected workflow sl
 
 Split a revised spec into implementation-sized atomic items that can be independently executed, tested, reviewed, committed, and advanced through the spec-driven workflow.
 
+## Script-First Execution
+
+Read the revised spec and the Devil's Advocate gate result directly from their artifacts. When a durable orchestrator state artifact exists as JSON, validate it first:
+
+```sh
+python agent-skills/orchestrator-state-machine/scripts/validate_orchestrator_state.py path/to/state.json --json
+```
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+Use LLM judgement only for slicing, dependency edges, and item design.
+
+## Prompt Contract
+
+Stable prefix:
+
+- Skill: `workflow-atomic-decomposition`
+- Execution Profile: `heavy-llm`
+- Reusable Rules: atomic items describe verifiable behavior or contracts, not just file lists; each item must be small enough to implement, test, review, and commit alone; dependency edges must be explicit; replacement, migration, and compatibility work become explicit items when behavior changes.
+- Scope / Governance Defaults: no implementation of items here; do not turn future ideas into accepted work without human approval; do not rely on chat order as dependency metadata.
+- Output Contract: see the `### Workflow Atomic Decomposition Report` template under `## Output`.
+
+Dynamic run packet:
+
+- User Request:
+- Deterministic Evidence:
+- Relevant Files Or Artifacts:
+- Current Assumptions Or Gaps:
+- Requested Judgement Or Transformation:
+
 ## Workflow
 
 1. Read the revised spec, accepted scope, non-goals, Devil's Advocate gate result, and open questions.
@@ -51,16 +81,23 @@ Check:
 
 ## Output
 
-Report:
+Use this report template:
 
-- main workflow map
-- candidate workflow slices
-- selected workflow
-- atomic items
-- dependency graph
-- bootstrap prerequisite items
-- replacement, compatibility, or migration items
-- deferred items
-- gap classification
-- gap/no-gap continuation decision
-- next orchestrator state patch
+```md
+### Workflow Atomic Decomposition Report
+
+| ID | Title | Status | Spec Refs | Dependencies | Validation | Completion Criteria |
+| --- | --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  |  |  |
+
+- Main workflow map:
+- Candidate workflow slices:
+- Selected workflow:
+- Dependency graph:
+- Bootstrap prerequisite items:
+- Replacement, compatibility, or migration items:
+- Deferred items:
+- Gap classification:
+- Gap/no-gap continuation decision:
+- Next orchestrator state patch:
+```
