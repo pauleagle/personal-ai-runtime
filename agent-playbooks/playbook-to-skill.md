@@ -46,9 +46,11 @@ Skill 不應保留：
 
 例行 README inventory 與 mapping 檢查應先跑 audit helper：
 
-```powershell
-python agent-skills\playbook-to-skill\scripts\audit_skill_inventory.py --repo-root . --json
+```sh
+python agent-skills/playbook-to-skill/scripts/audit_skill_inventory.py --repo-root . --json
 ```
+
+此命令形式在 Windows PowerShell 與 POSIX shell(Linux/macOS)皆可直接使用；`python` 不可用時改用 `python3`。
 
 這個 helper 會解析 `agent-playbooks/README.md` 與 `agent-skills/README.md`，檢查 status / profile 是否屬於允許值、對應 playbook / skill 檔案是否存在、`SKILL.md` frontmatter 的 `name` 是否和資料夾名稱一致，並在 skill 有 `scripts/` 但未記錄 Windows 加 Linux/POSIX/macOS invocation coverage 或平台限制時提出 warning。
 
@@ -74,6 +76,38 @@ LLM 應保留給：
 - 判斷 workflow、rules、output contract 是否語意對齊
 - 評估是否需要 single-skill、multi-skill 或 orchestrator-plus-children
 - 產生 extraction strategy、gap analysis 與 human-readable recommendation
+
+## Skill 品質注意事項
+
+Skill 會透過 `scripts/sync-agent-skills-to-agents.sh` symlink 同步給多個 agent 使用，萃取或維護 skill 時應避免以下常見缺陷。
+
+### 1. 工具引用存在性
+
+SKILL.md 內任何要求 agent 執行的 validator 或 script，其路徑必須存在於本 repo 內，不可只存在於單一 agent 的私有系統目錄（例如 Codex 的 `~/.codex/skills/.system/...`）；因為 skill 會同步給多個 agent（例如 Codex 與 Claude Code），單一 agent 的私有工具對其他 agent 並不存在。標準驗證命令為 `agent-skills/playbook-to-skill/scripts/audit_skill_inventory.py --repo-root . --json` 與 `python3 -m unittest discover -s tests/agent_skills -q`。
+
+### 2. 命令範例可攜性
+
+SKILL.md 的命令範例（英文撰寫）應使用 forward slash 相對路徑與 `sh` fence，並在範例後附上這句可攜性說明原文（照抄，因為 SKILL.md 為英文）：
+
+Run the helper from Windows PowerShell or a POSIX shell (Linux/macOS) with the same command shape; use `python3` when `python` is unavailable.
+
+純 Windows-only 的 `.ps1` wrapper 呼叫可例外維持 `powershell` fence 與反斜線路徑。audit helper 會用關鍵字比對，檢查 SKILL.md 是否同時出現 Windows/PowerShell 與 Linux/POSIX/macOS 字樣。
+
+### 3. Script-First 全 profile 適用
+
+`agent-skills/README.md` 訂的 script-first minimization 原則適用於每個 execution profile，heavy-llm 也不例外；hybrid、low-llm、heavy-llm skill 都應有一段 Script-First 相關 section。優先引用既有的 sibling helper（例如 diff-analysis、impact-analysis、mutation-testing 的 collector），或用純檔案讀取加上 targeted `rg` 取代人工判斷；不應只為了填這個 section 而新增不必要的 script。
+
+### 4. Output 模板化
+
+`## Output` 或建議輸出格式不應只是鬆散條列；應提供可直接複製的 fenced `md` 模板，標題為 `### <Skill Title> Report`，每個欄位一行 `- Field:`。本質上是表格的輸出（例如 objection 清單、resolution table、promotion table、test matrix、atomic item 清單）應直接給出 explicit table columns。若同時派多個 agent 平行套用這個模板慣例，須事先講清楚欄位命名的大小寫慣例，否則不同檔案容易出現 Title Case 與 sentence case 混用。
+
+### 5. Prompt Contract 鋪開與豁免
+
+hybrid、low-llm、heavy-llm skill 應附上精簡的 `## Prompt Contract`（不超過 18 行）：stable prefix 涵蓋 Skill / Execution Profile / Reusable Rules / Scope Governance Defaults / Output Contract；dynamic run packet 涵蓋 User Request / Deterministic Evidence / Relevant Files Or Artifacts / Current Assumptions Or Gaps / Requested Judgement Or Transformation。`script` profile skill 不應加入 Prompt Contract；skill 過小、或輸出模板本身已能扮演 prompt contract 角色時可以豁免，但須記錄豁免理由。
+
+### 6. Helper Script Contract 遵循
+
+新增 helper script 應遵循 `agent-skills/README.md` 的 Helper Script Contract 小節：Python 3 + argparse，`--json` 輸出單一 JSON object，內含 `valid`（bool）與 `message` 和/或 `findings`；exit code 0 代表 valid/success，非 0 代表 invalid/failed/blocked；helper 只負責蒐集與驗證證據，除非明確記錄如 `--initialize` 的旗標，否則不應修改專案檔案。
 
 ## 適用時機
 
@@ -297,6 +331,7 @@ agent 在執行 playbook-to-skill 時，應先判斷使用者要的是：
 - playbook 與 skill 是否保留相同核心意圖
 - root/orchestrator skill 與 child skills 的責任是否清楚
 - `agent-playbooks/README.md` 與 `agent-skills/README.md` 對照表是否需要更新
+- skill 引用的 script、validator 或命令是否存在於 repo 內，且命令範例是否符合跨平台可攜規範
 
 ## 標準 Prompt
 
